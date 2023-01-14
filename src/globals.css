@@ -1,0 +1,41 @@
+:root {
+    --primary-dark: #1d3161;
+    --primary: #1d52aa;
+    --primary-accent: #2b5dad;
+    --white: #f0f8ff;
+    --gray: #d2d2dd;
+    --gray-dark: #817b7b;
+}
+
+@font-face {
+    font-family: Minecraftia;
+    font-weight: normal;
+    font-style: normal;
+    src: url('/fonts/MinecraftRegular.otf') format("opentype");
+}
+
+@font-face {
+    font-family: Minecraftia;
+    font-weight: normal;
+    font-style: italic;
+    src: url('/fonts/MinecraftItalic.otf') format("opentype");
+}
+
+@font-face {
+    font-family: Minecraftia;
+    font-weight: bold;
+    font-style: normal;
+    src: url('/fonts/MinecraftBold.otf') format("opentype");
+}
+
+@font-face {
+    font-family: Minecraftia;
+    font-weight: bold;
+    font-style: italic;
+    src: url('/fonts/MinecraftBoldItalic.otf') format("opentype");
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
