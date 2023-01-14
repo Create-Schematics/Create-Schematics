@@ -27,6 +27,7 @@
     @import '../globals.css';
 
 	:global(body) {
+		font-family: 'Minecraftia';
 		margin: 0;
 		padding: 0;
 		overflow: hidden;
