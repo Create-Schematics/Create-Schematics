@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-	<title>Three.js Sveltekit</title>
+	<title>Create Schematics</title>
 	<meta name="description" content="Three.js example app built with Svelte" />
 </svelte:head>
 
