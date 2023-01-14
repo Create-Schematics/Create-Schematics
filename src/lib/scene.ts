@@ -4,15 +4,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1d3161)
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-
-const geometry = new THREE.BoxGeometry();
-
-const material = new THREE.MeshStandardMaterial({
-	color: 0xff0000,
-	metalness: 0.5
-});
+var camera = new THREE.OrthographicCamera(
+	-(window.innerWidth),
+	(window.innerWidth),
+	(window.innerHeight),
+	-(window.innerHeight),
+	0.1,
+	100
+  );
+camera.position.z = 10;
+camera.zoom = 100;
 
 var loader = new GLTFLoader();
 let table: THREE.Scene;
@@ -20,14 +21,22 @@ let mesh;
 
 loader.load("/models/schematic_table.gltf", (model) => {
 	mesh = model.scene;
-	mesh.scale.set(2, 2, 2);
+	mesh.scale.set(5, 5, 5);
+	mesh.position.z = 0;
     table = scene.add(model.scene);
 }, undefined, (error) => {
     console.error( error );
 })
 
+const geometry = new THREE.BoxGeometry(10, 10, 10);
+
+const material = new THREE.MeshStandardMaterial({
+	color: 0xff0000,
+	metalness: 0.5
+});
 
 const cube = new THREE.Mesh(geometry, material);
+cube.position.z = -10;
 scene.add(cube);
 
 const directionalLight = new THREE.DirectionalLight(0x9090aa);
@@ -45,12 +54,14 @@ const animate = () => {
 	cube.rotation.x += 0.01;
 	cube.rotation.y += 0.01;
 
+	table.rotation.x = Math.PI / 4;
+	table.rotation.y = Math.PI / 4;
+
 	renderer.render(scene, camera);
 };
 
 const resize = () => {
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 };
 
