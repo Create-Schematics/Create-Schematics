@@ -16,9 +16,12 @@
 </svelte:head>
 
 <div class='title'>
-	Create: <br/>Schematics
+	<div>
+		<a>Create: <br/>Schematics</a>
+	</div>
 	<hr class="lineDrawToRight"/>
-	<button on:click={panToTable}>Test</button>
+
+	<br/>
 </div>
 
 <div class='links'>
@@ -27,6 +30,7 @@
 			<img style:width = "30px" style:margin-bottom=20px src={link.image} alt='{link.name}'/>
 		</a>
 	{/each}
+	<button on:click={panToTable}>Test</button>
 </div>
 
 <canvas bind:this={el} />
@@ -48,15 +52,50 @@
 	.title {
 		@extend .overlay-element;
 		text-align: left;
+	}
+
+	.title > div > a {
+		box-sizing: border-box;
 		font-size: 3.5em;
+		color: var(--primary);
+		-webkit-text-stroke: 0.1vw var(--primary);
+
+		&::before {
+			box-sizing: border-box;
+			content: 'Create: Schematics';
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			color: var(--white);
+			overflow: hidden;
+			-webkit-text-stroke: 0vw var(--gray);
+			border-right: 2px solid #00000000;
+			animation: slide-text 3s cubic-bezier(0.45, 0, 0.55, 1);
+		}
 	}
 
 	.title > hr {
 		margin: 0;
 		margin-top: 10px;
-		width: 80%;
+		width: 100%;
 		/*https://easings.net/#easeInOutQuad*/
 		animation: -line-draw-to-right 3s cubic-bezier(0.45, 0, 0.55, 1);
+	}
+
+	@keyframes slide-text {
+		0% {
+			width: 0;
+			border-right-color: var(--primary-accent);
+		}
+		90% {
+			border-right-color: var(--primary-accent);
+		}
+		100% {
+			width: 100%;
+			border-right-color: #00000000;
+		}
 	}
 
 	@keyframes -line-draw-to-right {
@@ -64,7 +103,16 @@
 			width: 0;
 		}
 		100% {
-			width: 80%;
+			width: 100%;
+		}
+	}
+
+	@keyframes fade-in-left {
+		from {
+			left: 0;
+		}
+		to {
+			left: 100%;
 		}
 	}
 
