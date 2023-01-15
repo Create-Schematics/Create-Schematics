@@ -1,11 +1,12 @@
 # Create Schematics (Rewritten)
-Our Related Projects [ Backend ], [ Companion Mod ]
+Our Related Projects [ Backend ], [ Companion Mod ] <br/>
 View The Site - createschematics.com [Currently shows coming soon page]
 <hr/>
 Create schematics front-end is built with Sveltekit and Three.js with Typescript. For a more detailed explanation on how things work in general, check out their respective docs <a>Svelte</a>, <a>SvelteKit</a>, <a>Three.js</a>.
 <hr/>
 ### Development
 Once you've cloned the project and installed dependencies with npm install (or pnpm install or yarn), start a development server:
+
 ```
 # start the server and open the app in a new browser tab
 npm run dev -- --open
