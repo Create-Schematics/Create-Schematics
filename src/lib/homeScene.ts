@@ -49,13 +49,10 @@ scene.add(light.target);
 
 let controls: OrbitControls; 
 
-function easeInQuadratic(t: number) {
-  return t * t;
-}
-
-const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, duration: number) => {
+const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, newFov: number,  duration: number) => {
   let position = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
   let rotation = { x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z };
+  let fov = { fov: camera.fov };
   
   let tween = new TWEEN.Tween(position)
       .to({ x: point.x, y: point.y, z: point.z }, duration)
@@ -68,6 +65,14 @@ const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3,
       .to({ x: angle.x, y: angle.y, z: angle.z }, duration)
       .onUpdate(() => {
           camera.rotation.set(rotation.x, rotation.y, rotation.z);
+      })
+      .start();
+
+    let zoomTween = new TWEEN.Tween(fov)
+      .to({ fov: newFov }, duration)
+      .onUpdate(() => {
+          camera.fov = fov.fov;
+          camera.updateProjectionMatrix();
       })
       .start();
 }
@@ -85,7 +90,9 @@ export function panToTable() {
         x: -Math.PI/2,
         y: 0,
         z: 0,
-      }, 2000
+      }, 
+      25,
+      2000,
     );
 
 }
