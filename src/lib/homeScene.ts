@@ -13,7 +13,7 @@ scene.background = new THREE.Color(0x1d3161)
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 camera.position.y = 2;
-// camera.position.x = 2;
+camera.position.x = 2;
 
 
 loader.load("/models/schematic_table.gltf", (model) => {
@@ -82,9 +82,9 @@ export function panToTable() {
         -0.25
       ), 
       {
-        x: 0,
-        y: 0.5,
-        z: -0.5,
+        x: -Math.PI/2,
+        y: 0,
+        z: 0,
       }, 2000
     );
 
