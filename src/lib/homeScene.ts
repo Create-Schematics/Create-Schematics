@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Rot3 } from './types';
@@ -11,7 +12,9 @@ scene.background = new THREE.Color(0x1d3161)
 
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-camera.position.y  = 2;
+camera.position.y = 2;
+// camera.position.x = 2;
+
 
 loader.load("/models/schematic_table.gltf", (model) => {
 	table = model.scene;
@@ -50,51 +53,46 @@ function easeInQuadratic(t: number) {
   return t * t;
 }
 
-const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, frames: number, rotationFrameOffset: number) => {
-  let stepX = (point.x - camera.position.x) / frames;
-  let stepY = (point.y - camera.position.y) / frames;
-  let stepZ = (point.z - camera.position.z) / frames;
-
-  let angleStepX = (angle.x - camera.rotation.x) / (frames-rotationFrameOffset);
-  let angleStepY = (angle.y - camera.rotation.y) / (frames-rotationFrameOffset);
-  let angleStepZ = (angle.z - camera.rotation.z) / (frames-rotationFrameOffset);
-
-  let currentFrame = 0;
-  let intervalId = setInterval(() => {
-      camera.position.x += stepX;
-      camera.position.y += stepY;
-      camera.position.z += stepZ;
-
-      if (currentFrame > rotationFrameOffset) {
-        camera.rotation.x += angleStepX;
-        camera.rotation.y += angleStepY;
-        camera.rotation.z += angleStepZ;
-      }
-
-      currentFrame++;
-      if (currentFrame >= frames) {
-          clearInterval(intervalId);
-      }
-  }, 1000/60);
+const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, duration: number) => {
+  let position = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+  let rotation = { x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z };
+  
+  let tween = new TWEEN.Tween(position)
+      .to({ x: point.x, y: point.y, z: point.z }, duration)
+      .onUpdate(() => {
+          camera.position.set(position.x, position.y, position.z);
+      })
+      .start();
+  
+  let rotationTween = new TWEEN.Tween(rotation)
+      .to({ x: angle.x, y: angle.y, z: angle.z }, duration)
+      .onUpdate(() => {
+          camera.rotation.set(rotation.x, rotation.y, rotation.z);
+      })
+      .start();
 }
 
 export function panToTable() {
   panCameraToPoint(
     camera,
-    new THREE.Vector3(
-      camera.position.x,
-      camera.position.y,
-      -0.2
-    ), 
-    {
-      x: -Math.PI/2,
-      y: camera.rotation.y,
-      z: camera.rotation.z
-    }, 300, 0);
+    new THREE.Vector3
+      (
+        0,
+        2,
+        -0.25
+      ), 
+      {
+        x: 0,
+        y: 0.5,
+        z: -0.5,
+      }, 2000
+    );
+
 }
 
 const animate = () => {
   requestAnimationFrame(animate);
+  TWEEN.update();
   renderer.render(scene, camera);
 };
 
