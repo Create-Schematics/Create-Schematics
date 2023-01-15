@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Rot3 } from './types';
 import { writable } from 'svelte/store';
 
@@ -13,8 +12,13 @@ scene.background = new THREE.Color(0x1d3161)
 
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+
+
+camera.lookAt(-0.6, -0.6, -1.6)
+
 camera.position.y = 2;
 camera.position.x = 2;
+camera.position.z = 5;
 
 
 loader.load("/models/schematic_table.gltf", (model) => {
@@ -38,7 +42,6 @@ plane.rotation.z = Math.PI / 4;
 scene.add(plane);
 
 let renderer: any;
-camera.position.z = 5;
 
 const color = 0xffffff;
 const intensity = 2.5;
@@ -47,8 +50,6 @@ light.position.set(0, 8, 3);
 light.target.position.set(0, 2, 0);
 scene.add(light);
 scene.add(light.target);
-
-let controls: OrbitControls; 
 
 const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, newFov: number,  duration: number, resolve: any) => {
   let position = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
@@ -112,8 +113,6 @@ const resize = () => {
   renderer.setSize(window.innerWidth, window.innerHeight)
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
-  controls = new OrbitControls(camera, renderer.domElement);
 };
 
 export const createScene = (el: any) => {
