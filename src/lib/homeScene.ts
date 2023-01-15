@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import type { Rot3 } from './types';
 
 var loader = new GLTFLoader();
 let table: THREE.Group;
 
 const scene = new THREE.Scene();
-scene.rotateY(Math.PI*0)
 scene.background = new THREE.Color(0x1d3161)
 
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -17,12 +17,12 @@ loader.load("/models/schematic_table.gltf", (model) => {
 	table = model.scene;
 	table.scale.set(1, 1, 1);
 	table.position.z = -0.75;
-    table.position.y = -0.5;
-    table.position.x = -0.5;
+  table.position.y = -0.5;
+  table.position.x = -0.5;
 
-    scene.add(model.scene);
+  scene.add(model.scene);
 }, undefined, (error) => {
-    console.error( error );
+  console.error( error );
 })
 
 var planeGeometry = new THREE.PlaneGeometry(2, 2);
@@ -44,6 +44,55 @@ light.target.position.set(0, 2, 0);
 scene.add(light);
 scene.add(light.target);
 
+let controls: OrbitControls; 
+
+function easeInQuadratic(t: number) {
+  return t * t;
+}
+
+const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, frames: number, rotationFrameOffset: number) => {
+  let stepX = (point.x - camera.position.x) / frames;
+  let stepY = (point.y - camera.position.y) / frames;
+  let stepZ = (point.z - camera.position.z) / frames;
+
+  let angleStepX = (angle.x - camera.rotation.x) / (frames-rotationFrameOffset);
+  let angleStepY = (angle.y - camera.rotation.y) / (frames-rotationFrameOffset);
+  let angleStepZ = (angle.z - camera.rotation.z) / (frames-rotationFrameOffset);
+
+  let currentFrame = 0;
+  let intervalId = setInterval(() => {
+      camera.position.x += stepX;
+      camera.position.y += stepY;
+      camera.position.z += stepZ;
+
+      if (currentFrame > rotationFrameOffset) {
+        camera.rotation.x += angleStepX;
+        camera.rotation.y += angleStepY;
+        camera.rotation.z += angleStepZ;
+      }
+
+      currentFrame++;
+      if (currentFrame >= frames) {
+          clearInterval(intervalId);
+      }
+  }, 1000/60);
+}
+
+export function panToTable() {
+  panCameraToPoint(
+    camera,
+    new THREE.Vector3(
+      camera.position.x,
+      camera.position.y,
+      -0.2
+    ), 
+    {
+      x: -Math.PI/2,
+      y: camera.rotation.y,
+      z: camera.rotation.z
+    }, 300, 0);
+}
+
 const animate = () => {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
@@ -54,7 +103,7 @@ const resize = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
-  var controls = new OrbitControls(camera, renderer.domElement);
+  controls = new OrbitControls(camera, renderer.domElement);
 };
 
 export const createScene = (el: any) => {
@@ -62,5 +111,6 @@ export const createScene = (el: any) => {
   resize();
   animate();
 }
+
 
 window.addEventListener('resize', resize);

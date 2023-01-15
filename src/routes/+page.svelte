@@ -1,7 +1,7 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { createScene } from '../lib/homeScene';
+	import { createScene, panToTable } from '../lib/homeScene';
 
 	import LINKS from '../data/links';
 	let el: any;
@@ -18,6 +18,7 @@
 <div class='title'>
 	Create: <br/>Schematics
 	<hr class="lineDrawToRight"/>
+	<button on:click={panToTable}>Test</button>
 </div>
 
 <div class='links'>
