@@ -3,6 +3,7 @@ import * as TWEEN from '@tweenjs/tween.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Rot3 } from './types';
+import { writable } from 'svelte/store';
 
 var loader = new GLTFLoader();
 let table: THREE.Group;
@@ -49,7 +50,7 @@ scene.add(light.target);
 
 let controls: OrbitControls; 
 
-const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, newFov: number,  duration: number) => {
+const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3, angle: Rot3, newFov: number,  duration: number, resolve: any) => {
   let position = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
   let rotation = { x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z };
   let fov = { fov: camera.fov };
@@ -68,33 +69,37 @@ const panCameraToPoint = (camera: THREE.PerspectiveCamera, point: THREE.Vector3,
       })
       .start();
 
-    let zoomTween = new TWEEN.Tween(fov)
-      .to({ fov: newFov }, duration)
-      .onUpdate(() => {
-          camera.fov = fov.fov;
-          camera.updateProjectionMatrix();
-      })
-      .start();
+  let zoomTween = new TWEEN.Tween(fov)
+    .to({ fov: newFov }, duration)
+    .onUpdate(() => {
+        camera.fov = fov.fov;
+        camera.updateProjectionMatrix();
+    })
+    .start();
+
+  zoomTween.onComplete(() => {
+    resolve();
+  })
 }
 
 export function panToTable() {
-  panCameraToPoint(
-    camera,
-    new THREE.Vector3
-      (
-        0,
-        2,
-        -0.25
-      ), 
-      {
+  return new Promise((resolve) => {
+    panCameraToPoint(
+      camera,
+      new THREE.Vector3 (
+          0,
+          2,
+          -0.25
+      ), {
         x: -Math.PI/2,
         y: 0,
         z: 0,
       }, 
-      25,
-      2000,
-    );
-
+        25,
+        2000,
+        resolve
+      );
+  });
 }
 
 const animate = () => {
