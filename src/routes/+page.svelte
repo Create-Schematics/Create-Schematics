@@ -24,7 +24,7 @@
 
 <div class='title'>
 	<div>
-		<a>Create: <br/>Schematics</a>
+		<a>Create: <br/>Schematics</a> <sub>.com</sub>
 	</div>
 	<hr class="lineDrawToRight"/>
 	<br/>
@@ -59,6 +59,7 @@
 		background-color: var(--primary);
 		overflow: hidden;
 		animation: slide-in-from-top 2s;
+		box-shadow: 0 20px 50px black;
 	}
 
 	.overlay-element {
