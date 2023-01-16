@@ -2,17 +2,22 @@ import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import type { Rot3 } from './types';
-import { writable } from 'svelte/store';
-
 var loader = new GLTFLoader();
 let table: THREE.Group;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1d3161)
 
+const mouse = new THREE.Vector2();
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+var raycaster = new THREE.Raycaster();
 
+var buttonGeometery = new THREE.PlaneGeometry(0.1, 0.1);
+var buttonMaterial = new THREE.MeshBasicMaterial({ color: 0xf0f8ff, side: THREE.DoubleSide });
+var button = new THREE.Mesh(buttonGeometery, buttonMaterial);
+scene.add(button)
 
+button.position.y = 1;
 
 camera.lookAt(-0.6, -0.6, -1.6)
 
@@ -103,8 +108,19 @@ export function panToTable() {
   });
 }
 
+function onclick(event: any) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObject(button);
+  if (intersects.length > 0) {
+    alert("Clicked")
+  }
+}
+
 const animate = () => {
   requestAnimationFrame(animate);
+  button.lookAt(camera.position);
   TWEEN.update();
   renderer.render(scene, camera);
 };
@@ -117,9 +133,9 @@ const resize = () => {
 
 export const createScene = (el: any) => {
   renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
+  renderer.domElement.addEventListener("click", onclick, true);
   resize();
   animate();
 }
-
 
 window.addEventListener('resize', resize);
