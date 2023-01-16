@@ -12,12 +12,18 @@ const mouse = new THREE.Vector2();
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
 var raycaster = new THREE.Raycaster();
 
+const textureLoader = new THREE.TextureLoader();
+const texture = textureLoader.load('/home/button-outline.png');
+
 var buttonGeometery = new THREE.PlaneGeometry(0.1, 0.1);
-var buttonMaterial = new THREE.MeshBasicMaterial({ color: 0xf0f8ff, side: THREE.DoubleSide });
+var buttonMaterial = new THREE.MeshStandardMaterial({ map: texture });
+
 var button = new THREE.Mesh(buttonGeometery, buttonMaterial);
 scene.add(button)
 
+button.position.x = 0.15;
 button.position.y = 1;
+button.position.z = 0.25;
 
 camera.lookAt(-0.6, -0.6, -1.6)
 
@@ -112,9 +118,9 @@ function onclick(event: any) {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObject(button);
+  const intersects = raycaster.intersectObjects([button, table]);
   if (intersects.length > 0) {
-    alert("Clicked")
+    panToTable();
   }
 }
 
