@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { createScene, panToTable } from '../lib/homeScene';
+	import IoIosSearch from 'svelte-icons/io/IoIosSearch.svelte'
 
 	import LINKS from '../data/links';
     import Home from '../components/Home.svelte';
@@ -30,6 +31,11 @@
 	<br/>
 </div>
 
+<div class="search-container">
+	<button> <IoIosSearch/> </button>
+	<input class="search-bar" type="text" placeholder="Search..."/>
+</div>
+
 <div class='links'>
 	{#each LINKS as link}
 		<a href={link.link}>
@@ -48,6 +54,44 @@
 <canvas bind:this={el} />
 
 <style lang="scss">
+	.search-container {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: auto;
+		display: flex;
+		flex-direction: row;
+		margin: 30px;
+
+		> button {
+			color: var(--white);
+			border-style: solid;
+			border-radius: 10px;
+			padding: 10px;
+			height: 50px;
+			min-height: 20px;
+			background-color: var(--primary-dark);
+			border-color: var(--white);
+			margin-right: 10px;
+			border-width: 1px;
+		}
+	}
+
+	.search-bar {
+		font-family: 'Minecraftia';
+		font-size: large;
+		background-color: var(--primary-dark);
+		color: var(--white);
+		width: 30%;
+		border-radius: 10px;
+		border-style: solid;
+		border-color: var(--white);
+		padding: 10px;
+		min-height: 1em;
+		min-width: 16em;
+		border-width: 1px;
+	}
+
 	.active-page {
 		position: absolute;
 		margin: auto;
