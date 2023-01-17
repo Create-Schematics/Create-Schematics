@@ -76,7 +76,7 @@
 
 <div class='title'>
 	<div>
-		<a>Create: <br/>Schematics</a> <sub>.com</sub>
+		<a href="/">Create: <br/>Schematics</a> <sub>.com</sub>
 	</div>
 	<hr class="lineDrawToRight"/>
 	<br/>
@@ -205,6 +205,7 @@
 		font-size: 3.5em;
 		color: var(--primary);
 		-webkit-text-stroke: 0.1vw var(--primary);
+		text-decoration: none;
 
 		&::before {
 			box-sizing: border-box;
