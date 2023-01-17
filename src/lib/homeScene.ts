@@ -24,8 +24,6 @@ var buttonMaterial = new THREE.MeshStandardMaterial({
   transparent: true
 });
 
-
-
 var button = new THREE.Mesh(buttonGeometery, buttonMaterial);
 scene.add(button)
 
