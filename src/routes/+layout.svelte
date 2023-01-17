@@ -23,9 +23,10 @@
 		scene.raycaster.setFromCamera(mouse, scene.camera);
 		const intersects = scene.raycaster.intersectObjects([scene.button, scene.table]);
 
-		if (intersects.length > 0)
+		if (intersects.length > 0) {
 			await scene.panToTable();
 			isZoomed = !isZoomed;
+		}
 	}
 
 	const animate = () => {
