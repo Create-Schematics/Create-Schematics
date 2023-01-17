@@ -46,44 +46,45 @@ function panCameraToPoint( camera: THREE.PerspectiveCamera, point: THREE.Vector3
 	});
   }
 
-class Scene {
-	private isOverTable: boolean = false;
+export default class Scene {
+	public isOverTable: boolean = false;
+	public shouldAnimate: boolean = true;
 
-	private scene: THREE.Scene;
-	private camera: THREE.PerspectiveCamera;
-	private renderer: THREE.WebGLRenderer;
-	private raycaster: THREE.Raycaster;
+	public scene: THREE.Scene;
+	public camera: THREE.PerspectiveCamera;
+	public renderer: THREE.WebGLRenderer;
+	public raycaster: THREE.Raycaster;
 
-	private table: THREE.Group | undefined;
-	private button: THREE.Mesh | undefined;
+	public table: THREE.Group | undefined;
+	public button: THREE.Mesh | undefined;
 
-	private mouse: THREE.Vector2 = new THREE.Vector2;
-
-	private animate() {
-		requestAnimationFrame(this.animate);
-		if (this.button) this.button.lookAt(this.camera.position);
-		TWEEN.update();
-		this.renderer.render(this.scene, this.camera);
-	}
+	public mouse: THREE.Vector2 = new THREE.Vector2;
 
 	constructor(el: any) {
 		this.scene = new THREE.Scene();
-		this.camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.raycaster = new THREE.Raycaster();
 
 		this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
+
+		this.camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+		this.camera.lookAt(-0.6, -0.6, -1.6)
+		this.camera.position.set(2, 2, 5);
+
+		this.raycaster = new THREE.Raycaster();
 
 		this.loadSchematicTable();
 		this.loadRenderedButton();
 
 		this.initialisePlane();
 		this.initialiseLights();
+	}
 
-		this.resize();
-		this.animate();
-
-		window.addEventListener('resize', this.resize);
-		this.renderer.domElement.addEventListener("click", this.onClickEvent, true);
+	public animate(): void {
+		if (!this.shouldAnimate) return;
+		requestAnimationFrame(this.animate);
+		if (this.button) this.button.lookAt(this.camera.position);
+		TWEEN.update();
+		this.renderer.render(this.scene, this.camera);
 	}
 
 	private loadRenderedButton(): void {
@@ -115,6 +116,7 @@ class Scene {
 			this.table.position.z = -0.75;
 			this.table.position.y = -0.5;
 			this.table.position.x = -0.5;
+
 		  	this.scene.add(model.scene);
 		}, undefined, (error) => {
 		  	console.error( error );
@@ -134,6 +136,8 @@ class Scene {
 	}
 
 	private initialiseLights(): void {
+		this.scene.background = new THREE.Color(0x1d3161)
+
 		const color = 0xffffff;
 		const intensity = 2.5;
 		const light = new THREE.DirectionalLight(color, intensity);
@@ -154,7 +158,7 @@ class Scene {
 		);
 	}
 	
-	private onClickEvent(event: any): void {
+	public onClickEvent(event: any): void {
 		if (!(this.button && this.table))
 			return;
 
@@ -165,6 +169,7 @@ class Scene {
 		const intersects = this.raycaster.intersectObjects([this.button, this.table]);
 
 		if (intersects.length > 0)
+			alert("Intersect")
 			this.panToTable();
 			this.isOverTable = !this.isOverTable;
 	}
