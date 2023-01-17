@@ -3,6 +3,8 @@
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
 	import { createScene, panToTable } from '../lib/homeScene';
+	import * as TWEEN from '@tweenjs/tween.js'
+	import Scene from '../lib/scene'
 
     import authStore from '../stores/authStore';
 	import IoIosSearch from 'svelte-icons/io/IoIosSearch.svelte'
@@ -10,13 +12,33 @@
 
 	let isZoomed: boolean = false;
 	let el: any;
+	let scene: Scene;
+
+	const animate = () => {
+		requestAnimationFrame(animate);
+		if (scene.button) scene.button.lookAt(scene.camera.position);
+		TWEEN.update();
+		scene.renderer.render(scene.scene, scene.camera);
+	}
+
+	const resize = () => {
+		scene.renderer.setSize(window.innerWidth, window.innerHeight)
+		scene.camera.aspect = window.innerWidth / window.innerHeight;
+		scene.camera.updateProjectionMatrix();
+	}
 
 	onMount(() => {
-		createScene(el);
+		scene = new Scene(el);
+
+		resize();
+		animate();
+
+		window.addEventListener('resize', resize);
+		scene.renderer.domElement.addEventListener("click", scene.onClickEvent, true);
 	});
 
 	async function panCamera() {
-		await panToTable();
+		// await panToTable();
 		isZoomed = !isZoomed;
 	}
 
