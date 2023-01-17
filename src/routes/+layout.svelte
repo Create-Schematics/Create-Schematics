@@ -69,11 +69,6 @@
 
 </script>
 
-<main>
-	<!-- <slot/> -->
-</main>
-
-
 <svelte:head>
 	<title>Create Schematics</title>
 	<meta name="description" content="Three.js example app built with Svelte" />
@@ -102,7 +97,7 @@
 
 {#if isZoomed}
 	<div class='active-page'> 
-		
+		<slot/>
 	</div>
 {/if}
 
@@ -185,6 +180,10 @@
 		overflow: hidden;
 		animation: slide-in-from-top 2s;
 		box-shadow: 0 20px 50px black;
+		border-style: dashed;
+		border-width: 20px;
+		border-radius: 10px;
+		border-color: var(--primary-accent);
 	}
 
 	.overlay-element {
