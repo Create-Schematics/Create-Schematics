@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import type { Rot3 } from './types';
+import TextGeometry from 'three-text-geometry';
+import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
+
 var loader = new GLTFLoader();
 let table: THREE.Group;
 
@@ -16,7 +19,12 @@ const textureLoader = new THREE.TextureLoader();
 const texture = textureLoader.load('/home/button-outline.png');
 
 var buttonGeometery = new THREE.PlaneGeometry(0.1, 0.1);
-var buttonMaterial = new THREE.MeshStandardMaterial({ map: texture });
+var buttonMaterial = new THREE.MeshStandardMaterial({ 
+  map: texture, 
+  transparent: true
+});
+
+
 
 var button = new THREE.Mesh(buttonGeometery, buttonMaterial);
 scene.add(button)
@@ -24,6 +32,28 @@ scene.add(button)
 button.position.x = 0.15;
 button.position.y = 1;
 button.position.z = 0.25;
+
+const fontLoader = new FontLoader();
+
+fontLoader.load('/fonts/MinecraftRegular.json', (font: Font) => {
+  const textGeometry = new TextGeometry( 'Hello, World!', {
+      font: font,
+      size: 1,
+      height: 0.1,
+      curveSegments: 12,
+      bevelEnabled: true,
+      bevelThickness: 0.1,
+      bevelSize: 0.1,
+      bevelSegments: 1
+    }
+  );
+
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+  const mesh = new THREE.Mesh(textGeometry, material);
+
+  scene.add(mesh);
+})
 
 camera.lookAt(-0.6, -0.6, -1.6)
 
