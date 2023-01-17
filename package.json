@@ -37,6 +37,7 @@
 		"dotenv": "^16.0.3",
 		"firebase": "^9.15.0",
 		"svelte-icons": "^2.1.0",
-		"svelte-select": "^5.0.2"
+		"svelte-select": "^5.0.2",
+		"three-text-geometry": "^0.0.0"
 	}
 }
