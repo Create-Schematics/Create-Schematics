@@ -89,7 +89,7 @@
 
 <div class='links'>
 	{#each LINKS as link}
-		<a href={link.link}>
+		<a href={link.link} title={link.name}>
 			<img style:width = "30px" style:margin-bottom=20px src={link.image} alt='{link.name}'/>
 		</a>
 	{/each}
