@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
-import * as THREE from 'three';
+import { writable, type Writable } from "svelte/store";
+import type Scene from "../lib/scene";
 
-export const scene = writable(new THREE.Scene());
+export const sceneStore: Writable<Scene | undefined> = writable(undefined);

@@ -2,10 +2,11 @@
     import { getAppAuth } from '../Auth';
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
-	import * as TWEEN from '@tweenjs/tween.js'
 	import { Vector2 } from 'three';
-	import Scene from '../lib/scene'
+	import { sceneStore } from '../stores/sceneStore';
 
+	import * as TWEEN from '@tweenjs/tween.js'
+	import Scene from '../lib/scene'
     import authStore from '../stores/authStore';
 	import IoIosSearch from 'svelte-icons/io/IoIosSearch.svelte'
 	import LINKS from '../data/links';
@@ -41,7 +42,10 @@
 	}
 
 	onMount(() => {
-		scene = new Scene(el);
+		sceneStore.subscribe(value => {
+			if (value === undefined) scene = new Scene(el);
+			else scene = value;
+		})
 
 		resize();
 		animate();
