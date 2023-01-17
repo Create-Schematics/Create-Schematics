@@ -55,8 +55,8 @@ export default class Scene {
 	public renderer: THREE.WebGLRenderer;
 	public raycaster: THREE.Raycaster;
 
-	public table: THREE.Group | undefined;
-	public button: THREE.Mesh | undefined;
+	public table = new THREE.Group;
+	public button = new THREE.Mesh;
 
 	public mouse: THREE.Vector2 = new THREE.Vector2;
 
@@ -106,21 +106,27 @@ export default class Scene {
 		this.button.position.z = 0.25;
 	}
 
-	private loadSchematicTable(): void {
-		var loader = new GLTFLoader();
+	private async loadGLTFfile(path: string): Promise<THREE.Group> {
+		return new Promise((resolve) => {
+			var loader = new GLTFLoader();
+			loader.load(path, (model) => {
+				resolve(model.scene)
+			}, undefined, (error) => {
+				console.error(error);
+			});
+		});
+	}
 
-		loader.load("/models/schematic_table.gltf", (model) => {
-			this.table = model.scene;
-			this.table.scale.set(1, 1, 1);
+	private async loadSchematicTable(): Promise<void> {
+		this.table = await this.loadGLTFfile("/models/schematic_table.gltf");
 
-			this.table.position.z = -0.75;
-			this.table.position.y = -0.5;
-			this.table.position.x = -0.5;
+		this.table.scale.set(1, 1, 1);
 
-		  	this.scene.add(model.scene);
-		}, undefined, (error) => {
-		  	console.error( error );
-		})
+		this.table.position.z = -0.75;
+		this.table.position.y = -0.5;
+		this.table.position.x = -0.5;
+
+		this.scene.add(this.table);
 	}
 
 	private initialisePlane(): void {
@@ -159,19 +165,17 @@ export default class Scene {
 	}
 	
 	public onClickEvent(event: any): void {
-		if (!(this.button && this.table))
-			return;
-
 		this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
 		this.raycaster.setFromCamera(this.mouse, this.camera);
 		const intersects = this.raycaster.intersectObjects([this.button, this.table]);
-
-		if (intersects.length > 0)
+		alert("Intersect")
+		if (intersects.length > 0) {
 			alert("Intersect")
 			this.panToTable();
 			this.isOverTable = !this.isOverTable;
+		}
 	}
 
 	private resize(): void {

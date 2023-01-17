@@ -2,8 +2,8 @@
     import { getAppAuth } from '../Auth';
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
-	import { createScene, panToTable } from '../lib/homeScene';
 	import * as TWEEN from '@tweenjs/tween.js'
+	import { Vector2 } from 'three';
 	import Scene from '../lib/scene'
 
     import authStore from '../stores/authStore';
@@ -13,6 +13,19 @@
 	let isZoomed: boolean = false;
 	let el: any;
 	let scene: Scene;
+	let mouse = new Vector2;
+
+	const onClickEvent = async (event: any) => {
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+		scene.raycaster.setFromCamera(mouse, scene.camera);
+		const intersects = scene.raycaster.intersectObjects([scene.button, scene.table]);
+
+		if (intersects.length > 0)
+			await scene.panToTable();
+			isZoomed = !isZoomed;
+	}
 
 	const animate = () => {
 		requestAnimationFrame(animate);
@@ -34,13 +47,8 @@
 		animate();
 
 		window.addEventListener('resize', resize);
-		scene.renderer.domElement.addEventListener("click", scene.onClickEvent, true);
+		scene.renderer.domElement.addEventListener("click", onClickEvent, true);
 	});
-
-	async function panCamera() {
-		// await panToTable();
-		isZoomed = !isZoomed;
-	}
 
 	onMount(() => {
 		if (browser) {
@@ -85,7 +93,6 @@
 			<img style:width = "30px" style:margin-bottom=20px src={link.image} alt='{link.name}'/>
 		</a>
 	{/each}
-	<button on:click={panCamera}>Test</button>
 </div>
 
 {#if isZoomed}
