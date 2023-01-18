@@ -1,0 +1,42 @@
+@keyframes slide-in-from-top {
+    from {
+        height: 0;
+        box-shadow: 0 250px var(--primary-accent);
+    }
+    to {
+        height: 100%;
+        box-shadow: 0 0 var(--primary-accent);
+    }
+}
+
+@keyframes slide-text {
+    0% {
+        width: 0;
+        border-right-color: var(--primary-accent);
+    }
+    90% {
+        border-right-color: var(--primary-accent);
+    }
+    100% {
+        width: 100%;
+        border-right-color: #00000000;
+    }
+}
+
+@keyframes -line-draw-to-right {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes fade-in-left {
+    from {
+        left: 0;
+    }
+    to {
+        left: 100%;
+    }
+}
