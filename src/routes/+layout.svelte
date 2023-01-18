@@ -10,6 +10,7 @@
     import authStore from '../stores/authStore';
 	import IoIosSearch from 'svelte-icons/io/IoIosSearch.svelte'
 	import LINKS from '../data/links';
+    import Footer from '../components/Footer.svelte';
 
 	let isZoomed: boolean = false;
 	let el: any;
@@ -103,6 +104,7 @@
 
 <canvas bind:this={el} />
 
+<Footer/>
 
 <style lang="scss">
     @import '../globals.css';
@@ -172,7 +174,9 @@
 		position: absolute;
 		margin: auto;
 		width: 50%;
+		max-height: 100%;
 		height: 100%;
+		overflow-y: scroll;
 		top: 0;
 		left: 0;
 		right: 0;
