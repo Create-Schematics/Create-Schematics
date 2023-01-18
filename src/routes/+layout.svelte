@@ -17,6 +17,12 @@
 	let scene: Scene;
 	let mouse = new Vector2;
 
+	let pageShouldExpand: boolean = false;
+
+	const expandPage = () => {
+		pageShouldExpand = !pageShouldExpand;
+	}
+
 	const onClickEvent = async (event: any) => {
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -94,6 +100,7 @@
 			<img style:width = "30px" style:margin-bottom=20px src={link.image} alt='{link.name}'/>
 		</a>
 	{/each}
+	<button on:click={expandPage}>Hello world</button>
 </div>
 
 {#if isZoomed}
@@ -174,9 +181,11 @@
 	.active-page {
 		position: absolute;
 		margin: auto;
+		margin-top: 6em;
+		max-width: 1100px;
 		width: 50%;
 		max-height: 100%;
-		height: 100%;
+		height: 75%;
 		overflow-y: scroll;
 		top: 0;
 		left: 0;
@@ -187,9 +196,15 @@
 		box-shadow: 0 20px 50px black;
 		border-style: dashed;
 		border-width: 20px;
-		border-radius: 10px;
-		border-color: var(--primary-accent);
+		border-radius: 20px;
+		border-color: var(--primary-highlight);
 	}
+
+	@media only screen and (max-width: 800px) {
+		.active-page {
+			width: 100%;
+		}
+	} 
 
 	.overlay-element {
 		margin: 20px;

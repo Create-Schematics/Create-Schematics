@@ -147,12 +147,15 @@ export default class Scene {
 		const color = 0xffffff;
 		const intensity = 2.5;
 		const light = new THREE.DirectionalLight(color, intensity);
+		const ambientLight = new THREE.AmbientLight(color, intensity/8.5);
 
 		light.position.set(0, 8, 3);
 		light.target.position.set(0, 2, 0);
 
 		this.scene.add(light);
 		this.scene.add(light.target);
+
+		this.scene.add(ambientLight);
 	}
 	
 	public async panToTable(): Promise<void> {
@@ -160,7 +163,7 @@ export default class Scene {
 			this.camera,
 			new THREE.Vector3 (0, 2, -0.25),
 			{ x: -Math.PI/2, y: 0, z: 0, }, 
-			25, 2000
+			30, 2000
 		);
 	}
 	
