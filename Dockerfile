@@ -1,8 +1,8 @@
-# Use an official Rust runtime as a parent image
-FROM rust:latest
+FROM rust:latest as build
 
-# Copy the current directory contents into the container at /usr/src/app
+WORKDIR /usr/src/createschematics
+
 COPY . .
 
-# Build the Rust application
+ARG SQLX_OFFLINE=true
 RUN cargo build --release
