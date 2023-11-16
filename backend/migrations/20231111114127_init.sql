@@ -2,31 +2,31 @@ create table users
 (
     user_id    uuid        primary key default uuid_generate_v1mc(),
     username   text        not null    unique collate "case_insensitive",
-    email      text        not null    unique collate "case_insesnitive",
+    email      text        not null    unique collate "case_insensitive",
     created_at timestamptz not null    default now(),
     updated_at timestamptz
 );
+
+select trigger_updated_at('users');
 
 create table sessions
 (
     session_id bigserial primary key,
     user_id    uuid        references users (user_id) on delete cascade,
     expires_at timestamptz not null default now() + interval '14 days',
-    created_at timestamptz not null default now(),
+    created_at timestamptz not null default now()
 );
-
-select trigger_updated_at('users');
 
 create table create_versions
 (
-    create_version_id serial       primary key,
-    version           varchar(255) not null     
+    create_version_id serial primary key,
+    version           text   not null     
 );
 
 create table game_versions
 (
-    game_version_id serial       primary key,
-    version         varchar(255) not null
+    game_version_id serial primary key,
+    version         text   not null
 );
 
 create table schematics
@@ -35,6 +35,7 @@ create table schematics
     schematic_name text        not null     collate "case_insensitive" unique,
     game_version   serial      not null     references game_versions,
     create_version serial      not null     references create_versions,
+    author         uuid        not null     references users (user_id),
     downloads      integer     not null     default 0,
     created_at     timestamptz not null     default now(),
     updated_at     timestamptz
@@ -70,9 +71,9 @@ create table mods
     mod_id          bigserial    primary key,
     -- Store the mods name to avoid needing to query modrinth and curseforge
     -- when searching for mods
-    mod_name        varchar(255) unique collate "case_insensitive",
-    curseforge_slug int          unique,
-    modrinth_slug   varchar(255) unique,
+    mod_name        text unique collate "case_insensitive",
+    curseforge_slug int  unique,
+    modrinth_slug   text unique,
     created_at      timestamptz  not null default now(),
     updated_at      timestamptz
 );
@@ -100,7 +101,7 @@ create table favourites
 create table tags
 (
     tag_id     bigserial    primary key,
-    tag_name   varchar(255) not null     unique collate "case_insensitive",
+    tag_name   text         not null     unique collate "case_insensitive",
     created_at timestamptz  not null     default now(),
     updated_at timestamptz
 );
