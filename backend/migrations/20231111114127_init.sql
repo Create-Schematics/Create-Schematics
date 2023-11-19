@@ -1,21 +1,14 @@
 create table users
 (
-    user_id    uuid        primary key default uuid_generate_v1mc(),
-    username   text        not null    unique collate "case_insensitive",
-    email      text        not null    unique collate "case_insensitive",
-    created_at timestamptz not null    default now(),
-    updated_at timestamptz
+    user_id       uuid        primary key default uuid_generate_v1mc(),
+    username      text        not null    unique collate "case_insensitive",
+    email         text        not null    unique collate "case_insensitive",
+    password_hash text        not null,
+    created_at    timestamptz not null    default now(),
+    updated_at    timestamptz
 );
 
 select trigger_updated_at('users');
-
-create table sessions
-(
-    session_id bigserial primary key,
-    user_id    uuid        references users (user_id) on delete cascade,
-    expires_at timestamptz not null default now() + interval '14 days',
-    created_at timestamptz not null default now()
-);
 
 create table create_versions
 (
