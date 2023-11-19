@@ -63,6 +63,28 @@ pub enum ApiError {
     #[error("an error occurred with the database")]
     Sqlx(#[from] sqlx::Error),
 
+    /// Automatically return `500 Internal Server Error` on a `deadpool_redis::PoolError`.
+    ///
+    /// Via the generated `From<deadpool_redis::PoolError> for Error` impl,
+    /// this allows using `?` on database calls in handler functions without a manual mapping step.
+    ///
+    /// The actual error message isn't returned to the client for security reasons.
+    /// It should be logged instead.
+    /// 
+    #[error("an error occurred with the database")]
+    RedisPool(#[from] deadpool_redis::PoolError),
+
+    /// Automatically return `500 Internal Server Error` on a `redis::RedisError`.
+    ///
+    /// Via the generated `From<redis::RedisError> for Error` impl,
+    /// this allows using `?` on database calls in handler functions without a manual mapping step.
+    ///
+    /// The actual error message isn't returned to the client for security reasons.
+    /// It should be logged instead.
+    /// 
+    #[error("an error occurred with the database")]
+    Redis(#[from] redis::RedisError),
+
     /// Return `500 Internal Server Error` on a `anyhow::Error`.
     ///
     /// `anyhow::Error` is used in a few places to capture context and backtraces
@@ -76,7 +98,7 @@ pub enum ApiError {
     /// Like with `Error::Sqlx`, the actual error message is not returned to the client
     /// for security reasons.
     #[error("an internal server error occurred")]
-    Anyhow(#[from] anyhow::Error),
+    Anyhow(#[from] anyhow::Error)
 }
 
 impl ApiError {
@@ -143,6 +165,14 @@ impl IntoResponse for ApiError {
 
             Self::Sqlx(ref e) => {
                 tracing::error!("SQLx error: {:?}", e);
+            }
+
+            Self::RedisPool(ref e) => {
+                tracing::error!("Redis pool error: {:?}", e);
+            }
+
+            Self::Redis(ref e) => {
+                tracing::error!("Redis error: {:?}", e);
             }
 
             Self::Anyhow(ref e) => {
