@@ -1,59 +1,68 @@
-use axum::routing::get;
+use axum::routing::{get, post};
 use axum::{Router, Json};
-use axum::extract::{State, Path};
+use axum::extract::{State, Path, Query};
 use utoipa::ToSchema;
 
+use crate::authentication::session::Session;
 use crate::error::ApiError;
 use crate::response::ApiResult;
 use crate::cli::server::ApiContext;
+use crate::models::schematic::Schematic;
 
-#[derive(Debug, Serialize)]
-pub struct Schematic {
-    schematic_id: i64,
+#[derive(Debug, Deserialize, ToSchema)]
+pub (in crate::api) struct SchematicBuilder {
     schematic_name: String,
     game_version: i32,
     create_version: i32,
-    downloads: i64,
-}
-
-#[derive(Debug, Serialize)]
-pub struct SchematicFromQuery {
-    schematic_id: i64,
-    schematic_name: String,
-    game_version: i32,
-    create_version: i32,
-    downloads: i64,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct SchematicBuilder {
-    schematic_name: String,
-    game_version: i32,
-    create_version: i32,
-    required_mods: Vec<String>,
-    tags: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-pub struct UpdateSchematic {
+pub (in crate::api) struct UpdateSchematic {
     schematic_name: Option<String>,
     game_version: Option<i32>,
     create_version: Option<i32>,
-    required_mods: Option<Vec<String>>,
-    tags: Option<Vec<String>>,
 }
 
-pub async fn configure() -> Router<ApiContext> {
+#[derive(Deserialize, ToSchema)]
+pub (in crate::api) struct SearchQuery {
+    limit: Option<i64>,
+    offset: Option<i64>,
+    term: String
+}
+
+pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
     Router::new()
+        .route("/schematics", 
+            get(search_schematics)
+            .post(upload_schematic)
+        )
         .route(
             "/schematics/:id",
             get(get_schematic_by_id)
             .patch(update_schematic_by_id)
             .delete(delete_schematic_by_id)
         )
+        .route("/schematics/:id/favorite", 
+            post(favorite_schematic)
+            .delete(unfavorite_schematic)
+        )
 }
 
-
+#[utoipa::path(
+    get,
+    path = "/schematics/{id}",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the schematic to fetch")
+    ),
+    responses(
+        (status = 200, description = "Successfully retrieved the schematic", body = Schematic, content_type = "application/json"),
+        (status = 404, description = "A schematic with that id was not found"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(())
+)]
 async fn get_schematic_by_id(
     State(ctx): State<ApiContext>,
     Path(id): Path<i64>
@@ -62,8 +71,8 @@ async fn get_schematic_by_id(
         Schematic,
         r#"
         select schematic_id, schematic_name, 
-                game_version, create_version, 
-                downloads
+                game_version, create_version,
+                downloads, author
         from schematics
         where schematic_id = $1
         "#,
@@ -75,6 +84,27 @@ async fn get_schematic_by_id(
     .map(Json)
 }
 
+#[utoipa::path(
+    patch,
+    path = "/schematics/{id}",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the schematic to update")
+    ),
+    request_body(
+        content = UpdateSchematic, description = "The values to update", content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Successfully retrieved the schematic", body = Schematic, content_type = "application/json"),
+        (status = 401, description = "You need to be logged in to update a schematic"),
+        (status = 403, description = "You do not have permission to update this schematic"),
+        (status = 404, description = "A schematic with that id was not found"),
+        (status = 409, description = "A schematic with the new name already exists"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn update_schematic_by_id(
     State(ctx): State<ApiContext>,
     Path(id): Path<i64>,
@@ -96,11 +126,12 @@ async fn update_schematic_by_id(
                 schematic_name,
                 game_version,
                 create_version,
+                author,
                 downloads
         "#,
         schematic.schematic_name,
         schematic.game_version,
-        schematic.game_version,
+        schematic.create_version,
         id
     )
     .fetch_optional(&mut *transaction)
@@ -113,22 +144,42 @@ async fn update_schematic_by_id(
     Ok(schematic)
 }
 
+#[utoipa::path(
+    delete,
+    path = "/schematics/{id}",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the schematic to remove")
+    ),
+    responses(
+        (status = 200, description = "Successfully deleted the schematic"),
+        (status = 401, description = "You need to be logged in to delete a schematic"),
+        (status = 403, description = "You do not have permission to delete this schematic"),
+        (status = 404, description = "A schematic with that id was not found"),
+        (status = 409, description = "A schematic with the new name already exists"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn delete_schematic_by_id(
     State(ctx): State<ApiContext>,
     Path(id): Path<i64>,
+    session: Session
 ) -> ApiResult<()> {
     let result = sqlx::query!(
         r#"
         with deleted_schematic as (
             delete from schematics
-            where schematic_id = $1
+            where schematic_id = $1 and author = $2
             returning 1
         )
         select
             exists(select 1 from schematics where schematic_id = $1) "existed",
             exists(select 1 from deleted_schematic) "deleted"
         "#,
-        id
+        id,
+        session.user_id
     )
     .fetch_one(&ctx.pool)
     .await?;
@@ -143,4 +194,173 @@ async fn delete_schematic_by_id(
         // The schematic did not exist in the first place
         Err(ApiError::NotFound)
     }
+}
+
+#[utoipa::path(
+    post,
+    path = "/schematics",
+    context_path = "/api/v1",
+    tag = "v1",
+    request_body(
+        content = SchematicBuilder, description = "Information about the new schematic", content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Successfully uploaded the schematic", body = Schematic, content_type = "application/json"),
+        (status = 401, description = "You must be logged in to upload a schematic"),
+        (status = 403, description = "You do not have permission to upload a schematic"),
+        (status = 500, description = "An error occurred while uploading the schematic")
+    ),
+    security(("session_cookie" = []))
+)]
+async fn upload_schematic(
+    State(ctx): State<ApiContext>,
+    session: Session,
+    Json(schematic): Json<SchematicBuilder>,
+) -> ApiResult<Json<Schematic>> {
+    let mut transaction = ctx.pool.begin().await?;
+
+    let schematic = sqlx::query_as!(
+        Schematic,
+        r#"
+        insert into schematics (
+            schematic_name, author,
+            game_version, create_version 
+        )
+        values (
+            $1, $2, $3, $4
+        )
+        returning
+            schematic_id,
+            schematic_name,
+            game_version,
+            create_version,
+            author,
+            downloads
+        "#,
+        schematic.schematic_name,
+        session.user_id,
+        schematic.game_version,
+        schematic.create_version
+    )
+    .fetch_one(&mut *transaction)
+    .await
+    .map(Json)?;
+
+    transaction.commit().await?;
+
+    Ok(schematic)
+}
+
+#[utoipa::path(
+    get,
+    path = "/schematics",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = SearchQuery, Query, description = "The id of the schematic to fetch")
+    ),
+    responses(
+        (status = 200, description = "Successfully retrieved the schematics", body = [Schematic], content_type = "application/json"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(())
+)]
+async fn search_schematics(
+    State(ctx): State<ApiContext>,
+    Query(query): Query<SearchQuery>,
+) -> ApiResult<Json<Vec<Schematic>>> {
+    let schematics = sqlx::query_as!(
+        Schematic,
+        r#"
+        select schematic_id, schematic_name, 
+               game_version, create_version, 
+               downloads, author
+        from schematics
+        where schematic_name like $1
+        limit $2
+        offset $3
+        "#,
+        query.term,
+        query.limit.unwrap_or(20),
+        query.offset.unwrap_or(0)
+    )
+    .fetch_all(&ctx.pool)
+    .await
+    .map(Json)?;
+
+    Ok(schematics)
+}
+
+#[utoipa::path(
+    post,
+    path = "/schematics/{id}/favourite",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the schematic to favorite")
+    ),
+    responses(
+        (status = 200, description = "Successfully favorited the schematic"),
+        (status = 401, description = "You need to be logged in to favorite a schematic"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
+async fn favorite_schematic(
+    State(ctx): State<ApiContext>,
+    session: Session,
+    Path(id): Path<i64>,
+) -> ApiResult<()> {
+    sqlx::query!(
+        r#"
+        insert into favourites (
+            schematic_id, user_id
+        )
+        values (
+            $1, $2
+        )
+        on conflict do nothing
+        "#,
+        id,
+        session.user_id
+    )
+    .execute(&ctx.pool)
+    .await?;
+
+    Ok(())
+}
+
+#[utoipa::path(
+    delete,
+    path = "/schematics/{id}/favourite",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the schematic to unfavorite")
+    ),
+    responses(
+        (status = 200, description = "Successfully unfavorited the schematic"),
+        (status = 401, description = "You need to be logged in to unfavorite a schematic"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
+async fn unfavorite_schematic(
+    State(ctx): State<ApiContext>,
+    session: Session,
+    Path(id): Path<i64>,
+) -> ApiResult<()> {
+    sqlx::query!(
+        r#"
+        delete from favourites
+        where schematic_id = $1
+        and user_id = $2
+        "#,
+        id,
+        session.user_id
+    )
+    .execute(&ctx.pool)
+    .await?;
+
+    Ok(())
 }
