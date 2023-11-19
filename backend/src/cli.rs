@@ -2,9 +2,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
-use self::server::StartCommandServerArguments;
-
-pub mod server;
+use crate::api::{self, StartCommandServerArguments};
 
 #[derive(Parser, Debug)]
 #[command(name = "Create schematics command line interface")]
@@ -24,7 +22,7 @@ pub async fn init() -> ExitCode {
     let cli = Cli::parse();
 
     let result = match cli.command {
-        Commands::Start(args) => server::init(args).await,
+        Commands::Start(args) => api::init(args).await,
     };
         
     if let Err(e) = result {

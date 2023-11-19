@@ -6,8 +6,8 @@ use utoipa::ToSchema;
 use crate::authentication::session::Session;
 use crate::error::ApiError;
 use crate::response::ApiResult;
-use crate::cli::server::ApiContext;
 use crate::models::schematic::Schematic;
+use crate::api::ApiContext;
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub (in crate::api) struct SchematicBuilder {

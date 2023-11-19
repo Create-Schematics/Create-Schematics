@@ -6,9 +6,10 @@ use utoipa::ToSchema;
 
 use crate::authentication::password::{hash_password_argon2, verify_password_argon2};
 use crate::authentication::session::Session;
-use crate::{response::ApiResult, cli::server::ApiContext};
+use crate::response::ApiResult;
 use crate::error::{ApiError, ResultExt};
 use crate::models::user::User;
+use crate::api::ApiContext;
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub (in crate::api) struct Login {

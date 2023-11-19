@@ -1,11 +1,21 @@
 
 use std::fmt::Display;
 
+use clap::Args;
 use deadpool_redis::{Config, Runtime};
 use redis::{FromRedisValue, ToRedisArgs};
 
-use crate::cli::server::StartCommandRedisArguments; 
 use crate::response::ApiResult;
+
+
+#[derive(Args, Debug)]
+pub struct StartCommandRedisArguments {
+    #[arg(help = "The location of your redis instance")]
+    #[arg(env = "REDIS_URL", short = 'r', long = "redis_url")]
+    #[arg(default_value = "redis://localhost")]
+    pub redis_url: String,
+    
+}
 
 #[derive(Clone)]
 pub struct RedisPool(pub deadpool_redis::Pool);

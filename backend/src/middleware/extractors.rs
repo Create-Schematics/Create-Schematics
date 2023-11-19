@@ -3,8 +3,8 @@ use axum::extract::{FromRequestParts, FromRef};
 use axum::http::request::Parts;
 use tower_cookies::Cookies;
 
+use crate::api::ApiContext;
 use crate::authentication::session::Session;
-use crate::cli::server::ApiContext; 
 use crate::error::ApiError;
 
 #[axum::async_trait]

@@ -1,45 +1,88 @@
-use axum::Router;
-use utoipa::OpenApi;
+use std::{net::SocketAddr, time::Duration};
 
-use crate::cli::server::ApiContext;
+use axum::{Router, http::{header, Method}};
+use clap::Args;
+use sqlx::PgPool;
+use tower_cookies::CookieManagerLayer;
+use tower_http::{cors::{Any, CorsLayer}, trace::TraceLayer};
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
+
+use crate::database::postgres::{self, StartCommandDatabaseArguments};
+use crate::database::redis::{self, RedisPool, StartCommandRedisArguments};
 
 pub mod v1;
 
-#[derive(OpenApi)]
-#[openapi(
-    info(
-        title = "Create Schematics REST API",
-        version = "0.0.1",
-        license(name = "MIT", url = "https://github.com/Rabbitminers/Create-Schematics/blob/master/LICENSE")
-    ),
-    paths(
-        v1::schematics::search_schematics,
-        v1::schematics::upload_schematic,
-        v1::schematics::get_schematic_by_id,
-        v1::schematics::update_schematic_by_id,
-        v1::schematics::delete_schematic_by_id,
-
-        v1::users::current_user,
-        v1::users::signup,
-        v1::users::login,
-        v1::users::logout,
-    ),
-    components(schemas(
-        crate::models::user::User,
-        
-        v1::schematics::SearchQuery,
-        v1::schematics::UpdateSchematic,
-        v1::schematics::SchematicBuilder,
-        
-        crate::models::schematic::Schematic,
- 
-        v1::users::Login,
-        v1::users::Signup,
-    ))
-)]
-pub struct ApiDoc;
+pub mod openapi;
 
 pub fn configure() -> Router<ApiContext> {
     Router::new()
         .nest("/v1", v1::configure())
 }
+
+#[derive(Args, Debug)]
+pub struct StartCommandServerArguments {
+    #[arg(help = "The hostname or ip address to listen for connections on")]
+    #[arg(env = "BIND_ADDR", short = 'b', long = "bind")]
+    #[arg(default_value = "0.0.0.0:3000")]
+    pub listen_address: SocketAddr,
+
+    #[command(next_help_heading = "Database")]
+    #[command(flatten)]
+    pub postgres: StartCommandDatabaseArguments,
+
+    #[command(next_help_heading = "Redis")]
+    #[command(flatten)]
+    pub redis: StartCommandRedisArguments,
+}
+
+#[derive(Clone)]
+pub struct ApiContext {
+    pub pool: PgPool,
+    pub redis_pool: RedisPool
+}
+
+pub async fn init(
+    StartCommandServerArguments {
+        listen_address,
+        postgres,
+        redis,
+        ..
+    }: StartCommandServerArguments,
+) -> Result<(), anyhow::Error> {
+    let database_pool = postgres::connect(postgres).await?;
+    let redis_pool = redis::connect(redis)?;
+
+    let app = Router::new()
+        .nest("/api", crate::api::configure())
+        .merge(SwaggerUi::new("/swagger-ui").url("/openapi.json", openapi::ApiDoc::openapi()))
+        .layer(CorsLayer::default()
+            .allow_headers([
+                header::AUTHORIZATION,
+                header::WWW_AUTHENTICATE,
+                header::CONTENT_TYPE,
+                header::ORIGIN,
+                header::COOKIE,
+            ])
+            .allow_methods([
+                Method::GET,
+                Method::PUT,
+                Method::POST,
+                Method::DELETE,
+                Method::PATCH,
+                Method::OPTIONS
+            ])
+            .allow_origin(Any)
+            .max_age(Duration::from_secs(86400))
+        )
+        .layer(CookieManagerLayer::new())
+        .layer(TraceLayer::new_for_http())
+        .with_state(ApiContext { pool: database_pool, redis_pool });
+    
+    axum::Server::bind(&listen_address)
+        .serve(app.into_make_service())
+        .await?;
+
+    Ok(())
+}
+

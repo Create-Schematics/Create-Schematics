@@ -1,6 +1,6 @@
 use axum::Router;
 
-use crate::cli::server::ApiContext;
+use crate::api::ApiContext;
 
 pub mod schematics;
 pub mod users;
