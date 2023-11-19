@@ -41,7 +41,7 @@ Once you have installed these run
 docker-compose up
 ```
 
-This will start a development postges database on `localhost:5432`, by default the database name, username and password will all be `postgres`. And the default url is specified in `.env.sample` which youll need to rename to `.env` 
+This will start a development postges database on port `5432` and redis on port `6379`, by default the database name, username and password will all be `postgres`. And the default url is specified in `.env.sample` which youll need to rename to `.env` 
 
 From there you can install the sqlx cli in order to set up the database
 
@@ -57,7 +57,7 @@ Now you've got everything set up you're ready to start developing create schemat
 
 ```
 cargo run server
-````
+```
 
 This will deploy the api itself on `localhost:3000`
 
