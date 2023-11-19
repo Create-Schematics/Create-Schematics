@@ -1,14 +1,14 @@
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
-use crate::cli::server::StartCommandDabaseArguments;
+use crate::cli::server::StartCommandDatabaseArguments;
 
 pub async fn connect(
-    StartCommandDabaseArguments {
+    StartCommandDatabaseArguments {
         database_url,
         min_connections,
         max_connections,
-    }: StartCommandDabaseArguments,
+    }: StartCommandDatabaseArguments,
 ) -> Result<PgPool, sqlx::error::Error> {
     PgPoolOptions::new()
         .min_connections(min_connections)
