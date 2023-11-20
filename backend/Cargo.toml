@@ -13,7 +13,7 @@ tower-cookies = { version = "0.9.0", features = ["private", "signed"]}
 
 tokio = { version = "1.34.0", features = ["full"] }
 
-utoipa = { version = "4.0.0", features = ["axum_extras", "chrono", "yaml"] }
+utoipa = { version = "4.0.0", features = ["axum_extras", "yaml", "uuid"] }
 utoipa-swagger-ui = { version = "4.0.0", features = ["axum"] }
 
 tracing = "0.1.40"
