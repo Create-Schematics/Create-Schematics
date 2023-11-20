@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use time::Duration;
 use tower_cookies::{Cookies, cookie::SameSite, Cookie};
+use utoipa::openapi::security::{SecurityScheme, ApiKeyValue, ApiKey};
 use uuid::Uuid;
 
 use crate::database::redis::RedisPool;
@@ -17,7 +18,7 @@ pub (crate) struct Session {
 }
 
 impl Session {
-    pub const NAMESPACE: &str = "session";
+    const NAMESPACE: &str = "session";
 
     pub (crate) fn new_for_user(user_id: Uuid) -> Session {
         let session_id = nanoid::nanoid!(SESSION_ID_LENGTH);
@@ -77,4 +78,7 @@ impl Session {
         Ok(())
     }
 
+    pub (crate) fn security_scheme() -> SecurityScheme {
+        SecurityScheme::ApiKey(ApiKey::Cookie(ApiKeyValue::new(Self::NAMESPACE)))
+    }
 }
