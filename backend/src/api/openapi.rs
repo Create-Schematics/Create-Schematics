@@ -19,7 +19,7 @@ impl Modify for AuthenticationModifier {
     info(
         title = "Create Schematics REST API",
         version = "0.0.1",
-        license(name = "MIT", url = "https://github.com/Rabbitminers/Create-Schematics/blob/master/LICENSE")
+        license(name = "MIT", url = "https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE")
     ),
     paths(
         v1::users::current_user,
@@ -42,6 +42,9 @@ impl Modify for AuthenticationModifier {
         v1::favorites::get_favorites,
         v1::favorites::favorite_schematic,
         v1::favorites::unfavorite_schematic,
+
+        v1::likes::like_schematic,
+        v1::likes::remove_like_from_schematic
     ),
     modifiers(
         &AuthenticationModifier
@@ -63,7 +66,10 @@ impl Modify for AuthenticationModifier {
         v1::comments::PaginationQuery,
         v1::comments::FullComment,
         v1::comments::CommentBuilder,
-        v1::comments::UpdateComment
+        v1::comments::UpdateComment,
+
+        v1::likes::LikeQuery,
+        v1::likes::LikeAction
     ))
 )]
 pub struct ApiDoc;

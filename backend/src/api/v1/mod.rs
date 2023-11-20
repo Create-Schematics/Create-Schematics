@@ -5,6 +5,7 @@ use crate::api::ApiContext;
 pub mod comments;
 pub mod favorites;
 pub mod schematics;
+pub mod likes;
 pub mod users;
 
 pub (in crate::api) fn configure() -> Router<ApiContext> {
@@ -13,4 +14,5 @@ pub (in crate::api) fn configure() -> Router<ApiContext> {
         .merge(schematics::configure())
         .merge(comments::configure())
         .merge(favorites::configure())
+        .merge(likes::configure())
 }

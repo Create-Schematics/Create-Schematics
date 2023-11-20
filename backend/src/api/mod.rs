@@ -68,6 +68,7 @@ pub async fn init(
                 Method::GET,
                 Method::PUT,
                 Method::POST,
+                Method::PUT,
                 Method::DELETE,
                 Method::PATCH,
                 Method::OPTIONS

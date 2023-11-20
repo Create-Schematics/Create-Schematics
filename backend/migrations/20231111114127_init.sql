@@ -50,14 +50,17 @@ select trigger_updated_at('comments');
 
 create index on comments (schematic_id, created_at);
 
-create table ratings
+create table schematic_likes
 (
     schematic_id bigserial   not null references schematics (schematic_id) on delete cascade,
     user_id      uuid        not null references users      (user_id)      on delete cascade,
+    positive     boolean     not null,
     created_at   timestamptz not null default now(),
     updated_at   timestamptz,
     primary key (schematic_id, user_id)
 );
+
+select trigger_updated_at('schematic_likes');
 
 create table mods
 (
@@ -81,9 +84,7 @@ create table mod_dependencies
     primary key (schematic_id, mod_id)
 );
 
-select trigger_updated_at('ratings');
-
-create table favourites
+create table favorites
 (
     schematic_id bigserial   not null references schematics (schematic_id) on delete cascade,
     user_id      uuid        not null references users      (user_id)      on delete cascade,
