@@ -42,7 +42,7 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 }
 
 #[utoipa::path(
-    post,
+    get,
     path = "/users",
     context_path = "/api/v1",
     tag = "v1",
