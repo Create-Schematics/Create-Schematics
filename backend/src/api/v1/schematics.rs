@@ -92,7 +92,7 @@ async fn get_schematic_by_id(
         content = UpdateSchematic, description = "The values to update", content_type = "application/json"
     ),
     responses(
-        (status = 200, description = "Successfully retrieved the schematic", body = Schematic, content_type = "application/json"),
+        (status = 200, description = "Successfully updated the schematic", body = Schematic, content_type = "application/json"),
         (status = 401, description = "You need to be logged in to update a schematic"),
         (status = 403, description = "You do not have permission to update this schematic"),
         (status = 404, description = "A schematic with that id was not found"),
@@ -153,7 +153,6 @@ async fn update_schematic_by_id(
         (status = 401, description = "You need to be logged in to delete a schematic"),
         (status = 403, description = "You do not have permission to delete this schematic"),
         (status = 404, description = "A schematic with that id was not found"),
-        (status = 422, description = "A schematic with the new name already exists"),
         (status = 500, description = "An internal server error occurred")
     ),
     security(("session_cookie" = []))
@@ -253,7 +252,7 @@ async fn upload_schematic(
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = SearchQuery, Query, description = "The id of the schematic to fetch")
+        ("id" = SearchQuery, Query, description = "The number and offset of schematics to fetch")
     ),
     responses(
         (status = 200, description = "Successfully retrieved the schematics", body = [Schematic], content_type = "application/json"),

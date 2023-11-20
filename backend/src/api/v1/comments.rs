@@ -27,13 +27,13 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 }
 
 #[derive(Deserialize, ToSchema)]
-pub (in crate::api::v1) struct PaginationQuery {
+pub (in crate::api) struct PaginationQuery {
     limit: Option<i64>,
     offset: Option<i64>,
 }
 
 #[derive(Serialize, ToSchema)]
-struct FullComment {
+pub (in crate::api) struct FullComment {
     comment_id: i64,
     comment_author: Uuid,
     comment_body: String,
@@ -42,15 +42,29 @@ struct FullComment {
 }
 
 #[derive(Deserialize, ToSchema)]
-struct CommentBuilder {
+pub (in crate::api) struct CommentBuilder {
     comment_body: String
 }
 
 #[derive(Deserialize, ToSchema)]
-struct UpdateComment {
+pub (in crate::api) struct UpdateComment {
     comment_body: Option<String>
 }
 
+#[utoipa::path(
+    get,
+    path = "/schematics/{id}/comments",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = SearchQuery, Query, description = "The id of the schematic to fetch the comments from")
+    ),
+    responses(
+        (status = 200, description = "Successfully retrieved the comments", body = [FullComment], content_type = "application/json"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(())
+)]
 async fn get_comments_by_schematic(
     State(ctx): State<ApiContext>,
     Query(query): Query<PaginationQuery>,
@@ -78,6 +92,21 @@ async fn get_comments_by_schematic(
     Ok(Json(schematics))
 }
 
+#[utoipa::path(
+    get,
+    path = "/comments/{id}",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the comment to fetch")
+    ),
+    responses(
+        (status = 200, description = "Successfully retrieved the comment", body = FullComment, content_type = "application/json"),
+        (status = 404, description = "A comment with that id was not found"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(())
+)]
 async fn get_comment_by_id(
     State(ctx): State<ApiContext>,
     Path(comment_id): Path<i64>,
@@ -101,6 +130,22 @@ async fn get_comment_by_id(
     .map(Json)
 }
 
+#[utoipa::path(
+    post,
+    path = "/schematics/{id}/comments",
+    context_path = "/api/v1",
+    tag = "v1",
+    request_body(
+        content = CommentBuilder, description = "The text of the comment", content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Successfully added comment to schematic", body = Comment, content_type = "application/json"),
+        (status = 401, description = "You must be logged in to comment"),
+        (status = 403, description = "You do not have permission to comment"),
+        (status = 500, description = "An error occurred while uploading the comment")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn post_comment(
     State(ctx): State<ApiContext>,
     Path(schematic_id): Path<i64>,
@@ -137,6 +182,26 @@ async fn post_comment(
     Ok(Json(schematic))
 }
 
+#[utoipa::path(
+    patch,
+    path = "/comments/{id}",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the comment to update")
+    ),
+    request_body(
+        content = UpdateComment, description = "The new body of the comment", content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Successfully updated the comment", body = Schematic, content_type = "application/json"),
+        (status = 401, description = "You need to be logged in to update a comment"),
+        (status = 403, description = "You do not have permission to update this comment"),
+        (status = 404, description = "A comment with that id was not found"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn update_comment_by_id(
     State(ctx): State<ApiContext>,
     Path(comment_id): Path<i64>,
@@ -171,6 +236,23 @@ async fn update_comment_by_id(
     Ok(Json(comment))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/comments/{id}",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("id" = String, Path, description = "The id of the comment to remove")
+    ),
+    responses(
+        (status = 200, description = "Successfully deleted the comment"),
+        (status = 401, description = "You need to be logged in to delete a comment"),
+        (status = 403, description = "You do not have permission to delete this comment"),
+        (status = 404, description = "A comment with that id was not found"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn delete_comment_by_id(
     State(ctx): State<ApiContext>,
     Path(comment_id): Path<i64>,

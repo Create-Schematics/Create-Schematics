@@ -22,20 +22,26 @@ impl Modify for AuthenticationModifier {
         license(name = "MIT", url = "https://github.com/Rabbitminers/Create-Schematics/blob/master/LICENSE")
     ),
     paths(
-        v1::favorites::get_favorites,
-        v1::favorites::favorite_schematic,
-        v1::favorites::unfavorite_schematic,
+        v1::users::current_user,
+        v1::users::signup,
+        v1::users::login,
+        v1::users::logout,
 
         v1::schematics::search_schematics,
         v1::schematics::upload_schematic,
         v1::schematics::get_schematic_by_id,
         v1::schematics::update_schematic_by_id,
         v1::schematics::delete_schematic_by_id,
+        
+        v1::comments::get_comments_by_schematic,
+        v1::comments::post_comment,
+        v1::comments::get_comment_by_id,
+        v1::comments::update_comment_by_id,
+        v1::comments::delete_comment_by_id,
 
-        v1::users::current_user,
-        v1::users::signup,
-        v1::users::login,
-        v1::users::logout,
+        v1::favorites::get_favorites,
+        v1::favorites::favorite_schematic,
+        v1::favorites::unfavorite_schematic,
     ),
     modifiers(
         &AuthenticationModifier
@@ -51,6 +57,13 @@ impl Modify for AuthenticationModifier {
  
         v1::users::Login,
         v1::users::Signup,
+
+        crate::models::comment::Comment,
+
+        v1::comments::PaginationQuery,
+        v1::comments::FullComment,
+        v1::comments::CommentBuilder,
+        v1::comments::UpdateComment
     ))
 )]
 pub struct ApiDoc;
