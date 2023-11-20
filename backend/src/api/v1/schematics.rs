@@ -1,4 +1,4 @@
-use axum::routing::{get, post};
+use axum::routing::get;
 use axum::{Router, Json};
 use axum::extract::{State, Path, Query};
 use utoipa::ToSchema;
@@ -41,10 +41,6 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
             get(get_schematic_by_id)
             .patch(update_schematic_by_id)
             .delete(delete_schematic_by_id)
-        )
-        .route("/schematics/:id/favorite", 
-            post(favorite_schematic)
-            .delete(unfavorite_schematic)
         )
 }
 
@@ -100,7 +96,7 @@ async fn get_schematic_by_id(
         (status = 401, description = "You need to be logged in to update a schematic"),
         (status = 403, description = "You do not have permission to update this schematic"),
         (status = 404, description = "A schematic with that id was not found"),
-        (status = 409, description = "A schematic with the new name already exists"),
+        (status = 422, description = "A schematic with the new name already exists"),
         (status = 500, description = "An internal server error occurred")
     ),
     security(("session_cookie" = []))
@@ -157,7 +153,7 @@ async fn update_schematic_by_id(
         (status = 401, description = "You need to be logged in to delete a schematic"),
         (status = 403, description = "You do not have permission to delete this schematic"),
         (status = 404, description = "A schematic with that id was not found"),
-        (status = 409, description = "A schematic with the new name already exists"),
+        (status = 422, description = "A schematic with the new name already exists"),
         (status = 500, description = "An internal server error occurred")
     ),
     security(("session_cookie" = []))
@@ -289,78 +285,4 @@ async fn search_schematics(
     .map(Json)?;
 
     Ok(schematics)
-}
-
-#[utoipa::path(
-    post,
-    path = "/schematics/{id}/favourite",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("id" = String, Path, description = "The id of the schematic to favorite")
-    ),
-    responses(
-        (status = 200, description = "Successfully favorited the schematic"),
-        (status = 401, description = "You need to be logged in to favorite a schematic"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn favorite_schematic(
-    State(ctx): State<ApiContext>,
-    session: Session,
-    Path(id): Path<i64>,
-) -> ApiResult<()> {
-    sqlx::query!(
-        r#"
-        insert into favourites (
-            schematic_id, user_id
-        )
-        values (
-            $1, $2
-        )
-        on conflict do nothing
-        "#,
-        id,
-        session.user_id
-    )
-    .execute(&ctx.pool)
-    .await?;
-
-    Ok(())
-}
-
-#[utoipa::path(
-    delete,
-    path = "/schematics/{id}/favourite",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("id" = String, Path, description = "The id of the schematic to unfavorite")
-    ),
-    responses(
-        (status = 200, description = "Successfully unfavorited the schematic"),
-        (status = 401, description = "You need to be logged in to unfavorite a schematic"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn unfavorite_schematic(
-    State(ctx): State<ApiContext>,
-    session: Session,
-    Path(id): Path<i64>,
-) -> ApiResult<()> {
-    sqlx::query!(
-        r#"
-        delete from favourites
-        where schematic_id = $1
-        and user_id = $2
-        "#,
-        id,
-        session.user_id
-    )
-    .execute(&ctx.pool)
-    .await?;
-
-    Ok(())
 }
