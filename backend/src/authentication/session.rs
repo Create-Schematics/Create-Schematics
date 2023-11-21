@@ -54,13 +54,13 @@ impl Session {
             .finish()
     }
 
-    pub (crate) fn take_from_jar(jar: Cookies) {
+    pub (crate) fn take_from_jar(jar: &Cookies) {
         jar.remove(Cookie::new(Self::NAMESPACE, ""));
     }
 
     pub (crate) async fn save(
         &self, 
-        redis_pool: RedisPool
+        redis_pool: &RedisPool
     ) -> ApiResult<()> {
         redis_pool
             .set(Self::NAMESPACE, &self.session_id, &self.user_id.to_string(), DEFAULT_SESSION_LENGTH)
@@ -71,7 +71,7 @@ impl Session {
 
     pub (crate) async fn clear(
         self,
-        redis_pool: RedisPool
+        redis_pool: &RedisPool
     ) -> ApiResult<()> {
         redis_pool.delete(Self::NAMESPACE, &self.session_id).await?;
         

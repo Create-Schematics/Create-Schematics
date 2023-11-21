@@ -27,6 +27,8 @@ impl Modify for AuthenticationModifier {
         v1::users::login,
         v1::users::logout,
 
+        v1::profile::get_uploaded_schematics,
+
         v1::schematics::search_schematics,
         v1::schematics::upload_schematic,
         v1::schematics::get_schematic_by_id,
@@ -42,6 +44,11 @@ impl Modify for AuthenticationModifier {
         v1::favorites::get_favorites,
         v1::favorites::favorite_schematic,
         v1::favorites::unfavorite_schematic,
+
+        v1::tags::get_schematic_tags,
+        v1::tags::tag_schematic_by_id,
+        v1::tags::get_valid_tags,
+        v1::tags::untag_schematic_by_id,
 
         v1::likes::like_schematic,
         v1::likes::remove_like_from_schematic
@@ -60,6 +67,7 @@ impl Modify for AuthenticationModifier {
  
         v1::users::Login,
         v1::users::Signup,
+        v1::users::UpdateUser,
 
         crate::models::comment::Comment,
 
@@ -67,6 +75,9 @@ impl Modify for AuthenticationModifier {
         v1::comments::FullComment,
         v1::comments::CommentBuilder,
         v1::comments::UpdateComment,
+
+        v1::tags::Tags,
+        v1::tags::FullTag,
 
         v1::likes::LikeQuery,
         v1::likes::LikeAction

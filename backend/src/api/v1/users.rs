@@ -24,11 +24,18 @@ pub (in crate::api) struct Signup {
     password: String
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
+pub (in crate::api) struct UpdateUser {
+    username: Option<String>,
+    password: Option<String>
+}
+
 pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
     Router::new()
         .route(
             "/users",
             post(signup)
+            .patch(update_current_user)
             .get(current_user) 
         )
         .route(
@@ -121,7 +128,7 @@ async fn signup(
 
     let session = Session::new_for_user(user.user_id);
 
-    session.save(ctx.redis_pool).await?;
+    session.save(&ctx.redis_pool).await?;
 
     cookies.add(session.into_cookie());
 
@@ -167,7 +174,71 @@ async fn login(
 
     let session = Session::new_for_user(user.user_id);
 
-    session.save(ctx.redis_pool).await?;
+    session.save(&ctx.redis_pool).await?;
+
+    cookies.add(session.into_cookie());
+
+    Ok(Json(user))
+}
+
+#[utoipa::path(
+    patch,
+    path = "/schematics/{id}",
+    context_path = "/api/v1",
+    tag = "v1",
+    request_body(
+        content = UpdateUser, description = "The values to update", content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Successfully updated the schematic", body = Schematic, content_type = "application/json"),
+        (status = 401, description = "You need to be logged in to update your profile"),
+        (status = 422, description = "An account witht that username already exists"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
+async fn update_current_user(
+    State(ctx): State<ApiContext>,
+    cookies: Cookies,
+    session: Session,
+    Json(form): Json<UpdateUser>
+) -> ApiResult<Json<User>> {
+    let mut transaction = ctx.pool.begin().await?;
+
+    let password_hash = match form.password {
+        Some(password) => Some(hash_password_argon2(password).await?),
+        None => None
+    };
+
+    let user = sqlx::query_as!(
+        User,
+        r#"
+        update users
+            set 
+                username = coalesce($1, username),
+                password_hash = coalesce($2, password_hash)
+            where user_id = $3
+            returning
+                user_id,
+                username,
+                email,
+                password_hash
+        "#,
+        form.username,
+        password_hash,
+        session.user_id
+    )
+    .fetch_optional(&mut *transaction)
+    .await
+    .on_constraint("users_username_key", |_| {
+        ApiError::unprocessable_entity([("username", "username taken")])
+    })?
+    .ok_or(ApiError::NotFound)?;
+    
+    transaction.commit().await?;
+
+    let session = Session::new_for_user(user.user_id);
+    session.save(&ctx.redis_pool).await?;
 
     cookies.add(session.into_cookie());
 
@@ -191,9 +262,9 @@ async fn logout(
     session: Session,
     cookies: Cookies
 ) -> ApiResult<()> {
-    Session::take_from_jar(cookies);
+    Session::take_from_jar(&cookies);
 
-    session.clear(ctx.redis_pool).await?;
+    session.clear(&ctx.redis_pool).await?;
 
     Ok(())
 }

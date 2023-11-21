@@ -104,7 +104,8 @@ select trigger_updated_at('tags');
 
 create table applied_tags
 (
-    tag_id       bigserial not null references tags       (tag_id)       on delete cascade,
-    schematic_id bigserial not null references schematics (schematic_id) on delete cascade,
+    tag_id       bigserial   not null references tags       (tag_id)       on delete cascade,
+    schematic_id bigserial   not null references schematics (schematic_id) on delete cascade,
+    created_at   timestamptz not null default now(),
     primary key (tag_id, schematic_id)
 );
