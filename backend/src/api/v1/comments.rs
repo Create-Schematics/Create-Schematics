@@ -28,27 +28,27 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 
 #[derive(Deserialize, ToSchema)]
 pub (in crate::api) struct PaginationQuery {
-    limit: Option<i64>,
-    offset: Option<i64>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
 }
 
 #[derive(Serialize, ToSchema)]
 pub (in crate::api) struct FullComment {
-    comment_id: i64,
-    comment_author: Uuid,
-    comment_body: String,
-    schematic_id: i64,
-    author_username: String
+    pub comment_id: i64,
+    pub comment_author: Uuid,
+    pub comment_body: String,
+    pub schematic_id: i64,
+    pub author_username: String
 }
 
 #[derive(Deserialize, ToSchema)]
 pub (in crate::api) struct CommentBuilder {
-    comment_body: String
+    pub comment_body: String
 }
 
 #[derive(Deserialize, ToSchema)]
 pub (in crate::api) struct UpdateComment {
-    comment_body: Option<String>
+    pub comment_body: Option<String>
 }
 
 #[utoipa::path(
@@ -57,7 +57,7 @@ pub (in crate::api) struct UpdateComment {
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = SearchQuery, Query, description = "The id of the schematic to fetch the comments from")
+        ("query" = SearchQuery, Query, description = "Options to search with")
     ),
     responses(
         (status = 200, description = "Successfully retrieved the comments", body = [FullComment], content_type = "application/json"),

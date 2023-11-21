@@ -11,7 +11,7 @@ use crate::models::schematic::Schematic;
 pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
     Router::new()
         .route(
-            "/schematics/:id", 
+            "/schematics/favorites", 
             get(get_favorites)
         )
         .route(
