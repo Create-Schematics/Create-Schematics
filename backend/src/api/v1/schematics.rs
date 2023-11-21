@@ -103,10 +103,23 @@ async fn get_schematic_by_id(
 )]
 async fn update_schematic_by_id(
     State(ctx): State<ApiContext>,
-    Path(id): Path<i64>,
+    Path(schematic_id): Path<i64>,
+    session: Session,
     Json(schematic): Json<UpdateSchematic>,
 ) -> ApiResult<Json<Schematic>> {
     let mut transaction = ctx.pool.begin().await?;
+
+    let schematic_meta = sqlx::query!(
+        r#"select author from schematics where schematic_id = $1"#,
+        schematic_id
+    )
+    .fetch_optional(&ctx.pool)
+    .await?
+    .ok_or(ApiError::NotFound)?;
+
+    if schematic_meta.author != session.user_id {
+        return Err(ApiError::Forbidden.into());
+    }
 
     let schematic = sqlx::query_as!(
         Schematic,
@@ -128,16 +141,15 @@ async fn update_schematic_by_id(
         schematic.schematic_name,
         schematic.game_version,
         schematic.create_version,
-        id
+        schematic_id
     )
     .fetch_optional(&mut *transaction)
     .await?
-    .ok_or(ApiError::NotFound)
-    .map(Json)?;
+    .ok_or(ApiError::NotFound)?;
 
     transaction.commit().await?;
 
-    Ok(schematic)
+    Ok(Json(schematic))
 }
 
 #[utoipa::path(
