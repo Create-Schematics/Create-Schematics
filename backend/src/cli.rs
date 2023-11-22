@@ -2,7 +2,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
-use crate::api::{self, StartCommandServerArguments};
+use crate::api::{self, StartCommandServerArguments, openapi::OpenApiSchemaCommandArguements};
 
 #[derive(Parser, Debug)]
 #[command(name = "Create schematics command line interface")]
@@ -15,7 +15,10 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum Commands {
     #[command(name = "server")]
-    Start(StartCommandServerArguments)   
+    Start(StartCommandServerArguments), 
+
+    #[command(name = "openapi-schema")]
+    Openapi(OpenApiSchemaCommandArguements)
 }
 
 pub async fn init() -> ExitCode {
@@ -23,6 +26,7 @@ pub async fn init() -> ExitCode {
 
     let result = match cli.command {
         Commands::Start(args) => api::init(args).await,
+        Commands::Openapi(args) => api::openapi::save_schema(args),
     };
         
     if let Err(e) = result {

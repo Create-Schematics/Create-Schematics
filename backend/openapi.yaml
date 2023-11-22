@@ -1,0 +1,843 @@
+openapi: 3.0.3
+info:
+  title: Create Schematics REST API
+  description: ''
+  license:
+    name: MIT
+    url: https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE
+  version: 0.0.1
+paths:
+  /api/v1/comments/{id}:
+    get:
+      tags:
+      - v1
+      operationId: get_comment_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the comment to fetch
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully retrieved the comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullComment'
+        '404':
+          description: A comment with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - {}
+    delete:
+      tags:
+      - v1
+      operationId: delete_comment_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the comment to remove
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully deleted the comment
+        '401':
+          description: You need to be logged in to delete a comment
+        '403':
+          description: You do not have permission to delete this comment
+        '404':
+          description: A comment with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+    patch:
+      tags:
+      - v1
+      operationId: update_comment_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the comment to update
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: The new body of the comment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateComment'
+        required: true
+      responses:
+        '200':
+          description: Successfully updated the comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schematic'
+        '401':
+          description: You need to be logged in to update a comment
+        '403':
+          description: You do not have permission to update this comment
+        '404':
+          description: A comment with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+  /api/v1/schematics:
+    get:
+      tags:
+      - v1
+      operationId: search_schematics
+      parameters:
+      - name: id
+        in: query
+        description: The number and offset of schematics to fetch
+        required: true
+        schema:
+          $ref: '#/components/schemas/SearchQuery'
+      responses:
+        '200':
+          description: Successfully retrieved the schematics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Schematic'
+        '500':
+          description: An internal server error occurred
+      security:
+      - {}
+    post:
+      tags:
+      - v1
+      operationId: upload_schematic
+      requestBody:
+        description: Information about the new schematic
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchematicBuilder'
+        required: true
+      responses:
+        '200':
+          description: Successfully uploaded the schematic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schematic'
+        '401':
+          description: You must be logged in to upload a schematic
+        '403':
+          description: You do not have permission to upload a schematic
+        '500':
+          description: An error occurred while uploading the schematic
+      security:
+      - session_cookie: []
+  /api/v1/schematics/favorites:
+    get:
+      tags:
+      - v1
+      operationId: get_favorites
+      responses:
+        '200':
+          description: Successfully retrieved the schematics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Schematic'
+        '401':
+          description: You need to be logged in to view your favourite schematics
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+  /api/v1/schematics/{id}:
+    get:
+      tags:
+      - v1
+      operationId: get_schematic_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to fetch
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully retrieved the schematic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schematic'
+        '404':
+          description: A schematic with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - {}
+    delete:
+      tags:
+      - v1
+      operationId: delete_schematic_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to remove
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully deleted the schematic
+        '401':
+          description: You need to be logged in to delete a schematic
+        '403':
+          description: You do not have permission to delete this schematic
+        '404':
+          description: A schematic with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+    patch:
+      tags:
+      - v1
+      operationId: update_schematic_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to update
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: The values to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSchematic'
+        required: true
+      responses:
+        '200':
+          description: Successfully updated the schematic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schematic'
+        '401':
+          description: You need to be logged in to update a schematic
+        '403':
+          description: You do not have permission to update this schematic
+        '404':
+          description: A schematic with that id was not found
+        '422':
+          description: A schematic with the new name already exists
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+  /api/v1/schematics/{id}/comments:
+    get:
+      tags:
+      - v1
+      operationId: get_comments_by_schematic
+      parameters:
+      - name: query
+        in: query
+        description: Options to search with
+        required: true
+        schema:
+          $ref: '#/components/schemas/SearchQuery'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully retrieved the comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullComment'
+        '500':
+          description: An internal server error occurred
+      security:
+      - {}
+    post:
+      tags:
+      - v1
+      operationId: post_comment
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: The text of the comment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentBuilder'
+        required: true
+      responses:
+        '200':
+          description: Successfully added comment to schematic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '401':
+          description: You must be logged in to comment
+        '403':
+          description: You do not have permission to comment
+        '500':
+          description: An error occurred while uploading the comment
+      security:
+      - session_cookie: []
+  /api/v1/schematics/{id}/favorite:
+    post:
+      tags:
+      - v1
+      operationId: favorite_schematic
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to favorite
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully favorited the schematic
+        '401':
+          description: You need to be logged in to favorite a schematic
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+    delete:
+      tags:
+      - v1
+      operationId: unfavorite_schematic
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to unfavorite
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully unfavorited the schematic
+        '401':
+          description: You need to be logged in to unfavorite a schematic
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+  /api/v1/schematics/{id}/like:
+    delete:
+      tags:
+      - v1
+      operationId: remove_like_from_schematic
+      parameters:
+      - name: id
+        in: path
+        description: The id of the comment to remove the vote from
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully removed the vote
+        '401':
+          description: You need to be logged in to remove al ike
+        '404':
+          description: You have not liked this schematic
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+  /api/v1/schematics/{id}/tags:
+    get:
+      tags:
+      - v1
+      operationId: get_schematic_tags
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to fetch tags from
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successfully retrieved the schematic's tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullTag'
+        '404':
+          description: A schematic with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - {}
+    post:
+      tags:
+      - v1
+      operationId: tag_schematic_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to remove
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: The new tags to apply by name
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagBody'
+        required: true
+      responses:
+        '200':
+          description: Successfully added tags to schematic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schematic'
+        '401':
+          description: You must be logged in to tag a schematic
+        '403':
+          description: You do not have permission to tag this schematic
+        '500':
+          description: An error occurred while tagging the schematic
+      security:
+      - session_cookie: []
+    delete:
+      tags:
+      - v1
+      operationId: untag_schematic_by_id
+      parameters:
+      - name: id
+        in: path
+        description: The id of the schematic to remove tags from
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: The tags to remove from the schematic
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tags'
+        required: true
+      responses:
+        '200':
+          description: Successfully removed the tags from the schematic
+        '401':
+          description: You need to be logged in to delete tags from a schematic
+        '403':
+          description: You do not have permission to delete tags from this schematic
+        '404':
+          description: A schematic with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - session_cookie: []
+  /api/v1/tags:
+    get:
+      tags:
+      - v1
+      operationId: get_valid_tags
+      parameters:
+      - name: query
+        in: query
+        description: How many tags to fetch
+        required: true
+        schema:
+          $ref: '#/components/schemas/PaginationQuery'
+      responses:
+        '200':
+          description: Successfully retrieved the tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullTag'
+        '500':
+          description: An internal server error occurred
+      security:
+      - {}
+  /api/v1/users:
+    get:
+      tags:
+      - v1
+      operationId: current_user
+      responses:
+        '200':
+          description: Successfully found current users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: You must be logged in
+        '500':
+          description: An error occurred while authenticating the user
+      security:
+      - session_cookie: []
+    post:
+      tags:
+      - v1
+      operationId: signup
+      requestBody:
+        description: Information about the new user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+        required: true
+      responses:
+        '200':
+          description: Successfully signed up in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '429':
+          description: Either the username or password is already used
+        '500':
+          description: An error occurred while authenticating the user
+      security:
+      - {}
+  /api/v1/users/login:
+    post:
+      tags:
+      - v1
+      operationId: login
+      requestBody:
+        description: Login information with either the username or email
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '200':
+          description: Successfully logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid login credentials
+        '500':
+          description: An error occurred while authenticating user
+      security:
+      - {}
+  /api/v1/users/logout:
+    post:
+      tags:
+      - v1
+      operationId: logout
+      responses:
+        '200':
+          description: Successfully logged out
+        '401':
+          description: You must be logged in to lout out
+        '500':
+          description: An error occurred while authenticating user
+      security:
+      - session_cookie: []
+  /api/v1/users/{id}/schematics:
+    get:
+      tags:
+      - v1
+      operationId: get_uploaded_schematics
+      parameters:
+      - name: id
+        in: path
+        description: The id of the user to get the schematics from
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: query
+        in: query
+        description: How many schematics to fetch
+        required: true
+        schema:
+          $ref: '#/components/schemas/PaginationQuery'
+      responses:
+        '200':
+          description: Successfully retrieved the schematics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Schematic'
+        '404':
+          description: A schematic with that id was not found
+        '500':
+          description: An internal server error occurred
+      security:
+      - {}
+components:
+  schemas:
+    Comment:
+      type: object
+      required:
+      - comment_id
+      - comment_author
+      - comment_body
+      - schematic_id
+      properties:
+        comment_author:
+          type: string
+          format: uuid
+        comment_body:
+          type: string
+        comment_id:
+          type: integer
+          format: int64
+        schematic_id:
+          type: integer
+          format: int64
+    CommentBuilder:
+      type: object
+      required:
+      - comment_body
+      properties:
+        comment_body:
+          type: string
+    FullComment:
+      type: object
+      required:
+      - comment_id
+      - comment_author
+      - comment_body
+      - schematic_id
+      - author_username
+      properties:
+        author_username:
+          type: string
+        comment_author:
+          type: string
+          format: uuid
+        comment_body:
+          type: string
+        comment_id:
+          type: integer
+          format: int64
+        schematic_id:
+          type: integer
+          format: int64
+    FullTag:
+      type: object
+      required:
+      - tag_id
+      - tag_name
+      properties:
+        tag_id:
+          type: integer
+          format: int64
+        tag_name:
+          type: string
+    LikeAction:
+      type: string
+      enum:
+      - like
+      - dislike
+    LikeQuery:
+      type: object
+      properties:
+        action:
+          allOf:
+          - $ref: '#/components/schemas/LikeAction'
+          nullable: true
+    Login:
+      type: object
+      required:
+      - username
+      - password
+      properties:
+        password:
+          type: string
+        username:
+          type: string
+    PaginationQuery:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int64
+          nullable: true
+        offset:
+          type: integer
+          format: int64
+          nullable: true
+    Schematic:
+      type: object
+      required:
+      - schematic_id
+      - schematic_name
+      - game_version_id
+      - create_version_id
+      - author
+      - downloads
+      properties:
+        author:
+          type: string
+          format: uuid
+        create_version_id:
+          type: integer
+          format: int32
+        downloads:
+          type: integer
+          format: int64
+        game_version_id:
+          type: integer
+          format: int32
+        schematic_id:
+          type: integer
+          format: int64
+        schematic_name:
+          type: string
+    SchematicBuilder:
+      type: object
+      required:
+      - schematic_name
+      - game_version
+      - create_version
+      properties:
+        create_version:
+          type: integer
+          format: int32
+        game_version:
+          type: integer
+          format: int32
+        schematic_name:
+          type: string
+    SearchQuery:
+      type: object
+      required:
+      - term
+      properties:
+        limit:
+          type: integer
+          format: int64
+          nullable: true
+        offset:
+          type: integer
+          format: int64
+          nullable: true
+        term:
+          type: string
+    Signup:
+      type: object
+      required:
+      - username
+      - email
+      - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+    Tags:
+      type: object
+      required:
+      - tag_names
+      properties:
+        tag_names:
+          type: array
+          items:
+            type: integer
+            format: int64
+    UpdateComment:
+      type: object
+      properties:
+        comment_body:
+          type: string
+          nullable: true
+    UpdateSchematic:
+      type: object
+      properties:
+        create_version:
+          type: integer
+          format: int32
+          nullable: true
+        game_version:
+          type: integer
+          format: int32
+          nullable: true
+        schematic_name:
+          type: string
+          nullable: true
+    UpdateUser:
+      type: object
+      properties:
+        password:
+          type: string
+          nullable: true
+        username:
+          type: string
+          nullable: true
+    User:
+      type: object
+      required:
+      - user_id
+      - username
+      - email
+      properties:
+        email:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+  securitySchemes:
+    session_cookie:
+      type: apiKey
+      in: cookie
+      name: session
