@@ -4,19 +4,17 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, ToSchema)]
 pub struct User {
     pub user_id: Uuid,
-    
     pub username: String,
-
+    pub permissions: Permissions,
     pub email: String,
-
     #[serde(skip_serializing)]
     pub password_hash: String
 }
 
 bitflags::bitflags! {
-    #[derive(Serialize, Deserialize, ToSchema)]
+    #[derive(Debug, Serialize, Deserialize, ToSchema)]
     #[serde(transparent)]
-    pub struct Permissions: u64 {
+    pub struct Permissions: u32 {
         const VOTE = 1 << 0;
         const COMMENT = 1 << 1;
         const POST = 1 << 2;
@@ -26,9 +24,9 @@ bitflags::bitflags! {
     }
 }   
 
-impl From<i64> for Permissions {
-    fn from(value: i64) -> Self {
-        Permissions::from_bits(value as u64).unwrap_or_default()
+impl From<i32> for Permissions {
+    fn from(value: i32) -> Self {
+        Permissions::from_bits(value as u32).unwrap_or_default()
     }
 }
 
