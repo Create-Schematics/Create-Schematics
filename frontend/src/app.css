@@ -1,9 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.bg-casing {
-  background-image: url("/casing_bg.png");
-  background-size: 64px;
-  image-rendering: pixelated;
-}
