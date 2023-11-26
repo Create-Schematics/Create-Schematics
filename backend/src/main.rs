@@ -6,6 +6,8 @@ extern crate serde;
 
 use std::process::ExitCode;
 
+use tracing::Level;
+
 pub mod cli;
 pub mod api;
 pub mod models;
@@ -19,7 +21,7 @@ pub mod response;
 async fn main() -> ExitCode {
     dotenv::dotenv().ok();
 
-    tracing_subscriber::fmt::init();
-
+    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
+    
     cli::init().await
 }
