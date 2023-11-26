@@ -38,7 +38,7 @@ async fn get_uploaded_schematics(
         Schematic,
         r#"
         select schematic_id, schematic_name,
-               game_version, create_version,
+               game_version_id, create_version_id,
                downloads, author
         from schematics
         where author = $1

@@ -47,7 +47,7 @@ pub (in crate::api) struct FullTag {
 )]
 async fn get_schematic_tags(
     State(ctx): State<ApiContext>,
-    Path(schematic_id): Path<i64>
+    Path(schematic_id): Path<String>
 ) -> ApiResult<Json<Vec<FullTag>>> {
     let tags = sqlx::query_as!(
         FullTag,
@@ -121,7 +121,7 @@ async fn get_valid_tags(
 async fn tag_schematic_by_id(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<i64>,
+    Path(schematic_id): Path<String>,
     Json(query): Json<Tags>
 ) -> ApiResult<()> {
     let schematic_meta = sqlx::query!(
@@ -183,7 +183,7 @@ async fn tag_schematic_by_id(
 async fn untag_schematic_by_id(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<i64>,
+    Path(schematic_id): Path<String>,
     Json(query): Json<Tags>
 ) -> ApiResult<()> {
     let schematic_meta = sqlx::query!(
