@@ -67,7 +67,7 @@ select trigger_updated_at('schematic_likes');
 
 create table mods
 (
-    mod_id          bigserial   primary key,
+    mod_id          text primary key,
     mod_name        text unique collate "case_insensitive",
     curseforge_slug int  unique,
     modrinth_slug   text unique,
@@ -79,8 +79,8 @@ select trigger_updated_at('mods');
 
 create table mod_dependencies
 (
-    schematic_id text      not null references schematics (schematic_id) on delete cascade,
-    mod_id       bigserial not null references mods       (mod_id)       on delete cascade,
+    schematic_id text not null references schematics (schematic_id) on delete cascade,
+    mod_id       text not null references mods       (mod_id)       on delete cascade,
     -- Ensure one schematic cannot depend on the same mod twice
     primary key (schematic_id, mod_id)
 );

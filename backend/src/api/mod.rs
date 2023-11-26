@@ -93,3 +93,31 @@ pub async fn init(
 
     Ok(())
 }
+
+#[cfg(test)]
+pub mod tests {
+    use axum_test::TestServer;
+    use deadpool_redis::{Config, Runtime};
+    use sqlx::postgres::PgPoolOptions;
+
+    use crate::database::redis::RedisPool;
+    
+    pub async fn build_test_server() -> Result<TestServer, anyhow::Error> {
+        let postgres = dotenv::var("DATABASE_URL")?;
+        let redis = dotenv::var("REDIS_URL")?;
+    
+        let database_pool = PgPoolOptions::new()
+            .connect(&postgres)
+            .await?;
+        
+        let redis_pool = Config::from_url(redis)
+            .builder()?
+            .runtime(Runtime::Tokio1)
+            .build()
+            .map(|pool| RedisPool(pool))?;
+    
+        let app = super::build_router(redis_pool, database_pool);
+    
+        TestServer::new(app)
+    }
+}
