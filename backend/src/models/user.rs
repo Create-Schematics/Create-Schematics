@@ -4,9 +4,17 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, ToSchema)]
 pub struct User {
     pub user_id: Uuid,
+
+    #[schema(example="My username")]
+    #[schema(min_length=3, max_length=20)]
     pub username: String,
+
+    #[schema(value_type=u64, example=7)]
     pub permissions: Permissions,
+
+    #[schema(example="email@email.com")]
     pub email: String,
+
     #[serde(skip_serializing)]
     pub password_hash: String
 }

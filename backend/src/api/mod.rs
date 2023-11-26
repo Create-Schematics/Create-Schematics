@@ -15,9 +15,6 @@ pub mod v1;
 
 pub mod openapi;
 
-#[cfg(test)]
-pub mod tests;
-
 pub fn configure() -> Router<ApiContext> {
     Router::new()
         .nest("/v1", v1::configure())
