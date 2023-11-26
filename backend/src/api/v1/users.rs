@@ -1,6 +1,7 @@
 use axum::Router;
 use axum::routing::post;
-use axum::{extract::State, Json};
+use axum::Json;
+use axum::extract::State;
 use tower_cookies::Cookies;
 use utoipa::ToSchema;
 
@@ -8,25 +9,42 @@ use crate::authentication::password::{hash_password_argon2, verify_password_argo
 use crate::authentication::session::Session;
 use crate::response::ApiResult;
 use crate::error::{ApiError, ResultExt};
-use crate::models::user::User;
+use crate::models::user::{User, Permissions};
 use crate::api::ApiContext;
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub (in crate::api) struct Login {
+    /// The username or email of the account to log into
+    /// 
+    #[schema(example="My username")]
+    #[schema(min_length=3, max_length=20)]
     username: String,
+
+    #[schema(example="My password")]
+    #[schema(min_length=8)]
     password: String
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub (in crate::api) struct Signup {
+    #[schema(example="My username")]
+    #[schema(min_length=3, max_length=20)]
     username: String,
+
+    #[schema(example="email@email.com")]
     email: String,
+
+    #[schema(example="My password")]
     password: String
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub (in crate::api) struct UpdateUser {
+    #[schema(example="My new username")]
+    #[schema(min_length=3, max_length=20)]
     username: Option<String>,
+    
+    #[schema(example="My new password")]
     password: Option<String>
 }
 
@@ -37,6 +55,7 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
             post(signup)
             .patch(update_current_user)
             .get(current_user) 
+            .delete(remove_current_user)
         )
         .route(
             "/users/login", 
@@ -68,7 +87,8 @@ async fn current_user(
         User,
         r#"
         select user_id, username,
-               email, password_hash
+               permissions, email, 
+               password_hash
         from users
         where user_id = $1
         "#,
@@ -101,20 +121,22 @@ async fn signup(
     Json(form): Json<Signup>
 ) -> ApiResult<Json<User>> {
     let password_hash = hash_password_argon2(form.password).await?;
+    let permissions = Permissions::default().bits() as i32;
 
     let user = sqlx::query_as!(
         User,
         r#"
         insert into users 
-            (username, email, password_hash)
+            (username, email, permissions, password_hash)
         values 
-            ($1, $2, $3)
+            ($1, $2, $3, $4)
         returning
-            user_id, username,
-            email, password_hash
+            user_id, username, email,
+            permissions, password_hash
         "#,
         form.username,
         form.email,
+        permissions,
         password_hash
     )
     .fetch_one(&ctx.pool)
@@ -158,8 +180,9 @@ async fn login(
     let user = sqlx::query_as!(
         User,
         r#"
-        select user_id, username,
-               email, password_hash
+        select user_id, username, 
+               permissions, email, 
+               password_hash
         from users 
         where username = $1
         or email = $1
@@ -222,6 +245,7 @@ async fn update_current_user(
                 user_id,
                 username,
                 email,
+                permissions,
                 password_hash
         "#,
         form.username,
@@ -265,6 +289,43 @@ async fn logout(
     Session::take_from_jar(&cookies);
 
     session.clear(&ctx.redis_pool).await?;
+
+    Ok(())
+}
+
+#[utoipa::path(
+    post,
+    path = "/users",
+    context_path = "/api/v1",
+    tag = "v1",
+    responses(
+        (status = 200, description = "Successfully deleted current user"),
+        (status = 401, description = "You must be logged in to remove your account"),
+        (status = 500, description = "An error occurred removing your account")
+    ),
+    security(("session_cookie" = []))
+)]
+async fn remove_current_user(
+    State(ctx): State<ApiContext>,
+    session: Session,
+    cookies: Cookies
+) -> ApiResult<()>  {
+    let mut transaction = ctx.pool.begin().await?;
+
+    sqlx::query!(
+        r#"
+        delete from users
+        where user_id = $1
+        "#,
+        session.user_id
+    )
+    .execute(&mut *transaction)
+    .await?;
+
+    Session::take_from_jar(&cookies);
+    session.clear(&ctx.redis_pool).await?;
+
+    transaction.commit().await?;
 
     Ok(())
 }

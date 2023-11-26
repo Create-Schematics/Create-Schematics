@@ -19,8 +19,9 @@ utoipa-swagger-ui = { version = "4.0.0", features = ["axum"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.17"
 
-serde = "1.0.192"
-serde_derive = "1.0.192"
+serde = "1.0.193"
+serde_derive = "1.0.193"
+serde_json = "1.0.108"
 
 clap = { version = "4.4.8", features = ["derive", "env"] }
 
@@ -37,3 +38,7 @@ time = "0.3.23"
 argon2 = "0.5.2"
 rand = "0.8.5"
 nanoid = "0.4.0"
+bitflags = { version = "2.4.1", features = ["serde"] }
+
+[dev-dependencies]
+axum-test = "13.4.1"

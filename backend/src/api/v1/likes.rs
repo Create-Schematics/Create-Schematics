@@ -1,7 +1,12 @@
-use axum::{Router, extract::{State, Path, Query}, routing::post};
+use axum::extract::{State, Path, Query};
+use axum::routing::post;
 use utoipa::ToSchema;
+use axum::Router;
 
-use crate::{api::ApiContext, authentication::session::Session, response::ApiResult, error::ApiError};
+use crate::error::ApiError;
+use crate::response::ApiResult;
+use crate::authentication::session::Session;
+use crate::api::ApiContext;
 
 pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
     Router::new()
@@ -53,7 +58,7 @@ impl LikeAction {
 async fn like_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<i64>,
+    Path(schematic_id): Path<String>,
     Query(query): Query<LikeQuery>
 ) -> ApiResult<()> {
     let action = query.action.ok_or(ApiError::BadRequest)?;
@@ -101,7 +106,7 @@ async fn like_schematic(
 async fn remove_like_from_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<i64>,
+    Path(schematic_id): Path<String>,
 ) -> ApiResult<()> {
     let mut transaction = ctx.pool.begin().await?;
 

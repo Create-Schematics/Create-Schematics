@@ -3,10 +3,10 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct Schematic {
-    pub schematic_id: i64,
+    pub schematic_id: String,
     pub schematic_name: String,
-    pub game_version: i32,
-    pub create_version: i32,
+    pub game_version_id: i32,
+    pub create_version_id: i32,
     pub author: Uuid,
     pub downloads: i64,
 }

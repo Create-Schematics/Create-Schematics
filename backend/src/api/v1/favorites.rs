@@ -41,8 +41,8 @@ async fn get_favorites(
         Schematic,
         r#"
         select schematic_id, schematic_name,
-               game_version, create_version, 
-               downloads, author
+               game_version_id, author,
+               create_version_id, downloads
         from favorites
         inner join schematics
         using (schematic_id)
@@ -74,7 +74,7 @@ async fn get_favorites(
 async fn favorite_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(id): Path<i64>,
+    Path(id): Path<String>,
 ) -> ApiResult<()> {
     sqlx::query!(
         r#"
@@ -113,7 +113,7 @@ async fn favorite_schematic(
 async fn unfavorite_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(id): Path<i64>,
+    Path(schematic_id): Path<String>,
 ) -> ApiResult<()> {
     sqlx::query!(
         r#"
@@ -121,7 +121,7 @@ async fn unfavorite_schematic(
         where schematic_id = $1
         and user_id = $2
         "#,
-        id,
+        schematic_id,
         session.user_id
     )
     .execute(&ctx.pool)

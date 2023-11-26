@@ -42,18 +42,11 @@ pub struct ApiContext {
     pub redis_pool: RedisPool
 }
 
-pub async fn init(
-    StartCommandServerArguments {
-        listen_address,
-        postgres,
-        redis,
-        ..
-    }: StartCommandServerArguments,
-) -> Result<(), anyhow::Error> {
-    let database_pool = postgres::connect(postgres).await?;
-    let redis_pool = redis::connect(redis)?;
-
-    let app = Router::new()
+fn build_router(
+    redis_pool: RedisPool,
+    pool: PgPool,
+) -> Router {
+    Router::new()
         .nest("/api", crate::api::configure())
         .merge(SwaggerUi::new("/swagger-ui").url("/openapi.json", openapi::ApiDoc::openapi()))
         .layer(CorsLayer::default()
@@ -78,7 +71,21 @@ pub async fn init(
         )
         .layer(CookieManagerLayer::new())
         .layer(TraceLayer::new_for_http())
-        .with_state(ApiContext { pool: database_pool, redis_pool });
+        .with_state(ApiContext { pool, redis_pool })
+}
+
+pub async fn init(
+    StartCommandServerArguments {
+        listen_address,
+        postgres,
+        redis,
+        ..
+    }: StartCommandServerArguments,
+) -> Result<(), anyhow::Error> {
+    let database_pool = postgres::connect(postgres).await?;
+    let redis_pool = redis::connect(redis)?;
+
+    let app = build_router(redis_pool, database_pool);
     
     axum::Server::bind(&listen_address)
         .serve(app.into_make_service())
@@ -87,3 +94,30 @@ pub async fn init(
     Ok(())
 }
 
+#[cfg(test)]
+pub mod tests {
+    use axum_test::TestServer;
+    use deadpool_redis::{Config, Runtime};
+    use sqlx::postgres::PgPoolOptions;
+
+    use crate::database::redis::RedisPool;
+    
+    pub async fn build_test_server() -> Result<TestServer, anyhow::Error> {
+        let postgres = dotenv::var("DATABASE_URL")?;
+        let redis = dotenv::var("REDIS_URL")?;
+    
+        let database_pool = PgPoolOptions::new()
+            .connect(&postgres)
+            .await?;
+        
+        let redis_pool = Config::from_url(redis)
+            .builder()?
+            .runtime(Runtime::Tokio1)
+            .build()
+            .map(|pool| RedisPool(pool))?;
+    
+        let app = super::build_router(redis_pool, database_pool);
+    
+        TestServer::new(app)
+    }
+}
