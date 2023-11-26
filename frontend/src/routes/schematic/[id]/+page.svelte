@@ -26,9 +26,19 @@
             by <a href="/user/Szedann" class="underline">Szedann</a>
           </h3>
         </div>
-        <div class="px-2 text-sm">
-          320 downloads<br>
-          60% positive votes
+        <div class="px-2 text-sm pixel-corners p-2 flex bg-black m-2 divide-x divide-create-blue/20">
+          <div class="flex flex-col items-center w-full">
+            <h1 class="text-xl">603</h1>
+            <span class="text-xs">Donwloads</span>
+          </div>
+          <div class="flex flex-col items-center w-full">
+            <h1 class="text-xl">60%</h1>
+            <span class="text-xs">Likes</span>
+          </div>
+          <div class="flex flex-col items-center w-full">
+            <h1 class="text-xl">894</h1>
+            <span class="text-xs">Views</span>
+          </div>
         </div>
         <ul class="flex flex-wrap gap-2 px-2">
           {#each tags as tag}
@@ -61,7 +71,7 @@
         <a
           href="create-schem://123124"
           style="--checker-color: #0001"
-          class="w-full bg-green-500 p-2 text-center font-bold pixel-corners bg-checker"
+          class="w-full bg-green-500 text-xl p-2 text-center font-bold pixel-corners bg-checker"
           >Download</a
         >
       </div>
