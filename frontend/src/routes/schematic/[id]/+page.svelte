@@ -2,14 +2,14 @@
   import Slider from "$lib/Slider.svelte";
 
   const tags = ["farm", "Above & Beyond"];
-  const mods = ["Create: Steam 'n' Rails", "Create: Extended Bogeys"];
+  const mods = ["Create: Steam 'n' Rails", "Create: Extended Bogeys", "aa", "bb", "cc"];
 </script>
 
 <main
   class="max-w-6xl w-[calc(100vw-2rem)] flex flex-col mx-auto gap-3"
 >
   <section class="flex gap-3 w-full justify-stretch flex-wrap md:flex-nowrap">
-    <div class="flex md:w-2/3 aspect-video bg-minecraft-ui-dark p-2 pixel-corners">
+    <div class="flex md:w-2/3 aspect-video bg-minecraft-ui-dark p-3 pixel-corners">
       <Slider
         images={[
           "https://picsum.photos/800/450",
@@ -18,29 +18,33 @@
         ]}
       />
     </div>
-    <div class="flex flex-col gap-2 w-full md:w-1/3 justify-between bg-minecraft-ui-dark pixel-corners p-3">
+    <div class="flex flex-col gap-2 w-full md:w-1/3 justify-between bg-minecraft-ui-dark pixel-corners">
       <div class="flex flex-col gap-2">
-        <div class="">
+        <div class="p-3 pb-0">
           <h1 class="text-2xl font-bold">Very cool schematic</h1>
-          <h3 class="font-mono text-xs text-white/50">
+          <h3 class="text-xs text-white/50">
             by <a href="/user/Szedann" class="underline">Szedann</a>
           </h3>
         </div>
-        <ul class="flex flex-wrap gap-2">
+        <div class="px-2 text-sm">
+          320 downloads<br>
+          60% positive votes
+        </div>
+        <ul class="flex flex-wrap gap-2 px-2">
           {#each tags as tag}
             <li
-              class="font-mono text-xs bg-create-blue/20 px-1 text-white/50">
+              class="text-xs bg-create-blue/20 px-1 text-white/50">
               {tag}
             </li>
           {/each}
         </ul>
-        <div class="w-full">
+        <div class="w-full p-3 bg-checker bg-black/20">
           <h2>Required mods:</h2>
-          <ul class="flex flex-col gap-2">
+          <ul class="flex flex-col gap-2 overflow-y-scroll max-h-64 p-2 bg-fixed no-scrollbar">
             {#each mods as mod}
               <li
-                class="flex gap-2 bg-black/30 w-full p-2 pixel-corners checker-bg">
-                <img src="https://picsum.photos/40" alt="" class="pixel-corners" />
+                class="flex gap-2 bg-black/30 w-full p-2 pixel-corners bg-checker">
+                <img src="https://picsum.photos/40" alt="" class="pixel-corners aspect-square" />
                 <div>
                   <h2 class="font-bold">{mod}</h2>
                   <div class="text-xs flex gap-1 font-mono">
@@ -53,22 +57,22 @@
           </ul>
         </div>
       </div>
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-3 p-3 pt-0">
         <a
           href="create-schem://123124"
-          class="w-full bg-green-500/30 p-2 text-center text-white/80 pixel-corners"
+          style="--checker-color: #0001"
+          class="w-full bg-green-500 p-2 text-center font-bold pixel-corners bg-checker"
           >Download</a
-        >
-        <a
-          href="create-schem://123124"
-          class="w-full bg-create-blue/30 p-2 text-center text-white/80 pixel-corners"
-          >Build</a
         >
       </div>
     </div>
   </section>
   <section class="bg-minecraft-ui-dark p-3 pixel-corners">
-    <h1 class="text-2xl font-bold my-3">Description</h1>
+    <nav class="my-3 flex gap-2">
+      <h2 class="text-xl underline">Description</h2>
+      <h2 class="text-xl text-white/50">Details</h2>
+  
+    </nav>
     <div class="bg-black/50 p-4 pixel-corners">
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem
       blanditiis dolores quaerat iste veritatis. Sequi saepe, ut aut voluptatem

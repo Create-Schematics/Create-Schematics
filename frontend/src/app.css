@@ -38,3 +38,9 @@
 .w-fit-content {
     width: fit-content;
 }
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-thumb{
+    background: #000;
+}
