@@ -3,35 +3,41 @@
 @tailwind components;
 @tailwind utilities;
 
-.border-outset{
-    border-style: outset;
-}
-
-.checker-bg{
-    --checker-size: 16px;
-    --checker-color: #0002;
+@layer utilities {
+    .border-outset{
+        border-style: outset;
+    }
     
-    background-image: linear-gradient(45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(-45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--checker-color) 75%), linear-gradient(-45deg, transparent 75%, var(--checker-color) 75%);
-    background-size: var(--checker-size) var(--checker-size);
-    background-position: 0 0, 0 calc(var(--checker-size)/2), calc(var(--checker-size)/2) calc(var(--checker-size)/-2), calc(var(--checker-size)/-2) 0px;
+    .bg-checker{
+        --checker-size: 16px;
+        --checker-color: #0002;
+        
+        background-image: linear-gradient(45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(-45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--checker-color) 75%), linear-gradient(-45deg, transparent 75%, var(--checker-color) 75%);
+        background-size: var(--checker-size) var(--checker-size);
+        background-position: 0 0, 0 calc(var(--checker-size)/2), calc(var(--checker-size)/2) calc(var(--checker-size)/-2), calc(var(--checker-size)/-2) 0px;
+    }
+    
+    .pixel-corners {
+        clip-path: polygon(
+          0px calc(100% - 4px),
+          4px calc(100% - 4px),
+          4px 100%,
+          calc(100% - 4px) 100%,
+          calc(100% - 4px) calc(100% - 4px),
+          100% calc(100% - 4px),
+          100% 4px,
+          calc(100% - 4px) 4px,
+          calc(100% - 4px) 0px,
+          4px 0px,
+          4px 4px,
+          0px 4px
+        );
+    }
 }
 
-
-
-.pixel-corners {
-    clip-path: polygon(
-      0px calc(100% - 4px),
-      4px calc(100% - 4px),
-      4px 100%,
-      calc(100% - 4px) 100%,
-      calc(100% - 4px) calc(100% - 4px),
-      100% calc(100% - 4px),
-      100% 4px,
-      calc(100% - 4px) 4px,
-      calc(100% - 4px) 0px,
-      4px 0px,
-      4px 4px,
-      0px 4px
-    );
+::-webkit-scrollbar {
+    width: 5px;
 }
-
+::-webkit-scrollbar-thumb{
+    background: #000;
+}

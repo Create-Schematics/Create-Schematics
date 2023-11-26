@@ -3,7 +3,7 @@
 </script>
 
 <body
-  class="bg-gray-800 text-white h-screen absolute w-full flex flex-col gap-5 overflow-x-hidden font-pixel checker-bg"
+  class="bg-gray-800 text-white h-screen absolute w-full flex flex-col gap-3 overflow-x-hidden font-pixel bg-checker"
 >
   <header
     class="bg-minecraft-ui-dark max-w-6xl p-4 mx-auto mt-3
