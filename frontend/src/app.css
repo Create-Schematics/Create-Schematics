@@ -17,7 +17,6 @@
 }
 
 
-
 .pixel-corners {
     clip-path: polygon(
       0px calc(100% - 4px),
@@ -33,6 +32,16 @@
       4px 4px,
       0px 4px
     );
+}
+
+a {
+    color: #7695EC;
+    /* Not sure if underlined links is desired or not. */
+    /* text-decoration: underline; */
+}
+
+a:hover {
+    color: #617ac1;
 }
 
 ::-webkit-scrollbar {
