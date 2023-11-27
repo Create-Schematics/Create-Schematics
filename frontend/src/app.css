@@ -13,7 +13,7 @@
 }
 
 .bg-checker{
-    --checker-size: 16px;
+    --checker-size: 20px;
     --checker-color: #0002;
     
     background-image: linear-gradient(45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(-45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--checker-color) 75%), linear-gradient(-45deg, transparent 75%, var(--checker-color) 75%);
