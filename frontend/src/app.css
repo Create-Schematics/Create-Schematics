@@ -50,3 +50,8 @@ a:hover {
 ::-webkit-scrollbar-thumb{
     background: #000;
 }
+
+.scrollbar-small {
+    scrollbar-color: #252b40 rgba(0, 0, 0, 0);
+    scrollbar-width: thin;
+}
