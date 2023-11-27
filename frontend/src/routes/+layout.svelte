@@ -47,7 +47,7 @@
             <p class="text-m">
               Create Schematics is <a href="https://github.com/Create-Schematics/Create-Schematics">open source</a>.<br>
               <a href="https://discord.gg/GJsQadv9Mc">Discord</a><br>
-              <a href="emailto:contact@createschematics.com">Email</a>
+              <a href="mailto:contact@createschematics.com">Email</a>
             </p>
           </div>
         </div>
