@@ -3,7 +3,7 @@
 </script>
 
 <body
-  class="bg-gray-800 text-white h-screen absolute w-full flex flex-col gap-3 overflow-x-hidden font-pixel bg-checker"
+  class="bg-gray-800 text-white h-screen absolute w-full flex flex-col gap-3 overflow-x-hidden font-pixel"
 >
   <header
     class="bg-minecraft-ui-dark max-w-6xl p-4 mx-auto mt-3
@@ -22,7 +22,7 @@
       <div
         class="l bg-create-blue/50
         flex h-10 w-10 text-center hover:bg-create-blue/80 cursor-pointer
-        items-center justify-center text-3xl font-black pixel-corners"
+        items-center justify-center text-4xl font-mono font-black  pixel-corners"
       >
         +
       </div>

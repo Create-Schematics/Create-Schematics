@@ -48,7 +48,7 @@
             </li>
           {/each}
         </ul>
-        <div class="w-full p-3 bg-checker bg-black/20">
+        <div class="w-full p-3 bg-black/20">
           <h2>Required mods:</h2>
           <ul class="flex flex-col gap-2 overflow-y-scroll max-h-64 p-2 bg-fixed no-scrollbar">
             {#each mods as mod}
@@ -57,7 +57,7 @@
                 <img src="https://picsum.photos/40" alt="" class="pixel-corners aspect-square" />
                 <div>
                   <h2 class="font-bold">{mod}</h2>
-                  <div class="text-xs flex gap-1 font-mono">
+                  <div class="text-xs flex gap-1">
                     <a href="https://modrinth.com">Modrinth</a>
                     <a href="https://cursefurge.com">CurseForge</a>
                   </div>
@@ -70,8 +70,8 @@
       <div class="flex flex-col gap-3 p-3 pt-0">
         <a
           href="create-schem://123124"
-          style="--checker-color: #0001"
-          class="w-full bg-green-500 text-xl p-2 text-center font-bold pixel-corners bg-checker"
+          style="--checker-color: #fff1"
+          class="w-full bg-create-blue text-xl p-2 text-center font-bold pixel-corners bg-checker"
           >Download</a
         >
       </div>
