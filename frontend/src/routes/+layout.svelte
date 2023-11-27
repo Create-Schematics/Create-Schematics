@@ -10,7 +10,7 @@
     w-[calc(100vw-2rem)] flex justify-between items-center pixel-corners"
   >
     <div class="flex items-center gap-3">
-      <h1 class="text-xl font-bold">CS</h1>
+      <a href="/"><h1 class="text-xl font-bold">CS</h1></a>
 
       <input
         type="search"
@@ -33,5 +33,41 @@
       </div>
     </div>
   </header>
-  <slot />
+  <main class="flex-grow">
+    <slot />
+  </main>
+  <footer class="bg-minecraft-ui-dark opacity-75 p-4 justify-between items-center">
+
+    <div class="container mx-auto text-center md:text-left p-4 opacity-100 ">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
+
+        <div class="mb-4 md:mb-0 items-center">
+          <div class="w-fit mx-auto">
+            <h2 class="text-lg font-semibold mb-2">Create Schematics</h2>
+            <p class="text-m">
+              Create Schematics is <a href="https://github.com/Create-Schematics/Create-Schematics">open source</a>.<br>
+              <a href="https://discord.gg/GJsQadv9Mc">Discord</a><br>
+              <a href="mailto:contact@createschematics.com">Email</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="mb-4 md:mb-0 items-center">
+          <div class="w-fit mx-auto">
+            <h2 class="text-lg font-semibold mb-2">Resources</h2>
+            <p class="text-m">
+              <a href="../terms">Terms of Use</a><br>
+              <a href="../privacy">Privacy</a><br>
+              <a href="../rules">Upload Rules</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-auto mt-8 text-sm text-gray-500 text-center opacity-100">
+        <p>&copy; 2023. <a href="https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE">Licensed under the MIT License</a>.</p>
+
+        <p>NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.<br>NOT APPROVED BY OR ASSOCIATED WITH THE CREATE MOD.</p>
+      </div>
+  </footer>
 </body>
