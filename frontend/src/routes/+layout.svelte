@@ -42,7 +42,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
 
         <div class="mb-4 md:mb-0 items-center">
-          <div class="w-fit-content mx-auto">
+          <div class="w-fit mx-auto">
             <h2 class="text-lg font-semibold mb-2">Create Schematics</h2>
             <p class="text-m">
               Create Schematics is <a href="https://github.com/Create-Schematics/Create-Schematics">open source</a>.<br>
@@ -53,7 +53,7 @@
         </div>
 
         <div class="mb-4 md:mb-0 items-center">
-          <div class="w-fit-content mx-auto">
+          <div class="w-fit mx-auto">
             <h2 class="text-lg font-semibold mb-2">Resources</h2>
             <p class="text-m">
               <a href="../terms">Terms of Use</a><br>

@@ -35,9 +35,6 @@
     );
 }
 
-.w-fit-content {
-    width: fit-content;
-}
 ::-webkit-scrollbar {
     width: 5px;
 }
