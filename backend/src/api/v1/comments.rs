@@ -6,6 +6,8 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::api::ApiContext;
+use crate::models::schematic::Schematic;
+use crate::models::user::{Permissions, User};
 use crate::response::ApiResult;
 use crate::models::comment::Comment;
 use crate::error::ApiError;
@@ -73,14 +75,17 @@ async fn get_comments_by_schematic(
     let schematics = sqlx::query_as!(
         FullComment,
         r#"
-        select comment_id, comment_author,
-               comment_body, schematic_id,
-               username as author_username
-        from comments
-        inner join users
-        on comment_author = user_id
-        where schematic_id = $1
-        limit $2 offset $3
+        select 
+            comment_id, comment_author,
+            comment_body, schematic_id,
+            username as author_username
+        from 
+            comments
+            inner join users on comment_author = user_id
+        where 
+            schematic_id = $1
+        limit $2 
+        offset $3
         "#,
         schematic_id,
         query.limit.unwrap_or(20),
@@ -114,13 +119,15 @@ async fn get_comment_by_id(
     sqlx::query_as!(
         FullComment,
         r#"
-        select comment_id, comment_author,
-               comment_body, schematic_id,
-               username as author_username
-        from comments
-        inner join users
-        on comment_author = user_id
-        where comment_id = $1
+        select 
+            comment_id, comment_author,
+            comment_body, schematic_id,
+            username as author_username
+        from 
+            comments
+            inner join users on comment_author = user_id
+        where 
+            comment_id = $1
         "#,
         comment_id,
     )
@@ -205,26 +212,28 @@ async fn post_comment(
 async fn update_comment_by_id(
     State(ctx): State<ApiContext>,
     Path(comment_id): Path<String>,
-    session: Session,
+    user: User,
     Json(update): Json<UpdateComment>
 ) -> ApiResult<Json<Comment>> {
     let mut transaction = ctx.pool.begin().await?;
+
+    Comment::check_user_permissions(user, &comment_id, Permissions::MODERATE_COMMENTS, &mut *transaction).await?;
 
     let comment = sqlx::query_as!(
         Comment,
         r#"
         update comments
-        set comment_body = coalesce($1, comment_body)
-        where comment_author = $2
-        and comment_id = $3
-        returning
-            comment_id,
-            comment_author,
-            comment_body,
-            schematic_id
+            set 
+                comment_body = coalesce($1, comment_body)
+            where 
+                comment_id = $2
+            returning
+                comment_id,
+                comment_author,
+                comment_body,
+                schematic_id
         "#,
         update.comment_body,
-        session.user_id,
         comment_id
     )
     .fetch_optional(&mut *transaction)
@@ -256,38 +265,25 @@ async fn update_comment_by_id(
 async fn delete_comment_by_id(
     State(ctx): State<ApiContext>,
     Path(comment_id): Path<String>,
-    session: Session
+    user: User
 ) -> ApiResult<()> {
     let mut transaction = ctx.pool.begin().await?;
 
-    let result = sqlx::query!(
+    Schematic::check_user_permissions(user, &comment_id, Permissions::MODERATE_COMMENTS, &mut *transaction).await?;
+
+    // We dont need to validate the the comment previously existed here as that was implicitly
+    // checked when ensuring the user was the author of the comment
+    sqlx::query!(
         r#"
-        with deleted_comment as (
-            delete from comments
-            where comment_author = $1
-            and comment_id = $2
-            returning 1
-        )
-        select
-            exists(select 1 from comments where comment_id = $2) "existed",
-            exists(select 1 from deleted_comment) "deleted"
+        delete from comments
+        where comment_id = $1
         "#,
-        session.user_id,
         comment_id
     )
-    .fetch_one(&mut *transaction)
+    .execute(&mut *transaction)
     .await?;
 
     transaction.commit().await?;
 
-    if result.deleted.unwrap_or_default() {
-        // The comment existed, was owned by the user and was succesfully removed
-        Ok(())
-    } else if result.existed.unwrap_or_default() {
-        // The comment existed, but was not owned by the user
-        Err(ApiError::Forbidden)
-    } else {
-        // The comment did not exist in the first place
-        Err(ApiError::NotFound)
-    }
+    Ok(())
 }    

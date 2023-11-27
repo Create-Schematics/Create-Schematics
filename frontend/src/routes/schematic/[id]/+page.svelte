@@ -71,7 +71,7 @@
         <a
           href="create-schem://123124"
           style="--checker-color: #fff1"
-          class="w-full bg-create-blue text-xl p-2 text-center font-bold pixel-corners bg-checker"
+          class="w-full bg-create-blue text-xl text-white hover:text-slate-100 font-bold p-2 text-center pixel-corners bg-checker"
           >Download</a
         >
       </div>
