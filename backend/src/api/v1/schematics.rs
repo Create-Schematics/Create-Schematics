@@ -8,6 +8,7 @@ use uuid::Uuid;
 
 use crate::authentication::session::Session;
 use crate::error::{ApiError, ResultExt};
+use crate::models::user::{User, Permissions};
 use crate::response::ApiResult;
 use crate::models::schematic::Schematic;
 use crate::api::ApiContext;
@@ -257,22 +258,12 @@ async fn get_schematic_by_id(
 async fn update_schematic_by_id(
     State(ctx): State<ApiContext>,
     Path(schematic_id): Path<String>,
-    session: Session,
+    user: User,
     Json(schematic): Json<UpdateSchematic>,
 ) -> ApiResult<Json<Schematic>> {
     let mut transaction = ctx.pool.begin().await?;
 
-    let schematic_meta = sqlx::query!(
-        r#"select author from schematics where schematic_id = $1"#,
-        schematic_id
-    )
-    .fetch_optional(&ctx.pool)
-    .await?
-    .ok_or(ApiError::NotFound)?;
-
-    if schematic_meta.author != session.user_id {
-        return Err(ApiError::Forbidden.into());
-    }
+    Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
 
     let schematic = sqlx::query_as!(
         Schematic,
@@ -324,36 +315,28 @@ async fn update_schematic_by_id(
 )]
 async fn delete_schematic_by_id(
     State(ctx): State<ApiContext>,
-    Path(id): Path<String>,
-    session: Session
+    Path(schematic_id): Path<String>,
+    user: User
 ) -> ApiResult<()> {
-    let result = sqlx::query!(
+    let mut transaction = ctx.pool.begin().await?;
+
+    Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
+
+    // We dont need to ensure the user owns the schematic here or that they are the owner
+    // as that has already been checked and in doing so validated that the schematic exists
+    sqlx::query!(
         r#"
-        with deleted_schematic as (
-            delete from schematics
-            where schematic_id = $1 and author = $2
-            returning 1
-        )
-        select
-            exists(select 1 from schematics where schematic_id = $1) "existed",
-            exists(select 1 from deleted_schematic) "deleted"
+        delete from schematics
+        where schematic_id = $1
         "#,
-        id,
-        session.user_id
+        schematic_id,
     )
-    .fetch_one(&ctx.pool)
+    .execute(&mut *transaction)
     .await?;
 
-    if result.deleted.unwrap_or_default() {
-        // The schematic was removed
-        Ok(())
-    } else if result.existed.unwrap_or_default() {
-        // The schematic was not removed but did exist
-        Err(ApiError::Forbidden)
-    } else {
-        // The schematic did not exist in the first place
-        Err(ApiError::NotFound)
-    }
+    transaction.commit().await?;
+
+    Ok(())
 }
 
 #[utoipa::path(
