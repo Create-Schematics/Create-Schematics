@@ -39,7 +39,7 @@
   <footer class="bg-minecraft-ui-dark opacity-75 p-4 justify-between items-center">
 
     <div class="container mx-auto text-center md:text-left p-4 opacity-100 ">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl w-[calc(100vw-2rem)] mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
 
         <div class="mb-4 md:mb-0 items-center">
           <div class="w-fit-content mx-auto">
@@ -65,7 +65,7 @@
       </div>
 
       <div class="mx-auto mt-8 text-sm text-gray-500 text-center opacity-100">
-        <p>&copy; 2023 Rabbitminers. <a href="https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE">Licensed under the MIT License</a>.</p>
+        <p>&copy; 2023. <a href="https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE">Licensed under the MIT License</a>.</p>
 
         <p>NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.<br>NOT APPROVED BY OR ASSOCIATED WITH THE CREATE MOD.</p>
       </div>
