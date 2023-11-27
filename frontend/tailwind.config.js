@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'pixel': ['Pixelify Sans', 'monospace']
+        'pixel': ['Minecraft', 'monospace']
       },
       colors: {
         'create-blue': '#7695EC',
