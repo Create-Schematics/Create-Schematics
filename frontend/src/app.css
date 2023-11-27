@@ -1,14 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@font-face{
+    font-family: 'Minecraft';
+    src: url('/fonts/MinecraftRegular-Bmg3.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
 
 .border-outset{
     border-style: outset;
 }
 
-.checker-bg{
-    --checker-size: 16px;
+.bg-checker{
+    --checker-size: 20px;
     --checker-color: #0002;
     
     background-image: linear-gradient(45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(-45deg, var(--checker-color) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--checker-color) 75%), linear-gradient(-45deg, transparent 75%, var(--checker-color) 75%);
