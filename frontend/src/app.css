@@ -39,13 +39,13 @@
     );
 }
 
-a {
+a:not(.no-default-link) {
     color: #7695EC;
     /* Not sure if underlined links is desired or not. */
     /* text-decoration: underline; */
 }
 
-a:hover {
+a:not(.no-default-link):hover {
     color: #617ac1;
 }
 
