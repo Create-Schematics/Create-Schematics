@@ -1,6 +1,6 @@
 <script lang="ts">
   import Slider from "$lib/Slider.svelte";
-  import type { Schematic, SchematicDetails } from "$lib";
+  import type { Schematic, SchematicDetails } from "$lib/types";
 
   let files: FileList | null = null;
 

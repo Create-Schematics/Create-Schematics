@@ -34,4 +34,5 @@ export interface SchematicDetails extends Schematic {
     description: string;
     comments: Comment[];
     mods: string[];
+    file: string;
 }

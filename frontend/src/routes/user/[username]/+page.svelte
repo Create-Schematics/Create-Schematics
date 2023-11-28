@@ -1,6 +1,6 @@
 <script lang="ts">
   import { intlFormatDistance } from "date-fns";
-  import type { Schematic, User } from "$lib";
+  import type { Schematic, User } from "$lib/types";
   import SchematicCard from "$lib/SchematicCard.svelte";
 
   const user: User = {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Schematic } from "$lib";
+  import type { Schematic } from "$lib/types";
   import SchematicCard from "$lib/SchematicCard.svelte";
 
   const schematics: Schematic[] = [

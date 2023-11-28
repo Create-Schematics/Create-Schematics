@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Schematic } from "$lib";
+  import type { Schematic } from "$lib/types";
 
   export const { tags, uploadDate, title, author, downloads, id }: Schematic = {
     tags: [
