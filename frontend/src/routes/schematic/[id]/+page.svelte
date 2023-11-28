@@ -12,9 +12,9 @@
     <div class="flex md:w-2/3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners">
       <Slider
         images={[
-          "https://picsum.photos/800/450",
-          "https://picsum.photos/800/450",
-          "https://picsum.photos/800/450",
+          "https://picsum.photos/700/500",
+          "https://picsum.photos/700/500",
+          "https://picsum.photos/700/500",
         ]}
       />
     </div>
