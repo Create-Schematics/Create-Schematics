@@ -2,7 +2,7 @@
     import type { Schematic } from "$lib";
 
 
-    export const {tags, uploadDate, title, author}: Schematic = {
+    export const {tags, uploadDate, title, author, downloads}: Schematic = {
         tags: ["farm", "Above & Beyond", "trains", "equipment", "steampunk", "novel"],
         uploadDate: new Date(1701111471000),
         title: "Very cool schematic",
@@ -13,23 +13,24 @@
         views: 894,
         author: "Szedann"
     }
+    const slicedTags = tags.slice(0, 3);
 </script>
 
 <div class=" mx-auto px-4 py-3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full">
     <h1 class="text-xl font-bold">{title}</h1>
     <div class="text-xs text-opacity-50 w-full">
-        <p class="inline"><b>⭳</b> 5,152</p>
+        <p class="inline"><b>⭳</b>{downloads}</p>
         <p class="inline">by <a href={`/user/${author}`} class="underline">{author}</a></p>
         <p class="inline px-2">|</p>
-        <p class="inline text-right">{uploadDate.toLocaleString("en-US", { timeZone: 'UTC' })} UTC</p>
+        <p class="inline text-right">{uploadDate.toLocaleString("en-US")} UTC</p>
         <div class="w-full py-3 aspect-video">
             <img src="https://picsum.photos/500/800" alt="" class="object-cover pixel-corners w-full h-full overflow-hidden"/>
         </div>
     </div>
 
     <div class="overflow-x-scroll whitespace-nowrap scrollbar-x scrollbar-small">
-        <ul class="flex flex-nowrap gap-2 mb-3">
-            {#each tags as tag}
+        <ul class="flex flex-wrap gap-2">
+            {#each slicedTags as tag}
                 <li class="text-xs bg-create-blue/80 dark:bg-create-blue/20 px-1 text-opacity-50">
                     {tag}
                 </li>
