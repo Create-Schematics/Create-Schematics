@@ -26,13 +26,14 @@
       </search>
     </div>
     <div class="flex items-center gap-3">
-      <div
-        class="l bg-create-blue/80
+      <a
+        href="/upload"
+        class="bg-create-blue/80 no-default-link
         flex h-10 w-10 text-center hover:bg-create-blue/80 cursor-pointer text-white
         items-center justify-center text-4xl font-mono font-black pixel-corners"
       >
         +
-      </div>
+      </a>
       <div class="w-10 h-10 bg-white/50 overflow-hidden pixel-corners">
         <img src="https://picsum.photos/50" alt="" />
       </div>

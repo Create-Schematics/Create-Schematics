@@ -22,7 +22,7 @@ export interface Schematic {
     tags: string[];
     uploadDate: Date;
     title: string;
-    img: string;
+    images: string[];
     downloads: number;
     likes: number;
     dislikes: number;

@@ -34,7 +34,7 @@
       ],
       uploadDate: new Date(1601111471000),
       title: "Very cool schematic",
-      img: "https://picsum.photos/500/800",
+      images: ["https://picsum.photos/500/800"],
       downloads: 603,
       likes: 60,
       dislikes: 40,
