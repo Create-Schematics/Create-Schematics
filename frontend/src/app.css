@@ -51,19 +51,14 @@ a:not(.no-default-link):hover {
 
 ::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
 }
 ::-webkit-scrollbar-thumb{
-    background: #000;
-}
-
-.scrollbar-small {
-    scrollbar-color: #fff rgba(0, 0, 0, 0);
-    scrollbar-width: thin;
+    background: #fff;
 }
 
 @media(prefers-color-scheme: dark){
-    .scrollbar-small {
-        scrollbar-color: #252b40 rgba(0, 0, 0, 0);
-        scrollbar-width: thin;
+    ::-webkit-scrollbar-thumb{
+        background: #000;
     }
 }
