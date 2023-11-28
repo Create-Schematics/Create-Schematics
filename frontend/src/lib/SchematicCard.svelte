@@ -27,14 +27,11 @@
             <img src="https://picsum.photos/500/800" alt="" class="object-cover pixel-corners w-full h-full overflow-hidden"/>
         </div>
     </div>
-
-    <div class="overflow-x-scroll whitespace-nowrap scrollbar-x scrollbar-small">
-        <ul class="flex flex-wrap gap-2">
-            {#each slicedTags as tag}
-                <li class="text-xs bg-create-blue/80 dark:bg-create-blue/20 px-1 text-opacity-50">
-                    {tag}
-                </li>
-            {/each}
-        </ul>
-    </div>  
+    <ul class="flex flex-wrap gap-2">
+        {#each slicedTags as tag}
+            <li class="text-xs bg-create-blue/80 dark:bg-create-blue/20 px-1 text-opacity-50">
+                {tag}
+            </li>
+        {/each}
+    </ul>
 </div>
