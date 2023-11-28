@@ -1,4 +1,5 @@
 export interface Schematic {
+    id: string;
     tags: string[];
     uploadDate: Date;
     title: string;

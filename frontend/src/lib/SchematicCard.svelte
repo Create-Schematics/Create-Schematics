@@ -2,7 +2,7 @@
     import type { Schematic } from "$lib";
 
 
-    export const {tags, uploadDate, title, author, downloads}: Schematic = {
+    export const {tags, uploadDate, title, author, downloads, id}: Schematic = {
         tags: ["farm", "Above & Beyond", "trains", "equipment", "steampunk", "novel"],
         uploadDate: new Date(1701111471000),
         title: "Very cool schematic",
@@ -11,12 +11,13 @@
         likes: 60,
         dislikes: 40,
         views: 894,
-        author: "Szedann"
+        author: "Szedann",
+        id: "1"
     }
     const slicedTags = tags.slice(0, 3);
 </script>
 
-<div class=" mx-auto px-4 py-3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full">
+<a href={`/schematic/${id}`} class=" mx-auto px-4 py-3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full no-default-link">
     <h1 class="text-xl font-bold">{title}</h1>
     <div class="text-xs text-opacity-50 w-full">
         <p class="inline"><b>⭳</b>{downloads}</p>
@@ -34,4 +35,4 @@
             </li>
         {/each}
     </ul>
-</div>
+</a>

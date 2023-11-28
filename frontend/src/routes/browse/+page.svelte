@@ -12,7 +12,8 @@
             likes: 60,
             dislikes: 40,
             views: 894,
-            author: "Szedann"
+            author: "Szedann",
+            id: "1"
         }
     ]
 </script>
