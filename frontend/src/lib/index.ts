@@ -8,6 +8,7 @@ export interface User {
         name: string;
     }[];
     totalDownloads: number;
+    description: string;
 }
 
 export interface Comment {
