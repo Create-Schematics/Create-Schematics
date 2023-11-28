@@ -12,7 +12,7 @@
   }
 </script>
 
-<div class="flex relative pixel-corners aspect-video overflow-hidden">
+<div class="flex relative pixel-corners aspect-video overflow-hidden bg-create-blue/30">
   <div class="overflow-x-scroll scroll-smooth snap-x snap-mandatory flex w-full" bind:this={e} on:scroll={updateScroll} >
     {#each images as image}
       <img src={image} alt="example" class="w-full snap-center" />
