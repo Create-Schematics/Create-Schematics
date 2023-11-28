@@ -9,7 +9,7 @@
   class="max-w-6xl w-[calc(100vw-2rem)] flex flex-col mx-auto gap-3"
 >
   <section class="flex gap-3 w-full justify-stretch flex-wrap md:flex-nowrap">
-    <div class="flex md:w-2/3 aspect-video bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners">
+    <div class="flex md:w-2/3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners">
       <Slider
         images={[
           "https://picsum.photos/800/450",
