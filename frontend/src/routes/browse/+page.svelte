@@ -1,3 +1,6 @@
+<svelte:head>
+    <title>Browse - Create Schematics"</title>
+</svelte:head>
 <script lang="ts">
     import type { Schematic } from "$lib";
     import SchematicCard from "$lib/SchematicCard.svelte";

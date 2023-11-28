@@ -1,3 +1,6 @@
+<svelte:head>
+    <title>{username} - Create Schematics"</title>
+</svelte:head>
 <script lang="ts">
     import { intlFormatDistance} from "date-fns"
     import type { Schematic } from "$lib";
@@ -6,6 +9,7 @@
     import ReportIcon from "$lib/icons/report.svelte";
     import OutlinkIcon from "$lib/icons/outlink.svelte";
 
+    const username = 'username123'
 
     const creationTime = new Date(0);
 

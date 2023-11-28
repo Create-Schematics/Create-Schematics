@@ -1,8 +1,27 @@
+<svelte:head>
+  <title>{schematics[0].title} - Create Schematics"</title>
+</svelte:head>
 <script lang="ts">
   import Slider from "$lib/Slider.svelte";
+  import type { Schematic } from "$lib";
 
   const tags = ["farm", "Above & Beyond"];
   const mods = ["Create: Steam 'n' Rails", "Create: Extended Bogeys", "aa", "bb", "cc"];
+  const schematics:Schematic[] = [
+        {
+            tags: ["farm", "Above & Beyond", "trains", "equipment", "steampunk", "novel"],
+            uploadDate: new Date(1701111471000),
+            title: "Very cool schematic",
+            img: "https://picsum.photos/500/800",
+            downloads: 603,
+            likes: 60,
+            dislikes: 40,
+            views: 894,
+            author: "Szedann",
+            id: "1"
+        }
+    ]
+
 </script>
 
 <main
