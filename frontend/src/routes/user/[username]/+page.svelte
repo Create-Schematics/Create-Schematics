@@ -1,35 +1,27 @@
 <script lang="ts">
-    const tags = ["farm", "Above & Beyond", "trains", "equipment", "steampunk", "novel"];
-    const mods = ["Create: Steam 'n' Rails", "Create: Extended Bogeys", "aa", "bb", "cc"];
-    const uploadDate = 1701111471000;
-    var lang = 'en-US';
+    import { intlFormatDistance} from "date-fns"
+    import type { Schematic } from "$lib";
+    import SchematicCard from "$lib/SchematicCard.svelte";
 
-    const creationTime = 1701133584000;
+    const creationTime = new Date(0);
 
-    function getAccountAge(accountCreationTimestamp: number): string {
-        const timeDifference = Date.now() - accountCreationTimestamp;
+    const creationRtf = intlFormatDistance(creationTime, Date.now(), {
+        locale: "en-US",
+    });
 
-        const seconds = Math.floor(timeDifference / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-        const months = Math.floor(days / 30);
-        const years = Math.floor(months / 12);
-
-        if (years > 0) {
-            return `${years} year${years > 1 ? 's' : ''}`;
-        } else if (months > 0) {
-            return `${months} month${months > 1 ? 's' : ''}`;
-        } else if (days > 0) {
-            return `${days} day${days > 1 ? 's' : ''}`;
-        } else if (hours > 0) {
-            return `${hours} hour${hours > 1 ? 's' : ''}`;
-        } else if (minutes > 0) {
-            return `${minutes} minute${minutes > 1 ? 's' : ''}`;
-        } else {
-            return `${seconds} second${seconds !== 1 ? 's' : ''}`;
+    const schematics:Schematic[] = [
+        {
+            tags: ["farm", "Above & Beyond", "trains", "equipment", "steampunk", "novel"],
+            uploadDate: new Date(1701111471000),
+            title: "Very cool schematic",
+            img: "https://picsum.photos/500/800",
+            downloads: 603,
+            likes: 60,
+            dislikes: 40,
+            views: 894,
+            author: "Szedann"
         }
-    }
+    ]
 </script>
 <main class="max-w-6xl mx-auto mt-3ss
 w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
@@ -42,7 +34,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
 
             <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full p-6 relative z-0 -top-4">
                 <p class="w-full text-xl max-w-[85%]">
-                    Joined <b>{getAccountAge(creationTime)}</b> ago
+                    Joined <b>{creationRtf}</b>
                 </p>
                 <p class="w-full text-xl">
                     <b>15</b> Submissions
@@ -65,46 +57,9 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
             <h2 class="text-3xl text-center mb-1">Submitted Schematics</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-left">
-
-                <div class="mx-auto px-4 py-3 bg-minecraft-ui-dark pixel-corners w-full">
-                    <h1 class="text-xl font-bold">Very cool schematic</h1>
-                    <div class="text-xs text-white/50 w-full">
-                        <p class="inline"><b>⭳</b> 5,152</p>
-                        <p class="inline px-2">|</p>
-                        <p class="inline text-right">{new Date(uploadDate).toLocaleString(lang, { timeZone: 'UTC' })}</p>        </div>
-                        <div class="w-full py-3 aspect-video">
-                            <img src="https://picsum.photos/500/300" alt="" class="object-cover pixel-corners w-full h-full overflow-hidden" />
-                        </div>
-                    <div class="overflow-x-scroll whitespace-nowrap scrollbar-x scrollbar-small">
-                        <ul class="flex flex-nowrap gap-2 mb-3">
-                            {#each tags as tag}
-                                <li class="text-xs bg-create-blue/20 px-1 text-white/50">
-                                    {tag}
-                                </li>
-                            {/each}
-                        </ul>
-                    </div>  
-                </div>
-
-                <div class=" mx-auto px-4 pt-3 bg-minecraft-ui-dark pixel-corners w-full">
-                    <h1 class="text-xl font-bold">mega cool schematic</h1>
-                    <div class="text-xs text-white/50 w-full">
-                        <p class="inline"><b>⭳</b> 2,121</p>
-                        <p class="inline px-2">|</p>
-                        <p class="inline text-right">{new Date(uploadDate - 5000000000).toLocaleString(lang, { timeZone: 'UTC' })} UTC</p>        </div>
-                    <div class="w-full py-3 aspect-video">
-                        <img src="https://picsum.photos/501/300" alt="" class="object-cover pixel-corners w-full h-full" />
-                    </div>
-                    <div class="overflow-x-scroll whitespace-nowrap scrollbar-x scrollbar-small">
-                        <ul class="flex flex-nowrap gap-2 mb-3">
-                            {#each tags as tag}
-                                <li class="text-xs bg-create-blue/20 px-1 text-white/50">
-                                    {tag}
-                                </li>
-                            {/each}
-                        </ul>
-                    </div>  
-                </div>
+                {#each schematics as schematic}
+                    <SchematicCard {...schematic}/>
+                {/each}
             </div>
         </div>
     </div>
