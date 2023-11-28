@@ -40,7 +40,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
                 <h2 class="inline ml-3 text-2xl whitespace-nowrap overflow-visible">Username123</h2>
             </div>
 
-            <div class="bg-minecraft-ui-dark pixel-corners w-full p-6 relative z-0 -top-4">
+            <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full p-6 relative z-0 -top-4">
                 <p class="w-full text-xl max-w-[85%]">
                     Joined <b>{getAccountAge(creationTime)}</b> ago
                 </p>

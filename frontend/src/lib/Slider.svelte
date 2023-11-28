@@ -7,7 +7,7 @@
     <img src={image} alt="example" class="w-full flex aspect-video" />
   {/each}
   <div
-    class="bg-black absolute bottom-1 px-2 left-1/2 -translate-x-1/2 pixel-corners flex gap-1"
+    class="bg-black text-white absolute bottom-1 px-2 left-1/2 -translate-x-1/2 pixel-corners flex gap-1"
   >
     {#each images as image}
       <span>■</span>

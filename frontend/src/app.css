@@ -57,6 +57,13 @@ a:not(.no-default-link):hover {
 }
 
 .scrollbar-small {
-    scrollbar-color: #252b40 rgba(0, 0, 0, 0);
+    scrollbar-color: #fff rgba(0, 0, 0, 0);
     scrollbar-width: thin;
+}
+
+@media(prefers-color-scheme: dark){
+    .scrollbar-small {
+        scrollbar-color: #252b40 rgba(0, 0, 0, 0);
+        scrollbar-width: thin;
+    }
 }

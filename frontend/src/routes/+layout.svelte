@@ -3,19 +3,19 @@
 </script>
 
 <body
-  class="bg-gray-800 text-white h-screen absolute w-full flex flex-col gap-3 overflow-x-hidden font-pixel"
+  class=" bg-create-blue/50 dark:bg-gray-800 dark:text-white h-screen absolute w-full flex flex-col gap-3 overflow-x-hidden font-pixel"
 >
   <header
-    class="bg-minecraft-ui-dark max-w-6xl p-4 mx-auto mt-3
+    class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark max-w-6xl p-4 mx-auto mt-3
     w-[calc(100vw-2rem)] flex justify-between items-center pixel-corners"
   >
     <div class="flex items-center gap-3">
-      <a href="/"><h1 class="text-xl font-bold text-white hover:text-white">CS</h1></a>
+      <a href="/"><h1 class="text-xl font-bold text-black dark:text-white">CS</h1></a>
 
       <input
         type="search"
         placeholder="search schematics..."
-        class="accent-create-blue h-10 outline-none px-3 bg-black/30 pixel-corners"
+        class="accent-create-blue h-10 outline-none px-3 dark:bg-black/30 pixel-corners"
       />
     </div>
     <div class="flex items-center gap-3">
@@ -36,7 +36,7 @@
   <main class="flex-grow">
     <slot />
   </main>
-  <footer class="bg-minecraft-ui-dark opacity-75 p-4 justify-between items-center">
+  <footer class=" bg-minecraft-ui-light dark:bg-minecraft-ui-dark opacity-75 p-4 justify-between items-center">
 
     <div class="container mx-auto text-center md:text-left p-4 opacity-100 ">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
