@@ -24,9 +24,7 @@
         <p class="inline">by <a href={`/user/${author}`} class="underline">{author}</a></p>
         <p class="inline px-2">|</p>
         <p class="inline text-right">{uploadDate.toLocaleString("en-US")} UTC</p>
-        <div class="w-full py-3 aspect-video">
-            <img src="https://picsum.photos/500/800" alt="" class="object-cover pixel-corners w-full h-full overflow-hidden"/>
-        </div>
+        <img src="https://picsum.photos/500/800" alt="" class="object-cover pixel-corners w-full h-full overflow-hidden aspect-video my-2"/>
     </div>
     <ul class="flex flex-wrap gap-2">
         {#each slicedTags as tag}
