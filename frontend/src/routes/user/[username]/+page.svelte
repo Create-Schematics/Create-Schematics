@@ -35,13 +35,13 @@
 w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-left">
         <div class="col-span-1">
-            <div class="h-24 z-10 relative">
+            <div class="h-24 z-10 relative whitespace-nowrap overflow-visible">
                 <img src="https://picsum.photos/500" alt="" class="ml-5 w-24 h-24 pixel-corners inline"/>
-                <h2 class="inline ml-3 text-2xl">Username123</h2>
+                <h2 class="inline ml-3 text-2xl whitespace-nowrap overflow-visible">Username123</h2>
             </div>
 
             <div class="bg-minecraft-ui-dark pixel-corners w-full p-6 relative z-0 -top-4">
-                <p class="w-full text-xl">
+                <p class="w-full text-xl max-w-[85%]">
                     Joined <b>{getAccountAge(creationTime)}</b> ago
                 </p>
                 <p class="w-full text-xl">
@@ -59,18 +59,22 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
             </div>
 
         </div>
+
+        <!-- Right side -->
         <div class="w-full col-span-2 mx-auto mt-10 items-left">
             <h2 class="text-3xl text-center mb-1">Submitted Schematics</h2>
-            <div class="grid grid-cols-2 md:grid-cols-2 gap-4 items-left">
-                <div class=" mx-auto px-4 py-3 bg-minecraft-ui-dark pixel-corners w-full">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-left">
+
+                <div class="mx-auto px-4 py-3 bg-minecraft-ui-dark pixel-corners w-full">
                     <h1 class="text-xl font-bold">Very cool schematic</h1>
                     <div class="text-xs text-white/50 w-full">
-                        <p class="inline"><b>5,152</b> Downloads</p>
+                        <p class="inline"><b>⭳</b> 5,152</p>
                         <p class="inline px-2">|</p>
-                        <p class="inline text-right">{new Date(uploadDate).toLocaleString(lang, { timeZone: 'UTC' })} UTC</p>        </div>
-                    <div class="w-full py-3">
-                        <img src="https://picsum.photos/500/300" alt="" class="object-cover pixel-corners" />
-                    </div>
+                        <p class="inline text-right">{new Date(uploadDate).toLocaleString(lang, { timeZone: 'UTC' })}</p>        </div>
+                        <div class="w-full py-3 aspect-video">
+                            <img src="https://picsum.photos/500/300" alt="" class="object-cover pixel-corners w-full h-full overflow-hidden" />
+                        </div>
                     <div class="overflow-x-scroll whitespace-nowrap scrollbar-x scrollbar-small">
                         <ul class="flex flex-nowrap gap-2 mb-3">
                             {#each tags as tag}
@@ -82,14 +86,14 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
                     </div>  
                 </div>
 
-                <div class=" mx-auto px-4 py-3 bg-minecraft-ui-dark pixel-corners w-full">
+                <div class=" mx-auto px-4 pt-3 bg-minecraft-ui-dark pixel-corners w-full">
                     <h1 class="text-xl font-bold">mega cool schematic</h1>
                     <div class="text-xs text-white/50 w-full">
-                        <p class="inline"><b>2,129</b> Downloads</p>
+                        <p class="inline"><b>⭳</b> 2,121</p>
                         <p class="inline px-2">|</p>
                         <p class="inline text-right">{new Date(uploadDate - 5000000000).toLocaleString(lang, { timeZone: 'UTC' })} UTC</p>        </div>
-                    <div class="w-full py-3">
-                        <img src="https://picsum.photos/501/300" alt="" class="object-cover pixel-corners" />
+                    <div class="w-full py-3 aspect-video">
+                        <img src="https://picsum.photos/501/300" alt="" class="object-cover pixel-corners w-full h-full" />
                     </div>
                     <div class="overflow-x-scroll whitespace-nowrap scrollbar-x scrollbar-small">
                         <ul class="flex flex-nowrap gap-2 mb-3">
