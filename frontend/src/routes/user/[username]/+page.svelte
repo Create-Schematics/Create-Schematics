@@ -46,7 +46,7 @@
 </script>
 
 <svelte:head>
-  <title>{username} - Create Schematics"</title>
+  <title>{user.username} - Create Schematics"</title>
 </svelte:head>
 
 <main
