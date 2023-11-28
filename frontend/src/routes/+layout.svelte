@@ -15,7 +15,7 @@
       </a>
 
       <search title="schematics">
-        <form action="browse">
+        <form action="browse" autocomplete="off">
           <input
             type="search"
             name="q"
