@@ -10,13 +10,20 @@
     w-[calc(100vw-2rem)] flex justify-between items-center pixel-corners"
   >
     <div class="flex items-center gap-3">
-      <a href="/"><h1 class="text-xl font-bold text-black dark:text-white">CS</h1></a>
+      <a href="/">
+        <img src="/favicon.png" class="w-10" alt="">
+      </a>
 
-      <input
-        type="search"
-        placeholder="search schematics..."
-        class="accent-create-blue h-10 outline-none px-3 dark:bg-black/30 pixel-corners"
-      />
+      <search title="schematics">
+        <form action="browse">
+          <input
+            type="search"
+            name="q"
+            placeholder="search schematics..."
+            class="accent-create-blue h-10 outline-none px-3 dark:bg-black/30 pixel-corners"
+          />
+        </form>
+      </search>
     </div>
     <div class="flex items-center gap-3">
       <div
