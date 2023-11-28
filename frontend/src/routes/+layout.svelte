@@ -27,9 +27,9 @@
     </div>
     <div class="flex items-center gap-3">
       <div
-        class="l bg-create-blue/50
-        flex h-10 w-10 text-center hover:bg-create-blue/80 cursor-pointer
-        items-center justify-center text-4xl font-mono font-black  pixel-corners"
+        class="l bg-create-blue/80
+        flex h-10 w-10 text-center hover:bg-create-blue/80 cursor-pointer text-white
+        items-center justify-center text-4xl font-mono font-black pixel-corners"
       >
         +
       </div>
