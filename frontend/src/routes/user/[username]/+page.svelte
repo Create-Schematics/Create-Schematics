@@ -45,6 +45,10 @@
   ];
 </script>
 
+<svelte:head>
+  <title>{username} - Create Schematics"</title>
+</svelte:head>
+
 <main
   class="max-w-6xl mx-auto mt-3ss
 w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
