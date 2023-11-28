@@ -3,6 +3,10 @@
     import type { Schematic } from "$lib";
     import SchematicCard from "$lib/SchematicCard.svelte";
 
+    import ReportIcon from "$lib/icons/report.svelte";
+    import OutlinkIcon from "$lib/icons/outlink.svelte";
+
+
     const creationTime = new Date(0);
 
     const creationRtf = intlFormatDistance(creationTime, Date.now(), {
@@ -34,20 +38,20 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners">
             </div>
 
             <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full p-6 relative z-0 -top-4">
-                <p class="w-full text-xl max-w-[85%]">
+                <p class="w-full text-xl max-w-[85%] fill-white">
                     Joined <b>{creationRtf}</b>
                 </p>
-                <p class="w-full text-xl">
+                <p class="w-full text-xl fill-white">
                     <b>15</b> Submissions
                 </p>
-                <p class="w-full text-xl">
+                <p class="w-full text-xl fill-white">
                     <b>24k</b> Downloads
                 </p>
-                <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 px-3 m-5 pixel-corners absolute top-0 right-0" >⚑</button>
+                <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 px-2 m-5 pixel-corners absolute top-0 right-0 fill-white"><ReportIcon/></button>
             <hr class="my-3">
                 <div class="w-full grid grid-cols-2 gap-3 mx-auto items-left">
-                    <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 px-3pixel-corners w-full pixel-corners">Modrinth 🡕</button>
-                    <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 px-3pixel-corners w-full pixel-corners">Github 🡕</button>
+                    <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 px-3pixel-corners w-full pixel-corners fill-white">Modrinth<OutlinkIcon/></button>
+                    <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 px-3pixel-corners w-full pixel-corners fill-white">Github<OutlinkIcon/></button>
                 </div>
             </div>
 
