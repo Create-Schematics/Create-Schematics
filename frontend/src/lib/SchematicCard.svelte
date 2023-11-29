@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { Schematic } from "$lib";
+  import type { Schematic } from "$lib/types";
+  import { abbreviateNumber } from "../utils";
 
   export const { tags, uploadDate, title, author, downloads, id }: Schematic = {
     tags: [
@@ -29,7 +30,8 @@
 >
   <h1 class="text-xl font-bold">{title}</h1>
   <div class="text-xs text-opacity-50 w-full">
-    <p class="inline"><b>⭳</b>{downloads}</p>
+    <p class="inline"><b>⭳</b> {abbreviateNumber(downloads)}</p>
+    <p class="inline px-2">|</p>
     <p class="inline">
       by <a href={`/user/${author}`} class="underline">{author}</a>
     </p>

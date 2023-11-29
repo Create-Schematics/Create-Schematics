@@ -1,6 +1,6 @@
 <script lang="ts">
   import Slider from "$lib/Slider.svelte";
-  import type { Schematic } from "$lib";
+  import type { Schematic } from "$lib/types";
 
   const tags = ["farm", "Above & Beyond"];
   const mods = [
