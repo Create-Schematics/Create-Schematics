@@ -66,15 +66,17 @@
           {/each}
           <input
             type="text"
-            class="text-xs bg-create-blue px-1 text-opacity-50 outline-none w-24"
+            class="text-xs bg-create-blue px-1 text-white placeholder-white placeholder-opacity-70 text-opacity-80 outline-none w-24"
             placeholder="add tag"
             list="tagOptions"
             on:keydown={(e) => {
-              if ((e.key === "Enter" || e.key === ",") && tagOptions.includes(e.currentTarget.value)) {
+              if ((e.key === "Enter" || e.key === ",") && tagOptions.map(option => option.toLowerCase()).includes(e.currentTarget.value.toLowerCase())) {
                 e.preventDefault();
                 schematic.tags = [
                   ...(schematic.tags ?? []),
-                  e.currentTarget.value
+                  e.currentTarget.value.split(' ') 
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ') // Capitalize each word
                 ];
                 e.currentTarget.value = "";
               } else if (e.key === "Backspace" && e.currentTarget.value === "") {
