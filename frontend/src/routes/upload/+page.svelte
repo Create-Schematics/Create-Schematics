@@ -1,7 +1,6 @@
 <script lang="ts">
   import Slider from "$lib/Slider.svelte";
   import type { Schematic, SchematicDetails } from "$lib";
-  import { sanitizeUserTags } from "$lib";
 
   let files: FileList | null = null;
 
@@ -17,6 +16,7 @@
     author: "Szedann",
     id: "1",
   };
+  const tagOptions = ["Modern", "Rustic", "Japanese", "Western", "Train Cars", "Train Stations"];
 </script>
 
 <svelte:head>
@@ -68,19 +68,42 @@
             type="text"
             class="text-xs bg-create-blue px-1 text-opacity-50 outline-none w-24"
             placeholder="add tag"
-            on:keyup={(e) => {
-              if ((e.key === "Enter" || e.key === ",") && sanitizeUserTags(e.currentTarget.value) !== "") {
+            list="tagOptions"
+            on:keydown={(e) => {
+              if ((e.key === "Enter" || e.key === ",") && tagOptions.includes(e.currentTarget.value)) {
+                e.preventDefault();
                 schematic.tags = [
                   ...(schematic.tags ?? []),
-                  sanitizeUserTags(e.currentTarget.value)
+                  e.currentTarget.value
                 ];
                 e.currentTarget.value = "";
               } else if (e.key === "Backspace" && e.currentTarget.value === "") {
                 schematic.tags?.pop();
                 schematic.tags = [...(schematic.tags ?? [])];
+              } else if (e.key === "Tab") {
+                console.log('tab pressed');
+                e.preventDefault();
+                const value = e.currentTarget.value.trim();
+                if (value !== "") {
+                  const matchingOptions = tagOptions.filter(option => option.toLowerCase().startsWith(value.toLowerCase()));
+                  if (matchingOptions.length > 0) {
+                    schematic.tags = [
+                      ...(schematic.tags ?? []),
+                      matchingOptions[0]
+                    ];
+                    e.currentTarget.value = "";
+                  }
               }
+            } else {
+              return
+            }
             }}
           />
+          <datalist id="tagOptions" class="bg-minecraft-ui-dark">
+            {#each tagOptions as tagOption}
+              <option value={tagOption}></option>
+            {/each}
+          </datalist>
         </ul>
         <div class="w-full p-3 bg-create-blue/10 dark:bg-black/20">
           <h2>Required mods:</h2>
