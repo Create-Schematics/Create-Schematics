@@ -2,6 +2,7 @@
   import { intlFormatDistance } from "date-fns";
   import type { Schematic, User } from "$lib/types";
   import SchematicCard from "$lib/SchematicCard.svelte";
+  import { abbreviateNumber } from "../../../utils";
 
   const user: User = {
     username: "Username123",
@@ -77,7 +78,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
                 Joined <b>{intlFormatDistance(user.dateJoined, Date.now())}</b>
               </p>
               <p><b>15</b> Submissions</p>
-              <p><b>{user.totalDownloads}</b> Downloads</p>
+              <p><b>{abbreviateNumber(user.totalDownloads)}</b> Downloads</p>
             </div>
           </div>
         </div>
