@@ -1,6 +1,7 @@
 <script lang="ts">
   import Slider from "$lib/Slider.svelte";
   import type { Schematic, SchematicDetails } from "$lib";
+  import { sanitizeUserTags } from "$lib";
 
   let files: FileList | null = null;
 
@@ -67,13 +68,17 @@
             type="text"
             class="text-xs bg-create-blue px-1 text-opacity-50 outline-none w-24"
             placeholder="add tag"
-            on:keydown={(e) => {
-              if (e.key != "Enter") return;
-              schematic.tags = [
-                ...(schematic.tags ?? []),
-                e.currentTarget.value,
-              ];
-              e.currentTarget.value = "";
+            on:keyup={(e) => {
+              if ((e.key === "Enter" || e.key === ",") && sanitizeUserTags(e.currentTarget.value) !== "") {
+                schematic.tags = [
+                  ...(schematic.tags ?? []),
+                  sanitizeUserTags(e.currentTarget.value)
+                ];
+                e.currentTarget.value = "";
+              } else if (e.key === "Backspace" && e.currentTarget.value === "") {
+                schematic.tags?.pop();
+                schematic.tags = [...(schematic.tags ?? [])];
+              }
             }}
           />
         </ul>

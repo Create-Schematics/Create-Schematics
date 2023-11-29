@@ -35,3 +35,13 @@ export interface SchematicDetails extends Schematic {
     comments: Comment[];
     mods: string[];
 }
+
+// if you want to move this please do
+export function sanitizeUserTags(str: string): string {
+    // str = stopProfanity(str); -- something like this lmao
+    return str
+        .replace(/,$/, "") // Remove trailing comma if present
+        .replace(/[, ]/g, "_") // Replace commas and whitespace
+        .replace(/_+/g, "_") // Remove consecutive underscores
+        .replace(/^_+/, "") // Remove leading underscores
+}
