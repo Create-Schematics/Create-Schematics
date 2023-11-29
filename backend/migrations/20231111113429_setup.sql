@@ -28,25 +28,4 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace function nanoid(size int default 16)
-    returns text as 
-$$
-declare
-  id text := '';
-  i int := 0;
-  alphabet char(64) := 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789_-';
-  bytes bytea := gen_random_bytes(size);
-  byte int;
-  pos int;
-begin
-    while i < size loop
-        byte := get_byte(bytes, i);
-        pos := (byte & 63) + 1;
-        id := id || substr(alphabet, pos, 1);
-        i = i + 1;
-    end loop;
-  return id;
-end
-$$ language plpgsql stable;
-
 create collation case_insensitive (provider = icu, locale = 'und-u-ks-level2', deterministic = false);
