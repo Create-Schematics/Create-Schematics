@@ -1,7 +1,6 @@
 <script lang="ts">
     import GoogleIcon from "$lib/icons/google.svelte"
     import MicrosoftIcon from "$lib/icons/microsoft.svelte";
-    export let form
 
     let emailFormatError = false;
     let pwLengthError = false;
@@ -36,8 +35,8 @@
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Email" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { updateErrors() }}
-                        value={form?.email?? ''} id="email" type="email" name="email" required
+                        on:blur={() => { updateErrors() }} bind:value={email} 
+                        id="email" type="email" name="email" required
                     />
                     {#if emailFormatError === true} 
                         <p class="text-red-500">Must be a valid email address</p>
@@ -46,11 +45,11 @@
                 <div class="form-item p-2">
                     <!-- <label for="password">Password<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Password" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { updateErrors() }}
+                        on:blur={() => { updateErrors() }} bind:value={password} 
                         id="password" type="password" name="password" required
                     />
                     {#if pwLengthError === true} 
-                        <p class="text-red-500">Password must be at least 8 characters long</p>
+                        <p class="text-red-500">Password should be >8 characters long</p>
                     {/if}
                 </div>
 

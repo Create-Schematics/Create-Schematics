@@ -67,7 +67,7 @@
                     id="password" type="password" name="password" required
                     />
                     {#if pwLengthError === true} 
-                        <p class="text-red-500">Password must be at least 8 characters long</p>
+                        <p class="text-red-500">Password must be >8 characters long</p>
                     {/if}
                 </div>
                 <div class="form-item p-2">

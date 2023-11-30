@@ -1,5 +1,12 @@
 <script lang="ts">
-    export let form
+    let emailFormatError = false;
+    let email:string
+
+    function updateErrors() {
+        if (email?.length > 0) {
+            emailFormatError = (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,72}$/.test(email)) ? false : true;
+        } else { emailFormatError = false }
+    }
 
 </script>
 
@@ -15,11 +22,12 @@
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Email" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { 
-                            // check email format
-                        }}
-                        value={form?.email?? ''} id="email" type="email" name="email" required
-                    />
+                    on:blur={() => { updateErrors() }}
+                    bind:value={email} id="email" type="email" name="email" required
+                />
+                {#if emailFormatError === true} 
+                    <p class="text-red-500">Must be a valid email address</p>
+                {/if}
                 </div>
                 <div class="form-item mt-3 flex justify-center">
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-48 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Send Recovery Email</button>
