@@ -43,7 +43,7 @@
     <slot />
   </main>
   <footer
-    class=" bg-minecraft-ui-light dark:bg-minecraft-ui-dark opacity-75 p-4 justify-between items-center"
+    class="p-4 justify-between items-center"
   >
     <div class="container mx-auto text-center md:text-left p-4 opacity-100">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
