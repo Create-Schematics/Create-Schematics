@@ -29,13 +29,13 @@
 <main class="flex items-center justify-center w-screen pt-16 pb-28">
     <div class="items-center justify-center bg-checker pixel-corners py-14 w-[calc(100vw-2rem)] max-w-6xl">
         <div class="mx-auto w-fit p-4 pixel-corners bg-minecraft-ui-light dark:bg-minecraft-ui-dark">
-            <h1 class="text-2xl font-bold text-center">Register with</h1>
+            <h2 class="text-xl font-bold text-center">Register with</h2>
             <div class="grid grid-cols-2 gap-4 px-3 py-4">
                 <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"><GoogleIcon/> Google</button>
                 <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"><MicrosoftIcon/> Microsoft</button>
             </div>
             <hr class="my-3 border-slate-800 mx-3">
-            <h1 class="text-2xl font-bold text-center p-3">Or do it manually</h1>
+            <h2 class="text-xl font-bold text-center p-3">Or do it manually</h2>
             <form method="post" action="?/signup" class="">
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
@@ -82,9 +82,12 @@
 
                 <p class="text-wrap w-72 md:w-96 px-2 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
 
-                <div class="form-item mt-3 flex justify-center">
+                <div class="form-item mt-5 flex justify-center">
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Register</button>
                 </div>   
+                <div class="text-l font-bold text-center mt-2">
+                    <h2><a href="../auth/sign-in">Sign in to Existing Account ➜</a></h2>
+                </div>
             </form>
         </div>  
     </div>

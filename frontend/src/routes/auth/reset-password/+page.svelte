@@ -25,6 +25,9 @@
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-48 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Send Recovery Email</button>
                 </div>   
             </form>
+            <div class="text-l font-bold text-center mt-2">
+                <h2><a href="../auth/sign-in">Sign in ➜</a></h2>
+            </div>
         </div>  
     </div>
 </main>
