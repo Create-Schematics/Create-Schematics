@@ -10,8 +10,8 @@
     w-[calc(100vw-2rem)] flex justify-between items-center pixel-corners"
   >
     <div class="flex items-center gap-3">
-      <a href="/">
-        <img src="/favicon.png" class="w-10" alt="" />
+      <a href="/" class=" w-8 md:w-10">
+        <img src="/favicon.png" class="w-10" alt="logo" />
       </a>
 
       <search title="schematics">
