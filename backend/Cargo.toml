@@ -39,6 +39,8 @@ argon2 = "0.5.2"
 rand = "0.8.5"
 nanoid = "0.4.0"
 bitflags = { version = "2.4.1", features = ["serde"] }
+oauth2 = "4.4.2"
+reqwest = { version = "0.11.22", features = ["json"] }
 
 [dev-dependencies]
 axum-test = "13.4.1"
