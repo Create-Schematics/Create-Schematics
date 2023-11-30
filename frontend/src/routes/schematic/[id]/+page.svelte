@@ -32,6 +32,9 @@
     },
   ];
   let selectedOption = 'description';
+  
+  // this is a placeholder; I don't know how the comments are going to be handled in the backend.
+  const comments:number = 5
 
   function handleOptionClick(option: string) {
     selectedOption = option;
@@ -131,12 +134,12 @@
     class=" bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners"
   >
     <nav class="mt-3 flex gap-2">
-      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'description' ? 'bg-white dark:bg-black/50' : 'dark:bg-create-blue/40'}" on:click={() => handleOptionClick('description')}>Description</button>
-      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'details' ? 'bg-white dark:bg-black/50' : 'dark:bg-create-blue/40'}" on:click={() => handleOptionClick('details')}>Details</button>
-      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'comments' ? 'bg-white dark:bg-black/50' : 'dark:bg-create-blue/40'}" on:click={() => handleOptionClick('comments')}>Comments</button>
+      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'description' ? 'bg-white dark:bg-black' : 'dark:bg-create-blue-dark'}" on:click={() => handleOptionClick('description')}>Description</button>
+      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'details' ? 'bg-white dark:bg-black' : 'dark:bg-create-blue-dark'}" on:click={() => handleOptionClick('details')}>Details</button>
+      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'comments' ? 'bg-white dark:bg-black' : 'dark:bg-create-blue-dark'}" on:click={() => handleOptionClick('comments')}>Comments</button>
     </nav>
     {#if selectedOption === 'description'}
-      <div class="bg-white dark:bg-black/50 p-4 pixel-corners">
+      <div class="bg-white dark:bg-create-blue-dark p-4 pixel-corners">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem
         blanditiis dolores quaerat iste veritatis. Sequi saepe, ut aut voluptatem
         enim rerum! Debitis praesentium error aliquam. Deserunt doloremque numquam
@@ -162,13 +165,20 @@
       </div>
     {/if}
     {#if selectedOption === 'details'}
-      <div class="bg-white dark:bg-black/50 p-4 pixel-corners">
+      <div class="bg-white dark:bg-create-blue-dark p-4 pixel-corners">
         details, whatever those are
       </div>
     {/if}
     {#if selectedOption === 'comments'}
-      <div class="bg-white dark:bg-black/50 p-4 pixel-corners">
-        comments
+      <div class="">
+        <div class="p-4 mb-4 bg-white dark:bg-create-blue-dark pixel-corners">
+          <textarea class="w-full h-auto outline-none bg-white dark:bg-create-blue-dark" placeholder={comments == 0 ? 'Write the first comment!' : 'Contribute to the discussion!'}></textarea>
+        <button class="bg-create-blue text-white px-4 py-1 pixel-corners">Post</button>
+        </div>
+        <div class="p-4 mb-2 bg-white dark:bg-create-blue-dark pixel-corners">
+          This is a comment.
+        </div>
+
       </div>
     {/if}
   </section>

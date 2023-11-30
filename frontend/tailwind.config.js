@@ -8,6 +8,7 @@ export default {
       },
       colors: {
         'create-blue': '#7695EC',
+        'create-blue-dark': '#2f3b5e',
         'minecraft-ui': {
           'light': '#d9d9db',
           'dark': '#101015'
