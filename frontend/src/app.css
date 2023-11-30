@@ -38,6 +38,18 @@
       0px 4px
     );
 }
+.pixel-top {
+    clip-path: polygon(
+      0px 100%,
+      100% 100%,
+      100% 4px,
+      calc(100% - 4px) 4px,
+      calc(100% - 4px) 0px,
+      4px 0px,
+      4px 4px,
+      0px 4px
+    );
+}
 
 a:not(.no-default-link) {
     color: #7695EC;

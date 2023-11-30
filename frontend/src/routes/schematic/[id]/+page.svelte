@@ -31,6 +31,11 @@
       id: "1",
     },
   ];
+  let selectedOption = 'description';
+
+  function handleOptionClick(option: string) {
+    selectedOption = option;
+  }
 </script>
 
 <svelte:head>
@@ -125,34 +130,46 @@
   <section
     class=" bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners"
   >
-    <nav class="my-3 flex gap-2">
-      <h2 class="text-xl underline">Description</h2>
-      <h2 class="text-xl text-opacity-20">Details</h2>
-      <h2 class="text-xl text-opacity-20">Comments</h2>
+    <nav class="mt-3 flex gap-2">
+      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'description' ? 'bg-white dark:bg-black/50' : 'dark:bg-create-blue/40'}" on:click={() => handleOptionClick('description')}>Description</button>
+      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'details' ? 'bg-white dark:bg-black/50' : 'dark:bg-create-blue/40'}" on:click={() => handleOptionClick('details')}>Details</button>
+      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'comments' ? 'bg-white dark:bg-black/50' : 'dark:bg-create-blue/40'}" on:click={() => handleOptionClick('comments')}>Comments</button>
     </nav>
-    <div class="bg-white dark:bg-black/50 p-4 pixel-corners">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem
-      blanditiis dolores quaerat iste veritatis. Sequi saepe, ut aut voluptatem
-      enim rerum! Debitis praesentium error aliquam. Deserunt doloremque numquam
-      eligendi alias sit explicabo. Laboriosam cum dolor eaque voluptas id
-      quisquam optio iste maxime, totam dicta libero reprehenderit facilis eum
-      quaerat magni aliquam, commodi, nam corporis. Ratione impedit repellat
-      temporibus maiores ad? Quis quam necessitatibus, tempora incidunt fugiat
-      perspiciatis quibusdam ipsam suscipit recusandae veniam modi quaerat,
-      debitis, qui dolorum! Deleniti nihil non ut molestiae facere maxime
-      officia error praesentium, eveniet doloribus, impedit blanditiis autem
-      amet voluptatibus atque dolor enim? Animi ullam minus aliquam quaerat
-      adipisci earum maxime magnam odio ducimus illum soluta iure dolores
-      asperiores consequuntur numquam consectetur incidunt, impedit ex officia
-      aut deleniti vitae dolore neque doloremque. Odio architecto vitae, iure,
-      aliquam quia expedita consequuntur quam accusamus magnam ipsum
-      repellendus. Beatae facilis iste, odit repellendus voluptates nemo dolorum
-      error. Sed praesentium quo eos, saepe voluptatibus doloremque repellendus
-      asperiores odit vel maiores. Reiciendis autem amet earum, nostrum eius
-      suscipit, deserunt voluptatum nisi unde dignissimos maxime eum similique
-      sunt repellendus voluptatibus quasi culpa commodi quibusdam veniam, animi
-      cum. Quos sit aperiam, expedita consequuntur, tenetur nostrum dolorem
-      nihil commodi ipsa officiis quasi obcaecati! In.
-    </div>
+    {#if selectedOption === 'description'}
+      <div class="bg-white dark:bg-black/50 p-4 pixel-corners">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem
+        blanditiis dolores quaerat iste veritatis. Sequi saepe, ut aut voluptatem
+        enim rerum! Debitis praesentium error aliquam. Deserunt doloremque numquam
+        eligendi alias sit explicabo. Laboriosam cum dolor eaque voluptas id
+        quisquam optio iste maxime, totam dicta libero reprehenderit facilis eum
+        quaerat magni aliquam, commodi, nam corporis. Ratione impedit repellat
+        temporibus maiores ad? Quis quam necessitatibus, tempora incidunt fugiat
+        perspiciatis quibusdam ipsam suscipit recusandae veniam modi quaerat,
+        debitis, qui dolorum! Deleniti nihil non ut molestiae facere maxime
+        officia error praesentium, eveniet doloribus, impedit blanditiis autem
+        amet voluptatibus atque dolor enim? Animi ullam minus aliquam quaerat
+        adipisci earum maxime magnam odio ducimus illum soluta iure dolores
+        asperiores consequuntur numquam consectetur incidunt, impedit ex officia
+        aut deleniti vitae dolore neque doloremque. Odio architecto vitae, iure,
+        aliquam quia expedita consequuntur quam accusamus magnam ipsum
+        repellendus. Beatae facilis iste, odit repellendus voluptates nemo dolorum
+        error. Sed praesentium quo eos, saepe voluptatibus doloremque repellendus
+        asperiores odit vel maiores. Reiciendis autem amet earum, nostrum eius
+        suscipit, deserunt voluptatum nisi unde dignissimos maxime eum similique
+        sunt repellendus voluptatibus quasi culpa commodi quibusdam veniam, animi
+        cum. Quos sit aperiam, expedita consequuntur, tenetur nostrum dolorem
+        nihil commodi ipsa officiis quasi obcaecati! In.
+      </div>
+    {/if}
+    {#if selectedOption === 'details'}
+      <div class="bg-white dark:bg-black/50 p-4 pixel-corners">
+        details, whatever those are
+      </div>
+    {/if}
+    {#if selectedOption === 'comments'}
+      <div class="bg-white dark:bg-black/50 p-4 pixel-corners">
+        comments
+      </div>
+    {/if}
   </section>
 </main>
