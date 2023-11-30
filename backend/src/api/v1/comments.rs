@@ -36,7 +36,7 @@ pub (in crate::api) struct PaginationQuery {
 
 #[derive(Serialize, ToSchema)]
 pub (in crate::api) struct FullComment {
-    pub comment_id: String,
+    pub comment_id: Uuid,
     pub comment_author: Uuid,
     pub comment_body: String,
     pub schematic_id: String,
@@ -70,7 +70,7 @@ pub (in crate::api) struct UpdateComment {
 async fn get_comments_by_schematic(
     State(ctx): State<ApiContext>,
     Query(query): Query<PaginationQuery>,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
 ) -> ApiResult<Json<Vec<FullComment>>> {
     let schematics = sqlx::query_as!(
         FullComment,
@@ -114,7 +114,7 @@ async fn get_comments_by_schematic(
 )]
 async fn get_comment_by_id(
     State(ctx): State<ApiContext>,
-    Path(comment_id): Path<String>,
+    Path(comment_id): Path<Uuid>,
 ) -> ApiResult<Json<FullComment>> {
     sqlx::query_as!(
         FullComment,
@@ -155,7 +155,7 @@ async fn get_comment_by_id(
 )]
 async fn post_comment(
     State(ctx): State<ApiContext>,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
     session: Session,
     Json(builder): Json<CommentBuilder>
 ) -> ApiResult<Json<Comment>> {
@@ -211,7 +211,7 @@ async fn post_comment(
 )]
 async fn update_comment_by_id(
     State(ctx): State<ApiContext>,
-    Path(comment_id): Path<String>,
+    Path(comment_id): Path<Uuid>,
     user: User,
     Json(update): Json<UpdateComment>
 ) -> ApiResult<Json<Comment>> {
@@ -264,7 +264,7 @@ async fn update_comment_by_id(
 )]
 async fn delete_comment_by_id(
     State(ctx): State<ApiContext>,
-    Path(comment_id): Path<String>,
+    Path(comment_id): Path<Uuid>,
     user: User
 ) -> ApiResult<()> {
     let mut transaction = ctx.pool.begin().await?;

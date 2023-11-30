@@ -2,6 +2,7 @@ use axum::Router;
 use axum::extract::{State, Path};
 use axum::routing::{post, get};
 use axum::Json;
+use uuid::Uuid;
 
 use crate::api::ApiContext; 
 use crate::authentication::session::Session;
@@ -74,7 +75,7 @@ async fn get_favorites(
 async fn favorite_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
 ) -> ApiResult<()> {
     sqlx::query!(
         r#"
@@ -86,7 +87,7 @@ async fn favorite_schematic(
         )
         on conflict do nothing
         "#,
-        id,
+        schematic_id,
         session.user_id
     )
     .execute(&ctx.pool)
@@ -113,7 +114,7 @@ async fn favorite_schematic(
 async fn unfavorite_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
 ) -> ApiResult<()> {
     sqlx::query!(
         r#"

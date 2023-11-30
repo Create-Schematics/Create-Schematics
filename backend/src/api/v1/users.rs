@@ -198,7 +198,6 @@ async fn login(
     let session = Session::new_for_user(user.user_id);
 
     session.save(&ctx.redis_pool).await?;
-
     cookies.add(session.into_cookie());
 
     Ok(Json(user))

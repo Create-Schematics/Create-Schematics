@@ -1,5 +1,6 @@
 use axum::{Router, extract::{State, Path, Query}, routing::get, Json};
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 use crate::{api::ApiContext, response::ApiResult, authentication::session::Session, error::ApiError};
 
@@ -47,7 +48,7 @@ pub (in crate::api) struct FullTag {
 )]
 async fn get_schematic_tags(
     State(ctx): State<ApiContext>,
-    Path(schematic_id): Path<String>
+    Path(schematic_id): Path<Uuid>
 ) -> ApiResult<Json<Vec<FullTag>>> {
     let tags = sqlx::query_as!(
         FullTag,
@@ -121,7 +122,7 @@ async fn get_valid_tags(
 async fn tag_schematic_by_id(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
     Json(query): Json<Tags>
 ) -> ApiResult<()> {
     let schematic_meta = sqlx::query!(
@@ -183,7 +184,7 @@ async fn tag_schematic_by_id(
 async fn untag_schematic_by_id(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
     Json(query): Json<Tags>
 ) -> ApiResult<()> {
     let schematic_meta = sqlx::query!(

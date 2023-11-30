@@ -2,6 +2,7 @@ use axum::extract::{State, Path, Query};
 use axum::routing::post;
 use utoipa::ToSchema;
 use axum::Router;
+use uuid::Uuid;
 
 use crate::error::ApiError;
 use crate::response::ApiResult;
@@ -58,7 +59,7 @@ impl LikeAction {
 async fn like_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
     Query(query): Query<LikeQuery>
 ) -> ApiResult<()> {
     let action = query.action.ok_or(ApiError::BadRequest)?;
@@ -106,7 +107,7 @@ async fn like_schematic(
 async fn remove_like_from_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
 ) -> ApiResult<()> {
     let mut transaction = ctx.pool.begin().await?;
 
