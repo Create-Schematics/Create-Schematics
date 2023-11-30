@@ -2,7 +2,7 @@
     import GoogleIcon from "$lib/icons/google.svelte"
     import MicrosoftIcon from "$lib/icons/microsoft.svelte";
 
-    let usernameTakenError = false;
+    /* let usernameTakenError = false;
     let emailFormatError = false;
     let pwMismatchError = false;
     let pwLengthError = false;
@@ -33,8 +33,7 @@
             console.log("Errors in form");
             errorOccured = true;
         }
-    }
-
+    } */
 </script>
 
 <svelte:head>
@@ -49,11 +48,10 @@
                 <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"><GoogleIcon/> Google</button>
                 <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"><MicrosoftIcon/> Microsoft</button>
             </div>
-            <hr class="my-3 border-slate-800 mx-3">
+            <!--<hr class="my-3 border-slate-800 mx-3">
             <h2 class="text-xl font-bold text-center p-3">Or do it manually</h2>
             <form method="post" action="?/signup" on:submit|preventDefault={handleSubmit}>
                 <div class="form-item p-2">
-                    <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Email" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
                         bind:value={email} on:blur={() => { updateErrors() }}
                         id="email" type="email" name="email" required
@@ -63,7 +61,6 @@
                     {/if}
                 </div>
                 <div class="form-item p-2">
-                    <!-- <label for="username">Username<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Username" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners"
                         bind:value={username} on:blur={() => { updateErrors() }}
                         id="username" type="text" name="username" required
@@ -74,7 +71,6 @@
                     {/if}
                 </div>
                 <div class="form-item p-2">
-                    <!-- <label for="password">Password<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Password" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
                     bind:value={password} on:blur={() => { updateErrors() }}
                     id="password" type="password" name="password" required
@@ -84,7 +80,6 @@
                     {/if}
                 </div>
                 <div class="form-item p-2">
-                    <!-- <label for="password">Confirm Password<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Confirm password" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
                     bind:value={confirmPassword} on:blur={() => { updateErrors() }}
                     id="confirmPassword" type="password" name="confirmPassword" required
@@ -92,19 +87,19 @@
                     {#if pwMismatchError === true} 
                         <p class="text-red-500">Passwords much match</p>
                     {/if}
-                </div>
+                </div>-->
 
-                <p class="text-wrap w-72 md:w-96 px-4 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
-                {#if errorOccured === true} 
+                <!--{#if errorOccured === true} 
                 <p class="text-red-500 text-wrap w-72 px-2 md:w-96 text-m">An error occured while trying to submit the form. Please try again.</p>
                 {/if}
                 <div class="form-item mt-5 flex justify-center">
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Register</button>
-                </div>   
-                <div class="text-l font-bold text-center mt-2">
-                    <h2><a href="../auth/sign-in">Sign in to existing account ➜</a></h2>
                 </div>
-            </form>
+            </form>-->  
+            <p class="text-wrap w-72 md:w-96 px-4 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
+            <div class="text-l font-bold text-center mt-2">
+                <h2><a href="../auth/sign-in">Sign in to existing account ➜</a></h2>
+            </div>
         </div>  
     </div>
 </main>
