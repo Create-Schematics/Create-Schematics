@@ -1,24 +1,26 @@
 <script lang="ts">
     import GoogleIcon from "$lib/icons/google.svelte"
     import MicrosoftIcon from "$lib/icons/microsoft.svelte";
-    export let form
 
-    var usernameTakenError = false;
-    var emailFormatError = false;
-    var emailMismatchError = false;
-    var pwMismatchError = false;
-    var pwLengthError = false;
+    let usernameTakenError = false;
+    let emailFormatError = false;
+    let pwMismatchError = false;
+    let pwLengthError = false;
+    let username:string
+    let email:string
+    let password:string
+    let confirmPassword:string
 
-    function updateForm() {
-        const username = document.getElementById('username')?.value;
-        const email = document.getElementById('email')?.value;
-        const password = document.getElementById('password')?.value;
-        const confirmPassword = document.getElementById('confirmPassword')?.value;
-
-        emailFormatError = (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,72}$/.test(email)) ? false : true;
-
-        pwLengthError = (password.length > 8) ? false : true; 
-        pwMismatchError = (password == confirmPassword) ? false : true;
+    function updateErrors() {
+        if (email?.length > 0) {
+            emailFormatError = (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,72}$/.test(email)) ? false : true;
+        } else { emailFormatError = false }
+        if (password?.length > 0) {
+            pwLengthError = (password.length > 8) ? false : true; 
+        } else { pwLengthError = false }
+        if (password?.length > 0 && confirmPassword?.length > 0) {
+            pwMismatchError = (password == confirmPassword) ? false : true;
+        } else { pwMismatchError = false }
     }
 </script>
 
@@ -26,8 +28,8 @@
     <title>Register - Create Schematics</title>
 </svelte:head>
 
-<main class="flex items-center justify-center w-screen pt-16 pb-28">
-    <div class="items-center justify-center bg-checker pixel-corners py-14 w-[calc(100vw-2rem)] max-w-6xl">
+<main class="flex items-center justify-center w-screen pt-2 pb-28">
+    <div class="items-center justify-center bg-checker pixel-corners py-6 w-[calc(100vw-2rem)] max-w-6xl">
         <div class="mx-auto w-fit p-4 pixel-corners bg-minecraft-ui-light dark:bg-minecraft-ui-dark">
             <h2 class="text-xl font-bold text-center">Register with</h2>
             <div class="grid grid-cols-2 gap-4 px-3 py-4">
@@ -40,42 +42,41 @@
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Email" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { updateForm() }}
-                        value={form?.email?? ''} id="email" type="email" name="email" required
+                        bind:value={email} on:blur={() => { updateErrors() }}
+                        id="email" type="email" name="email" required
                     />
-                    {#if emailFormatError === true && document.getElementById('email')?.value.length > 0} 
+                    {#if emailFormatError === true} 
                         <p class="text-red-500">Must be a valid email address</p>
                     {/if}
                 </div>
                 <div class="form-item p-2">
                     <!-- <label for="username">Username<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Username" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners"
-                        value={form?.username?? ''} 
-                        on:blur={() => { updateForm() }}
+                        bind:value={username} on:blur={() => { updateErrors() }}
                         id="username" type="text" name="username" required
                     />
 
-                    {#if usernameTakenError === true && document.getElementById('username')?.value.length > 0} 
+                    {#if usernameTakenError === true} 
                         <p class="text-red-500">That username is already taken</p>
                     {/if}
                 </div>
                 <div class="form-item p-2">
                     <!-- <label for="password">Password<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Password" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { updateForm() }}
-                        id="password" type="password" name="password" required
+                    bind:value={password} on:blur={() => { updateErrors() }}
+                    id="password" type="password" name="password" required
                     />
-                    {#if pwLengthError === true && document.getElementById('password')?.value.length > 0} 
+                    {#if pwLengthError === true} 
                         <p class="text-red-500">Password must be at least 8 characters long</p>
                     {/if}
                 </div>
                 <div class="form-item p-2">
                     <!-- <label for="password">Confirm Password<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Confirm password" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { updateForm() }}
-                        id="confirmPassword" type="password" name="confirmPassword" required
+                    bind:value={confirmPassword} on:blur={() => { updateErrors() }}
+                    id="confirmPassword" type="password" name="confirmPassword" required
                     />
-                    {#if pwMismatchError === true && document.getElementById('confirmPassword')?.value.length > 0} 
+                    {#if pwMismatchError === true} 
                         <p class="text-red-500">Passwords much match</p>
                     {/if}
                 </div>

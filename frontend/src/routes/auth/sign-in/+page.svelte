@@ -3,15 +3,18 @@
     import MicrosoftIcon from "$lib/icons/microsoft.svelte";
     export let form
 
-    var emailFormatError = false;
-    var pwLengthError = false;
+    let emailFormatError = false;
+    let pwLengthError = false;
+    let email:string
+    let password:string
 
-    function updateForm() {
-        const email = document.getElementById('email')?.value;
-        const password = document.getElementById('password')?.value;
-
-        emailFormatError = (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,72}$/.test(email)) ? false : true;
-        pwLengthError = (password.length > 8) ? false : true; 
+    function updateErrors() {
+        if (email?.length > 0) {
+            emailFormatError = (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,72}$/.test(email)) ? false : true;
+        } else { emailFormatError = false }
+        if (password?.length > 0) {
+            pwLengthError = (password.length > 8) ? false : true; 
+        } else { pwLengthError = false }
     }
 </script>
 
@@ -33,20 +36,20 @@
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Email" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { updateForm() }}
+                        on:blur={() => { updateErrors() }}
                         value={form?.email?? ''} id="email" type="email" name="email" required
                     />
-                    {#if emailFormatError === true && document.getElementById('email')?.value.length > 0} 
+                    {#if emailFormatError === true} 
                         <p class="text-red-500">Must be a valid email address</p>
                     {/if}
                 </div>
                 <div class="form-item p-2">
                     <!-- <label for="password">Password<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Password" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
-                        on:blur={() => { updateForm() }}
+                        on:blur={() => { updateErrors() }}
                         id="password" type="password" name="password" required
                     />
-                    {#if pwLengthError === true && document.getElementById('password')?.value.length > 0} 
+                    {#if pwLengthError === true} 
                         <p class="text-red-500">Password must be at least 8 characters long</p>
                     {/if}
                 </div>
