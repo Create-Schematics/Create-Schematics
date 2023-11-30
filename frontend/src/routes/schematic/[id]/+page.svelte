@@ -34,7 +34,7 @@
 </script>
 
 <svelte:head>
-  <title>{schematics[0].title} - Create Schematics"</title>
+  <title>{schematics[0].title} - Create Schematics</title>
 </svelte:head>
 
 <main class="max-w-6xl w-[calc(100vw-2rem)] flex flex-col mx-auto gap-3">

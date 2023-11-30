@@ -1,5 +1,5 @@
 <svelte:head>
-    <title>Page not Found - Create Schematics"</title>
+    <title>Page not Found - Create Schematics</title>
 </svelte:head>
 <main class="flex items-center justify-center w-screen" style="height: 90vh; padding-bottom: 15vh;">
     <div class="text-center text-create-blue/800 bg-checker pixel-corners pt-20 pb-12 w-[calc(100vw-2rem)] max-w-6xl" 

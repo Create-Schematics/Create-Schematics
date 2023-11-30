@@ -26,7 +26,7 @@
 </script>
 
 <svelte:head>
-  <title>Browse - Create Schematics"</title>
+  <title>Browse - Create Schematics</title>
 </svelte:head>
 
 <main

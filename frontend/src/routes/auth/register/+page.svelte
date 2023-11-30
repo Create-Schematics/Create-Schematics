@@ -21,6 +21,11 @@
         pwMismatchError = (password == confirmPassword) ? false : true;
     }
 </script>
+
+<svelte:head>
+    <title>Register - Create Schematics</title>
+</svelte:head>
+
 <main class="flex items-center justify-center w-screen pt-16 pb-28">
     <div class="items-center justify-center bg-checker pixel-corners py-14 w-[calc(100vw-2rem)] max-w-6xl">
         <div class="mx-auto w-fit p-4 pixel-corners bg-minecraft-ui-light dark:bg-minecraft-ui-dark">
