@@ -18,6 +18,9 @@ pub (in crate::api) struct FullSchematic {
     #[schema(min_length=16, max_length=16)]
     pub schematic_id: String,
 
+    #[schema(example="My schematic")]
+    pub schematic_name: String,
+
     pub author: Uuid,
 
     #[schema(example="Rabbitminers")]
@@ -36,8 +39,7 @@ pub (in crate::api) struct FullSchematic {
     #[schema(example=0)]
     pub downloads: i64,
 
-    #[schema(example="My schematic")]
-    pub schematic_name: String,
+    pub tags: Vec<i64>,
 
     #[schema(example=4, minimum=1)]
     pub game_version_id: i64,
@@ -102,6 +104,11 @@ pub (in crate::api) struct SearchQuery {
     /// 
     #[schema(example=0, minimum=0)]
     pub offset: Option<i64>,
+
+    /// The tags to fetch from, only schematics with all of these tags
+    /// will fetched.
+    /// 
+    pub tag_ids: Option<Vec<i64>>,
     
     /// The term to search schematics for. Both schematic names and
     /// descriptions will be matched agaisnt the this term.
@@ -177,7 +184,7 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 )]
 async fn get_schematic_by_id(
     State(ctx): State<ApiContext>,
-    Path(id): Path<String>
+    Path(schematic_id): Path<Uuid>
 ) -> ApiResult<Json<FullSchematic>> {
     // This needs some testing, overall we have two options for
     // selecting the number of favourites, likes and dislikes. 
@@ -207,6 +214,7 @@ async fn get_schematic_by_id(
             create_version_name,
             game_version_id, 
             game_version_name, 
+            coalesce(array_agg(tag_id) filter (where tag_id is not null), array []::bigint[]) as "tags!",
             coalesce(count(likes.schematic_id) filter (where positive = true), 0) as "like_count!",
             coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!",
             coalesce(count(favorites.schematic_id), 0) as "favorite_count!"
@@ -217,6 +225,7 @@ async fn get_schematic_by_id(
             inner join users on user_id = author
             left join schematic_likes likes using (schematic_id)
             left join favorites using (schematic_id)
+            left join applied_tags using (schematic_id)
         where 
             schematic_id = $1
         group by 
@@ -226,7 +235,7 @@ async fn get_schematic_by_id(
             username,
             create_version_name
         "#,
-        id
+        schematic_id
     )
     .fetch_optional(&ctx.pool)
     .await?
@@ -257,7 +266,7 @@ async fn get_schematic_by_id(
 )]
 async fn update_schematic_by_id(
     State(ctx): State<ApiContext>,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
     user: User,
     Json(schematic): Json<UpdateSchematic>,
 ) -> ApiResult<Json<Schematic>> {
@@ -315,11 +324,15 @@ async fn update_schematic_by_id(
 )]
 async fn delete_schematic_by_id(
     State(ctx): State<ApiContext>,
-    Path(schematic_id): Path<String>,
+    Path(schematic_id): Path<Uuid>,
     user: User
 ) -> ApiResult<()> {
     let mut transaction = ctx.pool.begin().await?;
 
+    // This permission check could potentially be nicely merged into the
+    // subsequent query by checking like so in the where clause.
+    //
+    // and (author = $2 or (select permissions from users where user_id = $2) & $3 = $3)
     Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
 
     // We dont need to ensure the user owns the schematic here or that they are the owner
@@ -419,6 +432,7 @@ async fn search_schematics(
     State(ctx): State<ApiContext>,
     Query(query): Query<SearchQuery>,
 ) -> ApiResult<Json<Vec<FullSchematic>>> {
+    let tags = query.tag_ids.unwrap_or_default();
     let ordering = query.sort.unwrap_or(SortBy::CreatedAt);
 
     let schematics = sqlx::query_as!(
@@ -434,6 +448,7 @@ async fn search_schematics(
             create_version_name,
             game_version_id,
             game_version_name,
+            coalesce(array_agg(tag_id) filter (where tag_id is not null), array []::bigint[]) as "tags!",
             coalesce(count(likes.schematic_id) filter (where positive = true), 0) as "like_count!",
             coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!",
             coalesce(count(favorites.schematic_id), 0) as "favorite_count!"
@@ -444,8 +459,10 @@ async fn search_schematics(
             inner join users on user_id = author
             left join schematic_likes likes using (schematic_id)
             left join favorites using (schematic_id)
+            left join applied_tags using (schematic_id)
         where 
             schematic_name % $1
+            and (array_length($2::bigint[], 1) is null or tag_id = any($2))
         group by 
             schematic_id,
             game_version_id,
@@ -453,10 +470,11 @@ async fn search_schematics(
             username,
             create_version_id,
             create_version_name
-        order by $2
-        limit $3 offset $4
+        order by $3
+        limit $4 offset $5
         "#,
         query.term,
+        &tags,
         ordering.to_string(),
         query.limit.unwrap_or(20),
         query.offset.unwrap_or(0)
