@@ -10,6 +10,7 @@
     let email:string
     let password:string
     let confirmPassword:string
+    let errorOccured = false;
 
     function updateErrors() {
         if (email?.length > 0) {
@@ -21,7 +22,19 @@
         if (password?.length > 0 && confirmPassword?.length > 0) {
             pwMismatchError = (password == confirmPassword) ? false : true;
         } else { pwMismatchError = false }
+        return (emailFormatError === false && pwLengthError === false && pwMismatchError === false && usernameTakenError === false)
     }
+
+    function handleSubmit(event: Event) {
+        if (updateErrors() == true) { // No Errors Found
+            console.log("Submitting form");
+            console.log([email, password, confirmPassword, username]);
+        } else { // Errors Found
+            console.log("Errors in form");
+            errorOccured = true;
+        }
+    }
+
 </script>
 
 <svelte:head>
@@ -38,7 +51,7 @@
             </div>
             <hr class="my-3 border-slate-800 mx-3">
             <h2 class="text-xl font-bold text-center p-3">Or do it manually</h2>
-            <form method="post" action="?/signup" class="">
+            <form method="post" action="?/signup" on:submit|preventDefault={handleSubmit}>
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Email" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
@@ -82,7 +95,9 @@
                 </div>
 
                 <p class="text-wrap w-72 md:w-96 px-4 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
-
+                {#if errorOccured === true} 
+                <p class="text-red-500 text-wrap w-72 px-2 md:w-96 text-m">An error occured while trying to submit the form. Please try again.</p>
+                {/if}
                 <div class="form-item mt-5 flex justify-center">
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Register</button>
                 </div>   

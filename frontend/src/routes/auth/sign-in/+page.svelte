@@ -6,6 +6,7 @@
     let pwLengthError = false;
     let email:string
     let password:string
+    let errorOccured = false;
 
     function updateErrors() {
         if (email?.length > 0) {
@@ -14,6 +15,17 @@
         if (password?.length > 0) {
             pwLengthError = (password.length > 8) ? false : true; 
         } else { pwLengthError = false }
+        return (emailFormatError === false && pwLengthError === false)
+    }
+
+    function handleSubmit(event: Event) {
+        if (updateErrors() == true) { // No Errors Found
+            console.log("Submitting form");
+            console.log([email, password]);
+        } else { // Errors Found
+            console.log("Errors in form");
+            errorOccured = true;
+        }
     }
 </script>
 
@@ -31,7 +43,7 @@
             </div>
             <hr class="my-3 border-slate-800 mx-3">
             <h2 class="text-xl font-bold text-center px-3 pb-1 pt-4 ">Or use an email & password</h2>
-            <form method="post" action="?/login" class="">
+            <form method="post" action="?/login" on:submit|preventDefault={handleSubmit}>
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
                     <input placeholder="Email" class="accent-create-blue w-72 md:w-96 h-10 outline-none px-3 dark:bg-black/30 pixel-corners" 
@@ -52,7 +64,9 @@
                         <p class="text-red-500">Password should be >8 characters long</p>
                     {/if}
                 </div>
-
+                {#if errorOccured === true} 
+                <p class="text-red-500 text-wrap w-72 px-2 md:w-96 text-m">An error occured while trying to submit the form. Please try again.</p>
+                {/if}
                 <div class="form-item mt-5 flex justify-center">
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Sign in</button>
                 </div>   
