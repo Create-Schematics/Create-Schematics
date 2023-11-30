@@ -86,7 +86,7 @@
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Register</button>
                 </div>   
                 <div class="text-l font-bold text-center mt-2">
-                    <h2><a href="../auth/sign-in">Sign in to Existing Account ➜</a></h2>
+                    <h2><a href="../auth/sign-in">Sign in to existing account ➜</a></h2>
                 </div>
             </form>
         </div>  
