@@ -21,16 +21,16 @@
         pwMismatchError = (password == confirmPassword) ? false : true;
     }
 </script>
-<main class="flex items-center justify-center w-screen pb-20">
-    <div class="items-center justify-center bg-checker pixel-corners pt-6 pb-6 w-[calc(100vw-2rem)] max-w-6xl">
+<main class="flex items-center justify-center w-screen pt-16 pb-28">
+    <div class="items-center justify-center bg-checker pixel-corners py-14 w-[calc(100vw-2rem)] max-w-6xl">
         <div class="mx-auto w-fit p-4 pixel-corners bg-minecraft-ui-light dark:bg-minecraft-ui-dark">
-            <h1 class="text-2xl font-bold text-center">Register With</h1>
+            <h1 class="text-2xl font-bold text-center">Register with</h1>
             <div class="grid grid-cols-2 gap-4 px-3 py-4">
-                <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl"><GoogleIcon/> Google</button>
-                <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl"><MicrosoftIcon/> Microsoft</button>
+                <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"><GoogleIcon/> Google</button>
+                <button class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"><MicrosoftIcon/> Microsoft</button>
             </div>
             <hr class="my-3 border-slate-800 mx-3">
-            <h1 class="text-2xl font-bold text-center p-3">Or do it yourself</h1>
+            <h1 class="text-2xl font-bold text-center p-3">Or do it manually</h1>
             <form method="post" action="?/signup" class="">
                 <div class="form-item p-2">
                     <!-- <label for="email">Email<sup><small>*</small></sup></label><br> -->
@@ -75,8 +75,10 @@
                     {/if}
                 </div>
 
-                <div class="form-item mt-3">
-                    <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl">Register</button>
+                <p class="text-wrap w-72 md:w-96 px-2 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
+
+                <div class="form-item mt-3 flex justify-center">
+                    <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Register</button>
                 </div>   
             </form>
         </div>  
