@@ -23,12 +23,9 @@ bitflags::bitflags! {
     #[derive(Debug, Serialize, Deserialize, ToSchema)]
     #[serde(transparent)]
     pub struct Permissions: u32 {
-        const VOTE = 1 << 0;
-        const COMMENT = 1 << 1;
-        const POST = 1 << 2;
-        const MODERATE_COMMENTS = 1 << 3;
-        const MODERATE_POSTS = 1 << 4;
-        const MODERATE_USERS = 1 << 5;
+        const MODERATE_COMMENTS = 1 << 1;
+        const MODERATE_POSTS = 1 << 2;
+        const MODERATE_USERS = 1 << 3;
     }
 }   
 
@@ -40,6 +37,6 @@ impl From<i32> for Permissions {
 
 impl Default for Permissions {
     fn default() -> Self {
-        Permissions::VOTE | Permissions::COMMENT | Permissions::POST
+        Permissions::empty()
     }
 }

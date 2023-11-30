@@ -8,7 +8,7 @@ use super::user::{User, Permissions};
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct Comment {
-    pub comment_id: String,
+    pub comment_id: Uuid,
     pub comment_author: Uuid,
     pub comment_body: String,
     pub schematic_id: String
@@ -17,7 +17,7 @@ pub struct Comment {
 impl Comment {
     pub async fn check_user_permissions<'a, E> (
         user: User,
-        comment_id: &str,
+        comment_id: &Uuid,
         permissions: Permissions,
         executor: E
     ) -> ApiResult<()>

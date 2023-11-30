@@ -9,7 +9,7 @@ use super::user::{User, Permissions};
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct Schematic {
-    pub schematic_id: String,
+    pub schematic_id: Uuid,
     pub schematic_name: String,
     pub game_version_id: i32,
     pub create_version_id: i32,
@@ -20,7 +20,7 @@ pub struct Schematic {
 impl Schematic { 
     pub async fn check_user_permissions<'a, E> (
         user: User,
-        schematic_id: &str,
+        schematic_id: &Uuid,
         permissions: Permissions,
         executor: E
     ) -> ApiResult<()>
