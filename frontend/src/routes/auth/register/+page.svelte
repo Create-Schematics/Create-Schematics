@@ -80,7 +80,7 @@
                     {/if}
                 </div>
 
-                <p class="text-wrap w-72 md:w-96 px-2 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
+                <p class="text-wrap w-72 md:w-96 px-4 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
 
                 <div class="form-item mt-5 flex justify-center">
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Register</button>
