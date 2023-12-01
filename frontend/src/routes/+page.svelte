@@ -7,7 +7,7 @@
     text-center">
         <h1 class="text-6xl font-bold">Create Schematics</h1>
         <p class="mt-4 text-xl">The best way to search, share and download schematics.</p>
-        <div class="my-10">
+        <div class="my-20">
             <a href="../browse" class="no-default-link"><button class="bg-checker px-4 py-2 text-xl font-bold bg-create-blue hover:bg-create-blue/70 text-white rounded-md pixel-corners">Browse Schematics</button></a>
         </div>
         <div class="text-5xl pt-16">
