@@ -27,9 +27,8 @@ impl Modify for AuthenticationModifier {
     ),
     paths(
         v1::users::current_user,
-        v1::users::signup,
-        v1::users::login,
-        v1::users::logout,
+        v1::users::update_current_user,
+        v1::users::remove_current_user,
 
         v1::profile::get_uploaded_schematics,
 
@@ -69,8 +68,6 @@ impl Modify for AuthenticationModifier {
         
         crate::models::schematic::Schematic,
  
-        v1::users::Login,
-        v1::users::Signup,
         v1::users::UpdateUser,
 
         crate::models::comment::Comment,

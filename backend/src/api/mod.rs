@@ -1,16 +1,25 @@
-use std::{net::SocketAddr, time::Duration};
+use std::time::Duration;
+use std::net::SocketAddr;
 
-use axum::{Router, http::{header, Method}};
+use axum::Router;
+use axum::http::header;
+use axum::http::Method;
 use clap::Args;
 use sqlx::PgPool;
 use tower_cookies::CookieManagerLayer;
-use tower_http::{cors::{Any, CorsLayer}, trace::TraceLayer};
+use tower_http::trace::TraceLayer;
+use tower_http::cors::{Any, CorsLayer};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::database::postgres::{self, StartCommandDatabaseArguments};
-use crate::database::redis::{self, RedisPool, StartCommandRedisArguments};
+use crate::database::postgres;
+use crate::database::postgres::StartCommandDatabaseArguments;
+use crate::database::redis;
+use crate::database::redis::{RedisPool, StartCommandRedisArguments};
 
+use self::auth::StartCommandOauthArguments;
+
+pub mod auth;
 pub mod v1;
 
 pub mod openapi;
@@ -34,6 +43,10 @@ pub struct StartCommandServerArguments {
     #[command(next_help_heading = "Redis")]
     #[command(flatten)]
     pub redis: StartCommandRedisArguments,
+
+    #[command(next_help_heading = "Oauth")]
+    #[command(flatten)]
+    pub oauth: StartCommandOauthArguments,
 }
 
 #[derive(Clone)]
@@ -42,12 +55,23 @@ pub struct ApiContext {
     pub redis_pool: RedisPool
 }
 
-fn build_router(
-    redis_pool: RedisPool,
-    pool: PgPool,
-) -> Router {
-    Router::new()
-        .nest("/api", crate::api::configure())
+pub async fn init(
+    StartCommandServerArguments {
+        listen_address,
+        postgres,
+        redis,
+        oauth,
+        ..
+    }: StartCommandServerArguments,
+) -> Result<(), anyhow::Error> {
+    let pool = postgres::connect(postgres).await?;
+    let redis_pool = redis::connect(redis)?;
+
+    let app = Router::new()
+        .nest("/api", Router::new()
+            .merge(crate::api::configure())
+            .merge(crate::api::auth::configure(oauth)?)
+        )
         .merge(SwaggerUi::new("/swagger-ui").url("/openapi.json", openapi::ApiDoc::openapi()))
         .layer(CorsLayer::default()
             .allow_headers([
@@ -71,53 +95,13 @@ fn build_router(
         )
         .layer(CookieManagerLayer::new())
         .layer(TraceLayer::new_for_http())
-        .with_state(ApiContext { pool, redis_pool })
-}
+        .with_state(ApiContext { pool, redis_pool });
 
-pub async fn init(
-    StartCommandServerArguments {
-        listen_address,
-        postgres,
-        redis,
-        ..
-    }: StartCommandServerArguments,
-) -> Result<(), anyhow::Error> {
-    let database_pool = postgres::connect(postgres).await?;
-    let redis_pool = redis::connect(redis)?;
-
-    let app = build_router(redis_pool, database_pool);
+    tracing::info!("Listening on http://{}", listen_address);
     
     axum::Server::bind(&listen_address)
         .serve(app.into_make_service())
         .await?;
 
     Ok(())
-}
-
-#[cfg(test)]
-pub mod tests {
-    use axum_test::TestServer;
-    use deadpool_redis::{Config, Runtime};
-    use sqlx::postgres::PgPoolOptions;
-
-    use crate::database::redis::RedisPool;
-    
-    pub async fn build_test_server() -> Result<TestServer, anyhow::Error> {
-        let postgres = dotenv::var("DATABASE_URL")?;
-        let redis = dotenv::var("REDIS_URL")?;
-    
-        let database_pool = PgPoolOptions::new()
-            .connect(&postgres)
-            .await?;
-        
-        let redis_pool = Config::from_url(redis)
-            .builder()?
-            .runtime(Runtime::Tokio1)
-            .build()
-            .map(|pool| RedisPool(pool))?;
-    
-        let app = super::build_router(redis_pool, database_pool);
-    
-        TestServer::new(app)
-    }
 }
