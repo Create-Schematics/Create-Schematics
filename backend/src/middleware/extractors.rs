@@ -54,8 +54,7 @@ where
                 user_id,
                 username,
                 permissions,
-                email,
-                password_hash
+                email
             from 
                 users
             where
