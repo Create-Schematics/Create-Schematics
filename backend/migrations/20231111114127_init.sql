@@ -1,14 +1,14 @@
 create table users
 (
     user_id       uuid        primary key default uuid_generate_v1mc(),
-    username      text        not null    unique collate "case_insensitive",
+    username      text        not null    
     email         text        not null    unique collate "case_insensitive",
-    github_id     bigint                  unique,
-    discord_id    bigint                  unique,
+    avatar        text        not null,
+    github_id     text                    unique,
+    discord_id    text                    unique,
     google_id     text                    unique,
     microsoft_id  text                    unique,
     permissions   integer     not null,
-    password_hash text        not null,
     created_at    timestamptz not null    default now(),
     updated_at    timestamptz
 );
