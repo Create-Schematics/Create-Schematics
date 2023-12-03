@@ -31,10 +31,10 @@
       id: "1",
     },
   ];
-  let selectedOption = 'description';
-  
+  let selectedOption = "description";
+
   // this is a placeholder; I don't know how the comments are going to be handled in the backend.
-  const comments:number = 5
+  const comments: number = 5;
 
   function handleOptionClick(option: string) {
     selectedOption = option;
@@ -134,51 +134,76 @@
     class=" bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners"
   >
     <nav class="mt-3 flex gap-2">
-      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'description' ? 'bg-white dark:bg-black' : 'dark:bg-create-blue-dark'}" on:click={() => handleOptionClick('description')}>Description</button>
-      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'details' ? 'bg-white dark:bg-black' : 'dark:bg-create-blue-dark'}" on:click={() => handleOptionClick('details')}>Details</button>
-      <button class="text-xl pixel-top px-5 py-2 relative top-1 {selectedOption === 'comments' ? 'bg-white dark:bg-black' : 'dark:bg-create-blue-dark'}" on:click={() => handleOptionClick('comments')}>Comments</button>
+      <button
+        class="text-xl pixel-top px-5 py-2 relative top-1 cursor-pointer {selectedOption ===
+        'description'
+          ? 'bg-white dark:bg-black/30'
+          : 'dark:bg-create-blue-dark'}"
+        on:click={() => handleOptionClick("description")}>Description</button
+      >
+      <button
+        class="text-xl pixel-top px-5 py-2 relative top-1 cursor-pointer {selectedOption ===
+        'details'
+          ? 'bg-white dark:bg-black/30'
+          : 'dark:bg-create-blue-dark'}"
+        on:click={() => handleOptionClick("details")}>Details</button
+      >
+      <button
+        class="text-xl pixel-top px-5 py-2 relative top-1 cursor-pointer {selectedOption ===
+        'comments'
+          ? 'bg-white dark:bg-black/30'
+          : 'dark:bg-create-blue-dark'}"
+        on:click={() => handleOptionClick("comments")}>Comments</button
+      >
     </nav>
-    {#if selectedOption === 'description'}
-      <div class="bg-white dark:bg-create-blue-dark p-4 pixel-corners">
+    {#if selectedOption === "description"}
+      <div class="bg-white dark:bg-black/30 p-4 pixel-corners">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem
-        blanditiis dolores quaerat iste veritatis. Sequi saepe, ut aut voluptatem
-        enim rerum! Debitis praesentium error aliquam. Deserunt doloremque numquam
-        eligendi alias sit explicabo. Laboriosam cum dolor eaque voluptas id
-        quisquam optio iste maxime, totam dicta libero reprehenderit facilis eum
-        quaerat magni aliquam, commodi, nam corporis. Ratione impedit repellat
-        temporibus maiores ad? Quis quam necessitatibus, tempora incidunt fugiat
-        perspiciatis quibusdam ipsam suscipit recusandae veniam modi quaerat,
-        debitis, qui dolorum! Deleniti nihil non ut molestiae facere maxime
-        officia error praesentium, eveniet doloribus, impedit blanditiis autem
-        amet voluptatibus atque dolor enim? Animi ullam minus aliquam quaerat
-        adipisci earum maxime magnam odio ducimus illum soluta iure dolores
-        asperiores consequuntur numquam consectetur incidunt, impedit ex officia
-        aut deleniti vitae dolore neque doloremque. Odio architecto vitae, iure,
-        aliquam quia expedita consequuntur quam accusamus magnam ipsum
-        repellendus. Beatae facilis iste, odit repellendus voluptates nemo dolorum
-        error. Sed praesentium quo eos, saepe voluptatibus doloremque repellendus
-        asperiores odit vel maiores. Reiciendis autem amet earum, nostrum eius
-        suscipit, deserunt voluptatum nisi unde dignissimos maxime eum similique
-        sunt repellendus voluptatibus quasi culpa commodi quibusdam veniam, animi
-        cum. Quos sit aperiam, expedita consequuntur, tenetur nostrum dolorem
-        nihil commodi ipsa officiis quasi obcaecati! In.
+        blanditiis dolores quaerat iste veritatis. Sequi saepe, ut aut
+        voluptatem enim rerum! Debitis praesentium error aliquam. Deserunt
+        doloremque numquam eligendi alias sit explicabo. Laboriosam cum dolor
+        eaque voluptas id quisquam optio iste maxime, totam dicta libero
+        reprehenderit facilis eum quaerat magni aliquam, commodi, nam corporis.
+        Ratione impedit repellat temporibus maiores ad? Quis quam
+        necessitatibus, tempora incidunt fugiat perspiciatis quibusdam ipsam
+        suscipit recusandae veniam modi quaerat, debitis, qui dolorum! Deleniti
+        nihil non ut molestiae facere maxime officia error praesentium, eveniet
+        doloribus, impedit blanditiis autem amet voluptatibus atque dolor enim?
+        Animi ullam minus aliquam quaerat adipisci earum maxime magnam odio
+        ducimus illum soluta iure dolores asperiores consequuntur numquam
+        consectetur incidunt, impedit ex officia aut deleniti vitae dolore neque
+        doloremque. Odio architecto vitae, iure, aliquam quia expedita
+        consequuntur quam accusamus magnam ipsum repellendus. Beatae facilis
+        iste, odit repellendus voluptates nemo dolorum error. Sed praesentium
+        quo eos, saepe voluptatibus doloremque repellendus asperiores odit vel
+        maiores. Reiciendis autem amet earum, nostrum eius suscipit, deserunt
+        voluptatum nisi unde dignissimos maxime eum similique sunt repellendus
+        voluptatibus quasi culpa commodi quibusdam veniam, animi cum. Quos sit
+        aperiam, expedita consequuntur, tenetur nostrum dolorem nihil commodi
+        ipsa officiis quasi obcaecati! In.
       </div>
     {/if}
-    {#if selectedOption === 'details'}
-      <div class="bg-white dark:bg-create-blue-dark p-4 pixel-corners">
+    {#if selectedOption === "details"}
+      <div class="bg-white dark:bg-black/30 p-4 pixel-corners">
         details, whatever those are
       </div>
     {/if}
-    {#if selectedOption === 'comments'}
+    {#if selectedOption === "comments"}
       <div class="">
-        <div class="p-4 mb-4 bg-white dark:bg-create-blue-dark pixel-corners">
-          <textarea class="w-full h-auto outline-none bg-white dark:bg-create-blue-dark" placeholder={comments == 0 ? 'Write the first comment!' : 'Contribute to the discussion!'}></textarea>
-        <button class="bg-create-blue text-white px-4 py-1 pixel-corners">Post</button>
+        <div class="p-4 mb-4 bg-white dark:bg-black/30 pixel-corners">
+          <textarea
+            class="w-full h-auto outline-none bg-transparent"
+            placeholder={comments == 0
+              ? "Write the first comment!"
+              : "Contribute to the discussion!"}
+          ></textarea>
+          <button class="bg-create-blue text-white px-4 py-1 pixel-corners"
+            >Post</button
+          >
         </div>
-        <div class="p-4 mb-2 bg-white dark:bg-create-blue-dark pixel-corners">
+        <div class="p-4 mb-2 bg-white dark:bg-black/30 pixel-corners">
           This is a comment.
         </div>
-
       </div>
     {/if}
   </section>
