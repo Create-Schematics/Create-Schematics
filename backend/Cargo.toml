@@ -1,7 +1,15 @@
 [package]
 name = "backend"
 version = "0.1.0"
+authors = ["Rabbitminers <rabbitminers2.0@gmail.com>"]
 edition = "2021"
+
+[features]
+default = ["github-oauth", "microsoft-oauth", "google-oauth", "discord-oauth"]
+github-oauth = []
+microsoft-oauth = []
+google-oauth = []
+discord-oauth = []
 
 [dependencies]
 axum = { version = "0.6.20", features = ["tracing", "headers", "macros"] }
