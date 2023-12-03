@@ -43,9 +43,9 @@
 </svelte:head>
 
 <main class="flex items-center justify-center w-screen pt-2 pb-28">
-    <div class="items-center justify-center bg-checker pixel-corners py-6 w-[calc(100vw-2rem)] max-w-6xl">
+    <div class="items-center justify-center bg-checker pixel-corners py-16 w-[calc(100vw-2rem)] max-w-6xl">
         <div class="mx-auto w-fit p-4 pixel-corners bg-minecraft-ui-light dark:bg-minecraft-ui-dark">
-            <h2 class="text-xl font-bold text-center">Register with</h2>
+            <h2 class="text-xl font-bold text-center">Authenticate with</h2>
             <div class="grid grid-cols-2 gap-4 px-3 py-4">
                 <button class="dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 w-full h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap">
                     <GoogleIcon/> Google
@@ -108,10 +108,7 @@
                     <button type="submit" class="bg-create-blue/50 hover:bg-create-blue/80 w-64 md:w-72 h-10 outline-none mx-1 accent-create-blue pixel-corners text-xl">Register</button>
                 </div>
             </form>-->  
-            <p class="text-wrap w-72 md:w-96 px-4 pt-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
-            <div class="text-l font-bold text-center mt-2">
-                <h2><a href="../auth/sign-in">Sign in to existing account ➜</a></h2>
-            </div>
+            <p class="text-wrap w-72 md:w-96 px-4 text-sm">By creating an account, you agree to Create Schematics' <a href="../terms">Terms of Use</a> and <a href="../privacy">Privacy Policy</a>.</p>
         </div>  
     </div>
 </main>
