@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-    <title>Register - Create Schematics</title>
+    <title>Auth - Create Schematics</title>
 </svelte:head>
 
 <main class="flex items-center justify-center w-screen pt-2 pb-28">
