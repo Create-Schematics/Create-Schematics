@@ -32,7 +32,7 @@ pub fn configure() -> Router<ApiContext> {
 #[derive(Args, Debug)]
 pub struct StartCommandServerArguments {
     #[arg(help = "The hostname or ip address to listen for connections on")]
-    #[arg(env = "BIND_ADDR", short = 'b', long = "bind")]
+    #[arg(env = "BIND_ADDRESS", short = 'b', long = "bind")]
     #[arg(default_value = "0.0.0.0:3000")]
     pub listen_address: SocketAddr,
 
