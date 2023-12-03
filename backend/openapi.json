@@ -3,6 +3,10 @@
   "info": {
     "title": "Create Schematics REST API",
     "description": "",
+    "contact": {
+      "name": "Rabbitminers",
+      "email": "rabbitminers2.0@gmail.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE"
@@ -23,8 +27,8 @@
             "description": "The id of the comment to fetch",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -62,8 +66,8 @@
             "description": "The id of the comment to remove",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -102,8 +106,8 @@
             "description": "The id of the comment to update",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -157,7 +161,7 @@
         "operationId": "search_schematics",
         "parameters": [
           {
-            "name": "id",
+            "name": "query",
             "in": "query",
             "description": "The number and offset of schematics to fetch",
             "required": true,
@@ -174,7 +178,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Schematic"
+                    "$ref": "#/components/schemas/FullSchematic"
                   }
                 }
               }
@@ -279,8 +283,8 @@
             "description": "The id of the schematic to fetch",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -313,13 +317,21 @@
         "operationId": "delete_schematic_by_id",
         "parameters": [
           {
-            "name": "id",
+            "name": "schematic_id",
             "in": "path",
             "description": "The id of the schematic to remove",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -353,13 +365,21 @@
         "operationId": "update_schematic_by_id",
         "parameters": [
           {
-            "name": "id",
+            "name": "schematic_id",
             "in": "path",
             "description": "The id of the schematic to update",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -429,8 +449,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -467,8 +487,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -524,8 +544,8 @@
             "description": "The id of the schematic to favorite",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -558,8 +578,8 @@
             "description": "The id of the schematic to unfavorite",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -594,8 +614,8 @@
             "description": "The id of the comment to remove the vote from",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -633,8 +653,8 @@
             "description": "The id of the schematic to fetch tags from",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -675,8 +695,8 @@
             "description": "The id of the schematic to remove",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -730,8 +750,8 @@
             "description": "The id of the schematic to remove tags from",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -844,96 +864,16 @@
         "tags": [
           "v1"
         ],
-        "operationId": "signup",
-        "requestBody": {
-          "description": "Information about the new user",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Signup"
-              }
-            }
-          },
-          "required": true
-        },
+        "operationId": "remove_current_user",
         "responses": {
           "200": {
-            "description": "Successfully signed up in",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Either the username or password is already used"
-          },
-          "500": {
-            "description": "An error occurred while authenticating the user"
-          }
-        },
-        "security": [
-          {}
-        ]
-      }
-    },
-    "/api/v1/users/login": {
-      "post": {
-        "tags": [
-          "v1"
-        ],
-        "operationId": "login",
-        "requestBody": {
-          "description": "Login information with either the username or email",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Login"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully logged in",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
+            "description": "Successfully deleted current user"
           },
           "401": {
-            "description": "Invalid login credentials"
+            "description": "You must be logged in to remove your account"
           },
           "500": {
-            "description": "An error occurred while authenticating user"
-          }
-        },
-        "security": [
-          {}
-        ]
-      }
-    },
-    "/api/v1/users/logout": {
-      "post": {
-        "tags": [
-          "v1"
-        ],
-        "operationId": "logout",
-        "responses": {
-          "200": {
-            "description": "Successfully logged out"
-          },
-          "401": {
-            "description": "You must be logged in to lout out"
-          },
-          "500": {
-            "description": "An error occurred while authenticating user"
+            "description": "An error occurred removing your account"
           }
         },
         "security": [
@@ -1016,12 +956,11 @@
             "type": "string"
           },
           "comment_id": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "uuid"
           },
           "schematic_id": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         }
       },
@@ -1057,12 +996,11 @@
             "type": "string"
           },
           "comment_id": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "uuid"
           },
           "schematic_id": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         }
       },
@@ -1099,21 +1037,6 @@
               }
             ],
             "nullable": true
-          }
-        }
-      },
-      "Login": {
-        "type": "object",
-        "required": [
-          "username",
-          "password"
-        ],
-        "properties": {
-          "password": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
           }
         }
       },
@@ -1160,8 +1083,8 @@
             "format": "int32"
           },
           "schematic_id": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "uuid"
           },
           "schematic_name": {
             "type": "string"
@@ -1178,14 +1101,23 @@
         "properties": {
           "create_version": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The id of the create version of the new schematic\n",
+            "example": 8,
+            "minimum": 1
           },
           "game_version": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "The id of the game version of the new schematic\n",
+            "example": 4,
+            "minimum": 1
           },
           "schematic_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The name of the new schematic\n",
+            "maxLength": 50,
+            "minLength": 3
           }
         }
       },
@@ -1198,34 +1130,41 @@
           "limit": {
             "type": "integer",
             "format": "int64",
-            "nullable": true
+            "description": "The maximum number of schematics to fetch. If this is not\nprovided it will default to 20. No more than 50 schematics\ncan be fetched at once.\n",
+            "example": 20,
+            "nullable": true,
+            "maximum": 50,
+            "minimum": 0
           },
           "offset": {
             "type": "integer",
             "format": "int64",
+            "description": "The page of schematics to fetch from. If this is not provided\nit will default to page 0 (no offset).\n",
+            "example": 0,
+            "nullable": true,
+            "minimum": 0
+          },
+          "sort": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SortBy"
+              }
+            ],
+            "nullable": true
+          },
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "The tags to fetch from, only schematics with all of these tags\nwill fetched.\n",
             "nullable": true
           },
           "term": {
-            "type": "string"
-          }
-        }
-      },
-      "Signup": {
-        "type": "object",
-        "required": [
-          "username",
-          "email",
-          "password"
-        ],
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
+            "type": "string",
+            "description": "The term to search schematics for. Both schematic names and\ndescriptions will be matched agaisnt the this term.\n",
+            "example": "test"
           }
         }
       },
@@ -1259,29 +1198,37 @@
           "create_version": {
             "type": "integer",
             "format": "int32",
-            "nullable": true
+            "description": "The id of the new create version of the schematic\n",
+            "example": 8,
+            "nullable": true,
+            "minimum": 1
           },
           "game_version": {
             "type": "integer",
             "format": "int32",
-            "nullable": true
+            "description": "The id of the new game version of the schematic\n",
+            "example": 4,
+            "nullable": true,
+            "minimum": 1
           },
           "schematic_name": {
             "type": "string",
-            "nullable": true
+            "description": "The new name for the schematic\n",
+            "nullable": true,
+            "maxLength": 50,
+            "minLength": 3
           }
         }
       },
       "UpdateUser": {
         "type": "object",
         "properties": {
-          "password": {
-            "type": "string",
-            "nullable": true
-          },
           "username": {
             "type": "string",
-            "nullable": true
+            "example": "My new username",
+            "nullable": true,
+            "maxLength": 20,
+            "minLength": 3
           }
         }
       },
@@ -1290,18 +1237,29 @@
         "required": [
           "user_id",
           "username",
+          "permissions",
           "email"
         ],
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "example": "email@email.com"
+          },
+          "permissions": {
+            "type": "integer",
+            "format": "int64",
+            "example": 7,
+            "minimum": 0
           },
           "user_id": {
             "type": "string",
             "format": "uuid"
           },
           "username": {
-            "type": "string"
+            "type": "string",
+            "example": "My username",
+            "maxLength": 20,
+            "minLength": 3
           }
         }
       }
