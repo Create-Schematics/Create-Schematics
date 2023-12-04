@@ -14,9 +14,6 @@ pub struct User {
 
     #[schema(example="email@email.com")]
     pub email: String,
-
-    #[serde(skip_serializing)]
-    pub password_hash: String
 }
 
 bitflags::bitflags! {

@@ -48,6 +48,7 @@ impl Session {
     pub (crate) fn into_cookie<'c>(self) -> Cookie<'c> {
         Cookie::build(Self::NAMESPACE, self.session_id.to_string())
             .same_site(SameSite::Lax)
+            .path("/")
             .secure(true)
             .http_only(true)
             .max_age(Duration::seconds(DEFAULT_SESSION_LENGTH))
