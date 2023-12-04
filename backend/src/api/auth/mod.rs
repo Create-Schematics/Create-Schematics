@@ -9,6 +9,7 @@ use oauth2::reqwest::async_http_client;
 use oauth2::basic::BasicClient;
 use reqwest::{header, Response};
 use tower_cookies::Cookies;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::authentication::session::Session;
@@ -49,7 +50,6 @@ pub struct StartCommandOauthArguments {
     pub github: github::GitHubOauthArguments
 }
 
-
 pub (in crate::api) fn configure(
     args: StartCommandOauthArguments
 ) -> Result<Router<ApiContext>, anyhow::Error> {
@@ -63,7 +63,7 @@ pub (in crate::api) fn configure(
     Ok(router)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub (in crate::api) struct AuthRequest {
     pub code: String,
     // TODO: Handle CSRF state
@@ -71,7 +71,7 @@ pub (in crate::api) struct AuthRequest {
 }
 
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, ToSchema)]
 #[serde(rename_all="lowercase")]
 pub enum OauthProviders {
     #[cfg(feature="github-oauth")]
@@ -102,6 +102,20 @@ pub struct OauthClients {
     pub discord: BasicClient
 }
 
+#[utoipa::path(
+    get,
+    path = "/auth/{provider}",
+    context_path = "/api",
+    tag = "authentication",
+    params(
+        ("schematic_id" = OauthProviders, Path, description = "The oauth provider to authenticate with"),
+    ),
+    responses(
+        (status = 303, description = "Redirecting to oauth provider", headers(("Location" = String))),
+        (status = 400, description = "Invalid oauth provider")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn oauth_authorization(
     Extension(clients): Extension<OauthClients>,
     Path(provider): Path<OauthProviders>
@@ -116,6 +130,22 @@ async fn oauth_authorization(
     Redirect::to(&auth_url.to_string())
 }
 
+#[utoipa::path(
+    get,
+    path = "/auth/{provider}/callback",
+    context_path = "/api",
+    tag = "authentication",
+    params(
+        ("schematic_id" = OauthProviders, Path, description = "The oauth provider to authenticate with"),
+        ("query" = AuthRequest, Query, description = "Current oauth state")
+    ),
+    responses(
+        (status = 303, description = "Redirecting to home page", headers(("Location" = String))),
+        (status = 400, description = "Invalid oauth provider"),
+        (status = 500, description = "Internal server error while authorizing user")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn oauth_callback(
     Extension(clients): Extension<OauthClients>,
     Path(provider): Path<OauthProviders>,
@@ -150,7 +180,6 @@ async fn oauth_callback(
     
     session.save(&ctx.redis_pool).await?;
     cookies.add(session.into_cookie());
-    
 
     Ok(Redirect::to("/"))
 }
