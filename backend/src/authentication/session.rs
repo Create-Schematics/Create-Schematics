@@ -10,7 +10,7 @@ use crate::response::ApiResult;
 use crate::error::ApiError;
 
 const DEFAULT_SESSION_LENGTH: i64 = 7 * 24 * 60 * 60; // One Week
-const SESSION_ID_LENGTH: usize = 16;
+const SESSION_ID_LENGTH: usize = 24;
 
 pub (crate) struct Session {
     session_id: String,
