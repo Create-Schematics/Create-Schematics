@@ -1,7 +1,12 @@
 
-use axum::{Router, Extension, extract::{Path, State, Query}, response::Redirect, routing::get};
+use axum::{Router, Extension};
+use axum::response::Redirect;
+use axum::routing::get;
+use axum::extract::{Path, State, Query};
 use clap::Args;
-use oauth2::{basic::BasicClient, Scope, AuthorizationCode, reqwest::async_http_client, TokenResponse};
+use oauth2::{Scope, AuthorizationCode, TokenResponse};
+use oauth2::reqwest::async_http_client;
+use oauth2::basic::BasicClient;
 use reqwest::{header, Response};
 use tower_cookies::Cookies;
 use uuid::Uuid;
@@ -82,11 +87,19 @@ pub enum OauthProviders {
     Discord
 }
 
-#[derive(Deserialize)]
-pub struct OauthUser {
-    pub username: String,
-    pub email: String,
-    pub avatar_url: Option<String>,
+#[derive(Clone, Debug)]
+pub struct OauthClients {
+    #[cfg(feature="github-oauth")]
+    pub github: BasicClient,
+    
+    #[cfg(feature="microsoft-oauth")]
+    pub microsoft: BasicClient,
+    
+    #[cfg(feature="google-oauth")]
+    pub google: BasicClient,
+
+    #[cfg(feature="discord-oauth")]
+    pub discord: BasicClient
 }
 
 async fn oauth_authorization(
@@ -171,15 +184,6 @@ impl OauthProviders {
         }
     }
 
-    pub fn data_url(&self) -> &str {
-        match self {
-            OauthProviders::GitHub => "https://api.github.com/user",
-            OauthProviders::Microsoft => "https://graph.microsoft.com/v1.0/me?$select=id,displayName,mail,userPrincipalName",
-            OauthProviders::Google => "https://www.googleapis.com/oauth2/v3/userinfo",
-            OauthProviders::Discord => "https://discordapp.com/api/users/@me",
-        }
-    }
-
     pub async fn get_or_create_user(
         &self, 
         user: Response, 
@@ -194,7 +198,7 @@ impl OauthProviders {
                     pub id: u64,
                     pub avatar_url: String,
                     pub name: Option<String>,
-                    pub email: String,
+                    pub email: Option<String>,
                 }
 
                 let github_user: GitHubUser = user
@@ -210,7 +214,7 @@ impl OauthProviders {
                 )
                 .fetch_optional(&mut **transaction)
                 .await?;
-
+                
                 if let Some(user_meta) = user_meta {
                     return Ok(user_meta.user_id)
                 }
@@ -429,25 +433,20 @@ impl OauthProviders {
             },
         }
     }
+
+
+    pub fn data_url(&self) -> &str {
+        match self {
+            OauthProviders::GitHub => "https://api.github.com/user",
+            OauthProviders::Microsoft => "https://graph.microsoft.com/v1.0/me?$select=id,displayName,mail,userPrincipalName",
+            OauthProviders::Google => "https://www.googleapis.com/oauth2/v3/userinfo",
+            OauthProviders::Discord => "https://discordapp.com/api/users/@me",
+        }
+    }
 }
 
 pub fn username_from_email(email: &str) -> String {
     email.split('@').next().unwrap_or_default().to_string()
-}
-
-#[derive(Clone, Debug)]
-pub struct OauthClients {
-    #[cfg(feature="github-oauth")]
-    pub github: BasicClient,
-    
-    #[cfg(feature="microsoft-oauth")]
-    pub microsoft: BasicClient,
-    
-    #[cfg(feature="google-oauth")]
-    pub google: BasicClient,
-
-    #[cfg(feature="discord-oauth")]
-    pub discord: BasicClient
 }
 
 impl OauthClients {
@@ -467,19 +466,19 @@ impl OauthClients {
         })
     }
  
-    pub fn get(&self, provider: &OauthProviders) -> BasicClient {
+    pub fn get(&self, provider: &OauthProviders) -> &BasicClient {
         match provider {
             #[cfg(feature="github-oauth")]
-            OauthProviders::GitHub => self.github.clone(),
+            OauthProviders::GitHub => &self.github,
             
             #[cfg(feature="microsoft-oauth")]
-            OauthProviders::Microsoft => self.microsoft.clone(),
+            OauthProviders::Microsoft => &self.microsoft,
             
             #[cfg(feature="google-oauth")]
-            OauthProviders::Google => self.google.clone(),
+            OauthProviders::Google => &self.google,
 
             #[cfg(feature="discord-oauth")]
-            OauthProviders::Discord => self.discord.clone()
+            OauthProviders::Discord => &self.discord
         }
     }
 }
