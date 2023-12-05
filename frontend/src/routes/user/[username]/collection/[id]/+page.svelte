@@ -2,7 +2,7 @@
   import { intlFormatDistance } from "date-fns";
   import type { Schematic, User } from "$lib/types";
   import SchematicCard from "$lib/SchematicCard.svelte";
-  import { abbreviateNumber } from "../../utils";
+  import { abbreviateNumber } from "../../../../../utils";
 
   let userFavorites: string
 

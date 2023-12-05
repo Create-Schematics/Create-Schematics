@@ -4,9 +4,14 @@
   import SchematicCard from "$lib/SchematicCard.svelte";
   import { abbreviateNumber } from "../../../utils";
 
-  const uuid = window.location.pathname.split('/').pop();
+
   let userData: string
   let userSchematics: string
+  let uuid: any;
+
+  if (typeof window !== 'undefined') {
+    uuid = window.location.pathname.split('/').pop();
+  }
 
   async function getUserData () {
 		const res = await fetch('https://httpbin.org/json', {
@@ -17,7 +22,6 @@
 		userData = JSON.stringify(json)
     console.log(userData)
 	}
-
   async function getUserSchematics () {
 		const res = await fetch(`/api/v1/users/${uuid}}/schematics`, {
 			method: 'GET'
@@ -27,6 +31,7 @@
 		userSchematics = JSON.stringify(json)
     console.log(userSchematics)
 	}
+
 
   const user: User = {
     username: "Username123",
