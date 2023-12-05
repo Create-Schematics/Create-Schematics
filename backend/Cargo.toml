@@ -1,7 +1,15 @@
 [package]
 name = "backend"
 version = "0.1.0"
+authors = ["Rabbitminers <rabbitminers2.0@gmail.com>"]
 edition = "2021"
+
+[features]
+default = ["github-oauth", "microsoft-oauth", "google-oauth", "discord-oauth"]
+github-oauth = []
+microsoft-oauth = []
+google-oauth = []
+discord-oauth = []
 
 [dependencies]
 axum = { version = "0.6.20", features = ["tracing", "headers", "macros"] }
@@ -39,6 +47,8 @@ argon2 = "0.5.2"
 rand = "0.8.5"
 nanoid = "0.4.0"
 bitflags = { version = "2.4.1", features = ["serde"] }
+oauth2 = "4.4.2"
+reqwest = { version = "0.11.22", features = ["json"] }
 
 [dev-dependencies]
 axum-test = "13.4.1"

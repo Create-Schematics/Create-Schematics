@@ -6,6 +6,7 @@ use utoipa::{OpenApi, Modify};
 
 use crate::authentication::session::Session;
 
+use super::auth;
 use super::v1;
 
 struct AuthenticationModifier;
@@ -26,10 +27,12 @@ impl Modify for AuthenticationModifier {
         license(name = "MIT", url = "https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE")
     ),
     paths(
+        auth::oauth_authorization,
+        auth::oauth_callback,
+
         v1::users::current_user,
-        v1::users::signup,
-        v1::users::login,
-        v1::users::logout,
+        v1::users::update_current_user,
+        v1::users::remove_current_user,
 
         v1::profile::get_uploaded_schematics,
 
@@ -61,6 +64,9 @@ impl Modify for AuthenticationModifier {
         &AuthenticationModifier
     ),
     components(schemas(
+        auth::AuthRequest,
+        auth::OauthProviders,
+
         crate::models::user::User,
         
         v1::schematics::SearchQuery,
@@ -69,8 +75,6 @@ impl Modify for AuthenticationModifier {
         
         crate::models::schematic::Schematic,
  
-        v1::users::Login,
-        v1::users::Signup,
         v1::users::UpdateUser,
 
         crate::models::comment::Comment,

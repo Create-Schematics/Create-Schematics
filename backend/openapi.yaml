@@ -2,6 +2,9 @@ openapi: 3.0.3
 info:
   title: Create Schematics REST API
   description: ''
+  contact:
+    name: Rabbitminers
+    email: rabbitminers2.0@gmail.com
   license:
     name: MIT
     url: https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE
@@ -18,8 +21,8 @@ paths:
         description: The id of the comment to fetch
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully retrieved the comment
@@ -43,8 +46,8 @@ paths:
         description: The id of the comment to remove
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully deleted the comment
@@ -68,8 +71,8 @@ paths:
         description: The id of the comment to update
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       requestBody:
         description: The new body of the comment
         content:
@@ -100,7 +103,7 @@ paths:
       - v1
       operationId: search_schematics
       parameters:
-      - name: id
+      - name: query
         in: query
         description: The number and offset of schematics to fetch
         required: true
@@ -114,7 +117,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Schematic'
+                  $ref: '#/components/schemas/FullSchematic'
         '500':
           description: An internal server error occurred
       security:
@@ -176,8 +179,8 @@ paths:
         description: The id of the schematic to fetch
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully retrieved the schematic
@@ -196,13 +199,18 @@ paths:
       - v1
       operationId: delete_schematic_by_id
       parameters:
-      - name: id
+      - name: schematic_id
         in: path
         description: The id of the schematic to remove
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully deleted the schematic
@@ -221,13 +229,18 @@ paths:
       - v1
       operationId: update_schematic_by_id
       parameters:
-      - name: id
+      - name: schematic_id
         in: path
         description: The id of the schematic to update
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       requestBody:
         description: The values to update
         content:
@@ -270,8 +283,8 @@ paths:
         in: path
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully retrieved the comments
@@ -294,8 +307,8 @@ paths:
         in: path
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       requestBody:
         description: The text of the comment
         content:
@@ -329,8 +342,8 @@ paths:
         description: The id of the schematic to favorite
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully favorited the schematic
@@ -350,8 +363,8 @@ paths:
         description: The id of the schematic to unfavorite
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully unfavorited the schematic
@@ -372,8 +385,8 @@ paths:
         description: The id of the comment to remove the vote from
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully removed the vote
@@ -396,8 +409,8 @@ paths:
         description: The id of the schematic to fetch tags from
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       responses:
         '200':
           description: Successfully retrieved the schematic's tags
@@ -423,8 +436,8 @@ paths:
         description: The id of the schematic to remove
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       requestBody:
         description: The new tags to apply by name
         content:
@@ -457,8 +470,8 @@ paths:
         description: The id of the schematic to remove tags from
         required: true
         schema:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
       requestBody:
         description: The tags to remove from the schematic
         content:
@@ -525,64 +538,14 @@ paths:
     post:
       tags:
       - v1
-      operationId: signup
-      requestBody:
-        description: Information about the new user
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Signup'
-        required: true
+      operationId: remove_current_user
       responses:
         '200':
-          description: Successfully signed up in
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '429':
-          description: Either the username or password is already used
-        '500':
-          description: An error occurred while authenticating the user
-      security:
-      - {}
-  /api/v1/users/login:
-    post:
-      tags:
-      - v1
-      operationId: login
-      requestBody:
-        description: Login information with either the username or email
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Login'
-        required: true
-      responses:
-        '200':
-          description: Successfully logged in
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+          description: Successfully deleted current user
         '401':
-          description: Invalid login credentials
+          description: You must be logged in to remove your account
         '500':
-          description: An error occurred while authenticating user
-      security:
-      - {}
-  /api/v1/users/logout:
-    post:
-      tags:
-      - v1
-      operationId: logout
-      responses:
-        '200':
-          description: Successfully logged out
-        '401':
-          description: You must be logged in to lout out
-        '500':
-          description: An error occurred while authenticating user
+          description: An error occurred removing your account
       security:
       - session_cookie: []
   /api/v1/users/{id}/schematics:
@@ -635,11 +598,10 @@ components:
         comment_body:
           type: string
         comment_id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         schematic_id:
-          type: integer
-          format: int64
+          type: string
     CommentBuilder:
       type: object
       required:
@@ -664,11 +626,10 @@ components:
         comment_body:
           type: string
         comment_id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         schematic_id:
-          type: integer
-          format: int64
+          type: string
     FullTag:
       type: object
       required:
@@ -692,16 +653,6 @@ components:
           allOf:
           - $ref: '#/components/schemas/LikeAction'
           nullable: true
-    Login:
-      type: object
-      required:
-      - username
-      - password
-      properties:
-        password:
-          type: string
-        username:
-          type: string
     PaginationQuery:
       type: object
       properties:
@@ -736,8 +687,8 @@ components:
           type: integer
           format: int32
         schematic_id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         schematic_name:
           type: string
     SchematicBuilder:
@@ -750,11 +701,23 @@ components:
         create_version:
           type: integer
           format: int32
+          description: |
+            The id of the create version of the new schematic
+          example: 8
+          minimum: 1
         game_version:
           type: integer
           format: int32
+          description: |
+            The id of the game version of the new schematic
+          example: 4
+          minimum: 1
         schematic_name:
           type: string
+          description: |
+            The name of the new schematic
+          maxLength: 50
+          minLength: 3
     SearchQuery:
       type: object
       required:
@@ -763,26 +726,42 @@ components:
         limit:
           type: integer
           format: int64
+          description: |
+            The maximum number of schematics to fetch. If this is not
+            provided it will default to 20. No more than 50 schematics
+            can be fetched at once.
+          example: 20
           nullable: true
+          maximum: 50
+          minimum: 0
         offset:
           type: integer
           format: int64
+          description: |
+            The page of schematics to fetch from. If this is not provided
+            it will default to page 0 (no offset).
+          example: 0
+          nullable: true
+          minimum: 0
+        sort:
+          allOf:
+          - $ref: '#/components/schemas/SortBy'
+          nullable: true
+        tag_ids:
+          type: array
+          items:
+            type: integer
+            format: int64
+          description: |
+            The tags to fetch from, only schematics with all of these tags
+            will fetched.
           nullable: true
         term:
           type: string
-    Signup:
-      type: object
-      required:
-      - username
-      - email
-      - password
-      properties:
-        email:
-          type: string
-        password:
-          type: string
-        username:
-          type: string
+          description: |
+            The term to search schematics for. Both schematic names and
+            descriptions will be matched agaisnt the this term.
+          example: test
     Tags:
       type: object
       required:
@@ -805,37 +784,59 @@ components:
         create_version:
           type: integer
           format: int32
+          description: |
+            The id of the new create version of the schematic
+          example: 8
           nullable: true
+          minimum: 1
         game_version:
           type: integer
           format: int32
+          description: |
+            The id of the new game version of the schematic
+          example: 4
           nullable: true
+          minimum: 1
         schematic_name:
           type: string
+          description: |
+            The new name for the schematic
           nullable: true
+          maxLength: 50
+          minLength: 3
     UpdateUser:
       type: object
       properties:
-        password:
-          type: string
-          nullable: true
         username:
           type: string
+          example: My new username
           nullable: true
+          maxLength: 20
+          minLength: 3
     User:
       type: object
       required:
       - user_id
       - username
+      - permissions
       - email
       properties:
         email:
           type: string
+          example: email@email.com
+        permissions:
+          type: integer
+          format: int64
+          example: 7
+          minimum: 0
         user_id:
           type: string
           format: uuid
         username:
           type: string
+          example: My username
+          maxLength: 20
+          minLength: 3
   securitySchemes:
     session_cookie:
       type: apiKey
