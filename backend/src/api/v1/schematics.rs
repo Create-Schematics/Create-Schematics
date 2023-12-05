@@ -114,7 +114,7 @@ pub (in crate::api) struct SearchQuery {
     /// descriptions will be matched agaisnt the this term.
     /// 
     #[schema(example="test")]
-    pub term: String,
+    pub term: Option<String>,
 
     /// The order in which schematics similar to the query should
     /// be ordered. By default the ones created most recently will
@@ -125,21 +125,19 @@ pub (in crate::api) struct SearchQuery {
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all="snake_case")]
 pub (in crate::api) enum SortBy {
     /// Fetch the schematics with the most downloads first
     /// 
-    #[serde(rename = "downloads")]
     Downloads,
 
     /// Fetch the schematics with the most likes first. This does not
     /// account for the number of dislikes
-    /// 
-    #[serde(rename = "likes")]
+    ///
     Likes,
 
     /// Fetch the most recently created schematics first.
-    /// 
-    #[serde(rename = "created-at")]
+    ///  
     CreatedAt
 }
 
@@ -439,7 +437,7 @@ async fn search_schematics(
         FullSchematic,
         r#"
         select 
-            schematic_id, 
+            schematic_id,
             schematic_name, 
             author, 
             username as author_name, 
@@ -461,7 +459,7 @@ async fn search_schematics(
             left join favorites using (schematic_id)
             left join applied_tags using (schematic_id)
         where 
-            schematic_name % $1
+            ($1::text is null or schematic_name % $1)
             and (array_length($2::bigint[], 1) is null or tag_id = any($2))
         group by 
             schematic_id,
