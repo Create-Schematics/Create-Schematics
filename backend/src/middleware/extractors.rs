@@ -51,10 +51,8 @@ where
             User,
             r#"
             select
-                user_id,
-                username,
-                permissions,
-                email
+                user_id, username,
+                permissions, email
             from 
                 users
             where

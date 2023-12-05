@@ -12,17 +12,18 @@ google-oauth = []
 discord-oauth = []
 
 [dependencies]
-axum = { version = "0.6.20", features = ["tracing", "headers", "macros"] }
-axum-extra = { version = "0.8.0", features = ["typed-routing"] }
+axum = { version = "0.7.2", features = ["tracing", "macros"] }
+axum-extra = { version = "0.9.0", features = ["typed-routing"] }
+axum_typed_multipart = "0.11.0"
 
 tower = "0.4.13"
-tower-http = { version = "0.4.3", features = ["trace", "cors", "auth", "add-extension", "util"] } 
-tower-cookies = { version = "0.9.0", features = ["private", "signed"]} 
+tower-http = { version = "0.5.0", features = ["trace", "cors", "auth", "add-extension", "util"] } 
+tower-cookies = { version = "0.10.0", features = ["private", "signed"]} 
 
 tokio = { version = "1.34.0", features = ["full"] }
 
-utoipa = { version = "4.0.0", features = ["axum_extras", "yaml", "uuid"] }
-utoipa-swagger-ui = { version = "4.0.0", features = ["axum"] }
+utoipa = { version = "4.1.0", features = ["axum_extras", "yaml", "uuid"] }
+utoipa-swagger-ui = { version = "5.0.0", features = ["axum"] }
 
 tracing = "0.1.40"
 tracing-subscriber = "0.3.17"
@@ -40,6 +41,7 @@ deadpool-redis = { version = "0.13.0", features = ["rt_tokio_1", "serde" ] }
 thiserror = "1.0.50"
 anyhow = "1.0.48"
 
+validator = { version = "0.16.0", features = ["derive"] }
 dotenv = "0.15.0"
 uuid = { version = "1.5.0", features = ["serde"] }
 time = "0.3.23"

@@ -6,6 +6,7 @@ use axum::http::header;
 use axum::http::Method;
 use clap::Args;
 use sqlx::PgPool;
+use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
 use tower_http::trace::TraceLayer;
 use tower_http::cors::{Any, CorsLayer};
@@ -98,10 +99,9 @@ pub async fn init(
         .with_state(ApiContext { pool, redis_pool });
 
     tracing::info!("Listening on http://{}", listen_address);
-    
-    axum::Server::bind(&listen_address)
-        .serve(app.into_make_service())
-        .await?;
+
+    let listener = TcpListener::bind(listen_address).await?;
+    axum::serve(listener, app).await?;
 
     Ok(())
 }

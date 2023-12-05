@@ -1,8 +1,10 @@
 use core::fmt;
 
+use axum::body::Bytes;
 use axum::routing::get;
 use axum::{Router, Json};
 use axum::extract::{State, Path, Query};
+use axum_typed_multipart::{TryFromMultipart, FieldData, TypedMultipart};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
@@ -54,7 +56,7 @@ pub (in crate::api) struct FullSchematic {
     pub create_version_name: String,
 }
 
-#[derive(Debug, Deserialize, ToSchema)]
+#[derive(Debug, TryFromMultipart, ToSchema)]
 pub (in crate::api) struct SchematicBuilder {
     /// The name of the new schematic
     /// 
@@ -70,6 +72,11 @@ pub (in crate::api) struct SchematicBuilder {
     /// 
     #[schema(example=8, minimum=1)]
     pub create_version: i32,
+
+    /// The schematic file to upload
+    /// 
+    #[form_data(limit = "256KiB")]
+    pub schematics: Vec<FieldData<Bytes>>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -247,7 +254,7 @@ async fn get_schematic_by_id(
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("schematic_id" = String, Path, description = "The id of the schematic to update")
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to update")
     ),
     request_body(
         content = UpdateSchematic, description = "The values to update", content_type = "application/json"
@@ -369,7 +376,7 @@ async fn delete_schematic_by_id(
 async fn upload_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    Json(schematic): Json<SchematicBuilder>,
+    TypedMultipart(schematic): TypedMultipart<SchematicBuilder>,
 ) -> ApiResult<Json<Schematic>> {
     let mut transaction = ctx.pool.begin().await?;
 
