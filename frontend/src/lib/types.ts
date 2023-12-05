@@ -36,3 +36,14 @@ export interface SchematicDetails extends Schematic {
     mods: string[];
     file: string;
 }
+
+export interface Collection {
+    id: string;
+    tags: string[];
+    creationDate: Date;
+    title: string;
+    likes: number;
+    dislikes: number;
+    author: string;
+    schematicIds: string[];
+}

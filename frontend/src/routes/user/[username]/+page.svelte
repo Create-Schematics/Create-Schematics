@@ -7,10 +7,13 @@
 
   let userData: string
   let userSchematics: string
-  let uuid: any;
+  let uuid: string|undefined;
 
   if (typeof window !== 'undefined') {
-    uuid = window.location.pathname.split('/').pop();
+    uuid = window.location.pathname.replace(/\/$/, '')?.split('/')?.pop()?.split(/[?#]/)[0];
+    if (typeof uuid === undefined || uuid === "" || uuid === null) {
+      uuid = "-1"
+    }
   }
 
   async function getUserData () {

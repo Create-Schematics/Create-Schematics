@@ -1,20 +1,18 @@
 <script lang="ts">
   import { intlFormatDistance } from "date-fns";
-  import type { Schematic, User } from "$lib/types";
+  import type { Schematic, Collection } from "$lib/types";
+  import { getCollection, getSchematic } from "$lib/requests";
   import SchematicCard from "$lib/SchematicCard.svelte";
   import { abbreviateNumber } from "../../../../../utils";
 
-  let userFavorites: string
+  let collectionId: string = '';
 
-  async function getUserFavorites () {
-		const res = await fetch(`/api/v1/schematics/favorites`, {
-			method: 'GET'
-		})
-		
-		const json = await res.json()
-		userFavorites = JSON.stringify(json)
-    console.log(userFavorites)
-	}
+  if (typeof window !== 'undefined') {
+    let collectionIdRaw: string = (window.location.pathname.replace(/\/$/, '')?.split('/')?.pop()?.split(/[?#]/)[0])!;
+    collectionId = collectionIdRaw
+  }
+
+  const collection: Collection = getCollection(collectionId);
 
   const schematics: Schematic[] = [
     {
