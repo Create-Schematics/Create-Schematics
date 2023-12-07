@@ -132,7 +132,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
 >
 <div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 items-left">
   <div class="col-span-1">
-    <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark px-3 pt-4 mb-4 pixel-corners">
+    <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark px-3 pt-3 mb-4 pixel-corners">
       <div class="h-18 z-10 relative whitespace-nowrap overflow-visible">
           <img src="https://picsum.photos/500" alt="" class="ml-2 w-16 h-16 pixel-corners inline"/>
           <h2 class="inline ml-2 text-2xl whitespace-nowrap overflow-visible relative ">{user.username}</h2>
@@ -171,14 +171,14 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
           </div>
       </div>
     </div>
-      <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full pb-1 mb-4">
+      <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full pb-1 mb-2 px-3">
         {#if isDesktop}
-          <h2 class="text-2xl px-4 pt-4">Collections</h2>
+          <h2 class="text-2xl pb-1 pt-3"><b>Collections</b></h2>
           {#each collections as collection}
-            <div class="bg-white dark:bg-black/50 pixel-corners m-3"><CollectionCard {...collection} /></div>
+            <div class="bg-white dark:bg-black/50 pixel-corners mb-3"><CollectionCard {...collection} /></div>
           {/each}
         {:else}
-          <h2 class="text-xl px-4 pt-3 pb-2"><b>Collections 🡕</b></h2>
+          <h2 class="text-xl px-3 pt-3 pb-2"><b>Collections 🡕</b></h2>
         {/if}
 
       </div>
@@ -187,8 +187,8 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
   <!-- Right side -->
   <div class="w-full col-span-2 mx-auto items-left">
     <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners">
-      <h2 class="pt-4 text-2xl text-center mb-1">Submitted Schematics</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-left p-3 ">
+      <h2 class="pt-5 text-2xl text-center mb-1"><b>Submitted Schematics</b></h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-left p-3 pt-1">
         {#each schematics as schematic}
           <SchematicCard {...schematic}/>
         {/each}
