@@ -33,9 +33,12 @@ create table schematics
 (
     schematic_id      uuid        primary key  default uuid_generate_v1mc(),
     schematic_name    text        not null,
+    body              text        not null,
     game_version_id   serial      not null     references game_versions (game_version_id),
     create_version_id serial      not null     references create_versions (create_version_id),
     author            uuid        not null     references users (user_id),
+    images            text[]      not null,
+    files             text[]      not null,
     downloads         integer     not null     default 0,
     created_at        timestamptz not null     default now(),
     updated_at        timestamptz
