@@ -7,6 +7,7 @@ use axum::extract::{State, Path, Query};
 use axum_typed_multipart::{TryFromMultipart, FieldData, TypedMultipart};
 use utoipa::ToSchema;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::authentication::session::Session;
 use crate::error::{ApiError, ResultExt};
@@ -14,6 +15,7 @@ use crate::models::user::{User, Permissions};
 use crate::response::ApiResult;
 use crate::models::schematic::Schematic;
 use crate::api::ApiContext;
+use crate::storage::upload::save_schematic_files;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub (in crate::api) struct FullSchematic {
@@ -62,6 +64,11 @@ pub (in crate::api) struct SchematicBuilder {
     /// 
     #[schema(min_length=3, max_length=50)]
     pub schematic_name: String,
+
+    /// The body (description) of the schematic
+    /// 
+    #[schema(min_length=128, max_length=2048)]
+    pub schematic_body: String,
     
     /// The id of the game version of the new schematic
     /// 
@@ -76,7 +83,14 @@ pub (in crate::api) struct SchematicBuilder {
     /// The schematic file to upload
     /// 
     #[form_data(limit = "256KiB")]
-    pub schematics: Vec<FieldData<Bytes>>,
+    #[schema(value_type=[String], format=Binary)]
+    pub files: Vec<FieldData<Bytes>>,
+
+    /// The images of the schematic to upload
+    /// 
+    #[form_data(limit = "2MiB")]
+    #[schema(value_type=[String], format=Binary)]
+    pub images: Vec<FieldData<Bytes>>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -97,7 +111,7 @@ pub (in crate::api) struct UpdateSchematic {
     pub create_version: Option<i32>,
 }
 
-#[derive(Debug, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema, Validate)]
 pub (in crate::api) struct SearchQuery {
     /// The maximum number of schematics to fetch. If this is not 
     /// provided it will default to 20. No more than 50 schematics
@@ -363,7 +377,7 @@ async fn delete_schematic_by_id(
     context_path = "/api/v1",
     tag = "v1",
     request_body(
-        content = SchematicBuilder, description = "Information about the new schematic", content_type = "application/json"
+        content = SchematicBuilder, description = "Information about the new schematic", content_type = "multipart/form-data"
     ),
     responses(
         (status = 200, description = "Successfully uploaded the schematic", body = Schematic, content_type = "application/json"),
@@ -376,20 +390,23 @@ async fn delete_schematic_by_id(
 async fn upload_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    TypedMultipart(schematic): TypedMultipart<SchematicBuilder>,
+    TypedMultipart(form): TypedMultipart<SchematicBuilder>,
 ) -> ApiResult<Json<Schematic>> {
     let mut transaction = ctx.pool.begin().await?;
+
+    let schematic_id = Uuid::new_v4();
+    let (files, images) = save_schematic_files(schematic_id, form.files, form.images).await?;
 
     let schematic = sqlx::query_as!(
         Schematic,
         r#"
         insert into schematics (
-            schematic_name, author,
-            game_version_id, 
-            create_version_id
+            schematic_id, schematic_name, 
+            body, author, images, files,
+            game_version_id, create_version_id
         )
         values (
-            $1, $2, $3, $4
+            $1, $2, $3, $4, $5, $6, $7, $8
         )
         returning
             schematic_id,
@@ -399,10 +416,14 @@ async fn upload_schematic(
             author,
             downloads
         "#,
-        schematic.schematic_name,
+        schematic_id,
+        form.schematic_name,
+        form.schematic_body,
         session.user_id,
-        schematic.game_version,
-        schematic.create_version
+        &images,
+        &files,
+        form.game_version,
+        form.create_version
     )
     .fetch_one(&mut *transaction)
     .await
@@ -412,7 +433,7 @@ async fn upload_schematic(
     .on_constraint("schematics_create_version_id_fkey", |_| {
         ApiError::unprocessable_entity([("create_version", "that version does not exist")])
     })?;
-
+    
     transaction.commit().await?;
 
     Ok(Json(schematic))

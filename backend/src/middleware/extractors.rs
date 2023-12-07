@@ -53,7 +53,7 @@ where
             select
                 user_id, username,
                 permissions, email
-            from 
+            from
                 users
             where
                 user_id = $1
