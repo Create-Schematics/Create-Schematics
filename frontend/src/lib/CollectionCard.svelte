@@ -44,9 +44,7 @@ class="block mx-auto px-3 py-3 pixel-corners w-full no-default-link"
   <div class="overflow-x-scroll w-full">
     <ul class="flex gap-2 overflow-x-scroll w-full flex-nowrap whitespace-nowrap">
       {#each slicedTags as tag}
-        <li
-          class="text-xs bg-create-blue/80 dark:bg-create-blue/20 px-1 text-opacity-50 whitespace-nowrap"
-        >
+        <li class="text-xs bg-create-blue/50 hover:bg-create-blue/80 px-1 text-opacity-50 whitespace-nowrap">
           {tag}
         </li>
       {/each}
