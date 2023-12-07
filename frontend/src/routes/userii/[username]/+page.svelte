@@ -72,14 +72,6 @@
         name: "Youtube",
         url: "https://youtube.com",
       },
-      {
-        name: "Modrinth",
-        url: "https://modrinth.com",
-      },
-      {
-        name: "GitHub",
-        url: "https://github.com",
-      },
     ],
   };
 
