@@ -9,6 +9,7 @@
   let userData: string
   let userSchematics: string
   let uuid: string|undefined;
+  const isPersonalPage = true;
 
   if (typeof window !== 'undefined') {
     uuid = window.location.pathname.replace(/\/$/, '')?.split('/')?.pop()?.split(/[?#]/)[0];
@@ -70,6 +71,14 @@
       {
         name: "Youtube",
         url: "https://youtube.com",
+      },
+      {
+        name: "Modrinth",
+        url: "https://modrinth.com",
+      },
+      {
+        name: "GitHub",
+        url: "https://github.com",
       },
     ],
   };
@@ -151,11 +160,22 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
           <p class="w-full text-l">
               <b>{abbreviateNumber(user.totalDownloads)}</b> Downloads
           </p>
-        <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 px-3 m-5 pixel-corners absolute top-0 right-0" >⚑</button>
+        <button class="text-minecraft-ui-light hover:text-create-blue/50 dark:text-minecraft-ui-dark dark:hover:create-blue/80 cursor-pointer py-1 px-2 m-1 text-2xl pixel-corners absolute top-0 right-0" >
+          {#if isPersonalPage}
+            <p style="transform: scaleX(-1);">✎</p>
+          {:else}
+            <p class="px-1">⚑</p>
+          {/if}
+          </button>
       <hr class="my-3">
           <div class="w-full grid grid-cols-2 gap-3 mx-auto items-left">
-              <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 pixel-corners w-full pixel-corners">Modrinth 🡕</button>
-              <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 pixel-corners w-full pixel-corners">Github 🡕</button>
+            {#each user.links as link}
+              <a href="{link.url}" class="no-default-link">
+                <button class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 pixel-corners w-full pixel-corners">
+                  {link.name} 🡕
+                </button>
+              </a>
+            {/each}
           </div>
       </div>
     </div>
