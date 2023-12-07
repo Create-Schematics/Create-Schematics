@@ -42,6 +42,7 @@ export interface Collection {
     tags: string[];
     creationDate: Date;
     title: string;
+    views: number;
     likes: number;
     dislikes: number;
     author: string;

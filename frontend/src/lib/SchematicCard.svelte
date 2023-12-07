@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { Schematic } from "$lib/types";
   import { abbreviateNumber } from "../utils";
-
+  
+  let isUserPage = false;
+  if (typeof window !== 'undefined') {
+    isUserPage = window.location.href.includes("user");
+  }
   export const { tags, uploadDate, title, author, downloads, id }: Schematic = {
     tags: [
       "farm",
@@ -26,15 +30,17 @@
 
 <a
   href={`/schematic/${id}`}
-  class=" mx-auto px-4 py-3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full no-default-link"
+  class="bg-white dark:bg-black/50 mx-auto px-4 py-3 pixel-corners w-full no-default-link"
 >
   <h1 class="text-xl font-bold">{title}</h1>
   <div class="text-xs text-opacity-50 w-full">
+    {#if !isUserPage}
+      <p class="inline">
+        by <a href={`/user/${author}`} class="underline">{author}</a>
+      </p>
+      <p class="inline px-2">|</p>
+    {/if}
     <p class="inline"><b>⭳</b> {abbreviateNumber(downloads)}</p>
-    <p class="inline px-2">|</p>
-    <p class="inline">
-      by <a href={`/user/${author}`} class="underline">{author}</a>
-    </p>
     <p class="inline px-2">|</p>
     <p class="inline text-right">{uploadDate.toLocaleString("en-US")} UTC</p>
     <img
