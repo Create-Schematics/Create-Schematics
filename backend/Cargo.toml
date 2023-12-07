@@ -43,7 +43,7 @@ anyhow = "1.0.48"
 
 validator = { version = "0.16.0", features = ["derive"] }
 dotenv = "0.15.0"
-uuid = { version = "1.5.0", features = ["serde"] }
+uuid = { version = "1.5.0", features = ["serde", "v4"] }
 time = "0.3.23"
 argon2 = "0.5.2"
 rand = "0.8.5"
@@ -51,6 +51,10 @@ nanoid = "0.4.0"
 bitflags = { version = "2.4.1", features = ["serde"] }
 oauth2 = "4.4.2"
 reqwest = { version = "0.11.22", features = ["json"] }
+sanitize-filename = "0.5.0"
+tempfile = "3.8.1"
+image = "0.24.7"
+webp = "0.2.6"
 
 [dev-dependencies]
-axum-test = "13.4.1"
+axum-test = "14.0.0"
