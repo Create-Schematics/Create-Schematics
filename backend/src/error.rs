@@ -39,15 +39,12 @@ pub enum ApiError {
 
     /// Return `422 Unprocessable Entity`
     ///
-    /// This also serializes the `errors` map to JSON to satisfy the requirement for
-    /// `422 Unprocessable Entity` errors in the Realworld spec:
-    /// https://realworld-docs.netlify.app/docs/specs/backend-specs/error-handling
+    /// This also serializes the `errors` map provided to JSON
     ///
     #[error("error in the request body")]
     UnprocessableEntity {
         errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>,
     },
-
 
     /// Automatically return `500 Internal Server Error` on a `sqlx::Error`.
     ///
@@ -184,7 +181,6 @@ impl IntoResponse for ApiError {
 
         (self.status_code(), self.to_string()).into_response()
     }
-
 }
 
 /// A little helper trait for more easily converting database constraint errors into API errors.
