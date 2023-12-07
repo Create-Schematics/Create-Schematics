@@ -73,7 +73,7 @@
         >
           <div class="flex flex-col items-center w-full">
             <h1 class="text-xl">603</h1>
-            <span class="text-xs">Donwloads</span>
+            <span class="text-xs">Downloads</span>
           </div>
           <div class="flex flex-col items-center w-full">
             <h1 class="text-xl">60%</h1>

@@ -161,12 +161,12 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
     </div>
       <div class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full pb-1 mb-4">
         {#if isDesktop}
-          <h2 class="text-2xl px-4 pt-4">User Collections:</h2>
+          <h2 class="text-2xl px-4 pt-4">Collections</h2>
           {#each collections as collection}
             <div class="bg-white dark:bg-black/50 pixel-corners m-3"><CollectionCard {...collection} /></div>
           {/each}
         {:else}
-          <h2 class="text-2xl px-4 pt-3 pb-2"><b>User Collections 🡕</b></h2>
+          <h2 class="text-xl px-4 pt-3 pb-2"><b>Collections 🡕</b></h2>
         {/if}
 
       </div>
