@@ -11,7 +11,7 @@ export default {
         'create-blue-dark': '#2f3b5e',
         'minecraft-ui': {
           'light': '#d9d9db',
-          'dark': '#101015'
+          'dark': '#151822'
         }
       }
     },
