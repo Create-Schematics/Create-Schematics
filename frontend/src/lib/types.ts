@@ -1,4 +1,4 @@
-import type { components } from "./openapiSchema";
+import type { components } from "$lib/openapiSchema";
 
 export interface User {
     id: string;
