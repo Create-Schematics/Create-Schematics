@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Schematic } from "$lib/types";
-  import { abbreviateNumber } from "../utils";
-  
+  import { abbreviateNumber } from "$lib/utils";
+
   let isUserPage = false;
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     isUserPage = window.location.href.includes("user");
   }
   export const { tags, uploadDate, title, author, downloads, id }: Schematic = {
@@ -51,7 +51,9 @@
   </div>
   <ul class="flex flex-wrap gap-2">
     {#each slicedTags as tag}
-      <li class="text-xs bg-create-blue/50 hover:bg-create-blue/80 px-1 text-opacity-50">
+      <li
+        class="text-xs bg-create-blue/50 hover:bg-create-blue/80 px-1 text-opacity-50"
+      >
         {tag}
       </li>
     {/each}
