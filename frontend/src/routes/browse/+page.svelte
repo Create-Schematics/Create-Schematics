@@ -1,28 +1,9 @@
 <script lang="ts">
-  import type { Schematic } from "$lib/types";
   import SchematicCard from "$lib/SchematicCard.svelte";
-
-  const schematics: Schematic[] = [
-    {
-      tags: [
-        "farm",
-        "Above & Beyond",
-        "trains",
-        "equipment",
-        "steampunk",
-        "novel",
-      ],
-      uploadDate: new Date(1701111471000),
-      title: "Very cool schematic",
-      images: ["https://picsum.photos/500/800"],
-      downloads: 603,
-      likes: 60,
-      dislikes: 40,
-      views: 894,
-      author: "Szedann",
-      id: "1",
-    },
-  ];
+  import type { PageData } from "./$types";
+  export let data: PageData;
+  const { schematics } = data;
+  console.log(schematics);
 </script>
 
 <svelte:head>
