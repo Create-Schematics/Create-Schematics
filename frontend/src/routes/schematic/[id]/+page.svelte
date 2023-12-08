@@ -1,40 +1,10 @@
 <script lang="ts">
   import Slider from "$lib/Slider.svelte";
-  import type { Schematic } from "$lib/types";
+  import type { PageData } from "./$types";
+  export let data: PageData;
+  const { schematic, tags, comments } = data;
 
-  const tags = ["farm", "Above & Beyond"];
-  const mods = [
-    "Create: Steam 'n' Rails",
-    "Create: Extended Bogeys",
-    "aa",
-    "bb",
-    "cc",
-  ];
-  const schematics: Schematic[] = [
-    {
-      tags: [
-        "farm",
-        "Above & Beyond",
-        "trains",
-        "equipment",
-        "steampunk",
-        "novel",
-      ],
-      uploadDate: new Date(1701111471000),
-      title: "Very cool schematic",
-      images: ["https://picsum.photos/500/800"],
-      downloads: 603,
-      likes: 60,
-      dislikes: 40,
-      views: 894,
-      author: "Szedann",
-      id: "1",
-    },
-  ];
   let selectedOption = "description";
-
-  // this is a placeholder; I don't know how the comments are going to be handled in the backend.
-  const comments: number = 5;
 
   function handleOptionClick(option: string) {
     selectedOption = option;
@@ -42,7 +12,7 @@
 </script>
 
 <svelte:head>
-  <title>{schematics[0].title} - Create Schematics</title>
+  <title>{schematic} - Create Schematics</title>
 </svelte:head>
 
 <main class="max-w-6xl w-[calc(100vw-2rem)] flex flex-col mx-auto gap-3">
@@ -63,16 +33,18 @@
     >
       <div class="flex flex-col gap-2">
         <div class="p-3 pb-0">
-          <h1 class="text-2xl font-bold">Very cool schematic</h1>
+          <h1 class="text-2xl font-bold">{schematic.schematic_name}</h1>
           <h3 class="text-xs text-opacity-50">
-            by <a href="/user/Szedann" class="underline">Szedann</a>
+            by <a href={`/user/${schematic.author}`} class="underline"
+              >{schematic.author}</a
+            >
           </h3>
         </div>
         <div
           class="px-2 text-sm pixel-corners p-2 flex bg-white dark:bg-black m-2 divide-x divide-create-blue/20"
         >
           <div class="flex flex-col items-center w-full">
-            <h1 class="text-xl">603</h1>
+            <h1 class="text-xl">{schematic.downloads}</h1>
             <span class="text-xs">Downloads</span>
           </div>
           <div class="flex flex-col items-center w-full">
@@ -98,7 +70,7 @@
           <ul
             class="flex flex-col gap-2 overflow-y-scroll max-h-64 p-2 bg-fixed no-scrollbar"
           >
-            {#each mods as mod}
+            <!-- {#each mods as mod}
               <li
                 class="flex gap-2 bg-white dark:bg-black/30 w-full p-2 pixel-corners bg-checker"
                 style="--checker-color: #0001;"
@@ -116,7 +88,7 @@
                   </div>
                 </div>
               </li>
-            {/each}
+            {/each} -->
           </ul>
         </div>
       </div>
@@ -193,7 +165,7 @@
         <div class="p-4 mb-4 bg-white dark:bg-black/30 pixel-corners">
           <textarea
             class="w-full h-auto outline-none bg-transparent"
-            placeholder={comments == 0
+            placeholder={comments.length == 0
               ? "Write the first comment!"
               : "Contribute to the discussion!"}
           ></textarea>
@@ -201,9 +173,11 @@
             >Post</button
           >
         </div>
-        <div class="p-4 mb-2 bg-white dark:bg-black/30 pixel-corners">
-          This is a comment.
-        </div>
+        {#each comments as comment}
+          <div class="p-4 mb-2 bg-white dark:bg-black/30 pixel-corners">
+            {comment.comment_body}
+          </div>
+        {/each}
       </div>
     {/if}
   </section>
