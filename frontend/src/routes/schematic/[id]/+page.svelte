@@ -129,31 +129,9 @@
       >
     </nav>
     {#if selectedOption === "description"}
-      <div class="bg-white dark:bg-black/30 p-4 pixel-corners">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem
-        blanditiis dolores quaerat iste veritatis. Sequi saepe, ut aut
-        voluptatem enim rerum! Debitis praesentium error aliquam. Deserunt
-        doloremque numquam eligendi alias sit explicabo. Laboriosam cum dolor
-        eaque voluptas id quisquam optio iste maxime, totam dicta libero
-        reprehenderit facilis eum quaerat magni aliquam, commodi, nam corporis.
-        Ratione impedit repellat temporibus maiores ad? Quis quam
-        necessitatibus, tempora incidunt fugiat perspiciatis quibusdam ipsam
-        suscipit recusandae veniam modi quaerat, debitis, qui dolorum! Deleniti
-        nihil non ut molestiae facere maxime officia error praesentium, eveniet
-        doloribus, impedit blanditiis autem amet voluptatibus atque dolor enim?
-        Animi ullam minus aliquam quaerat adipisci earum maxime magnam odio
-        ducimus illum soluta iure dolores asperiores consequuntur numquam
-        consectetur incidunt, impedit ex officia aut deleniti vitae dolore neque
-        doloremque. Odio architecto vitae, iure, aliquam quia expedita
-        consequuntur quam accusamus magnam ipsum repellendus. Beatae facilis
-        iste, odit repellendus voluptates nemo dolorum error. Sed praesentium
-        quo eos, saepe voluptatibus doloremque repellendus asperiores odit vel
-        maiores. Reiciendis autem amet earum, nostrum eius suscipit, deserunt
-        voluptatum nisi unde dignissimos maxime eum similique sunt repellendus
-        voluptatibus quasi culpa commodi quibusdam veniam, animi cum. Quos sit
-        aperiam, expedita consequuntur, tenetur nostrum dolorem nihil commodi
-        ipsa officiis quasi obcaecati! In.
-      </div>
+      <pre class="bg-white dark:bg-black/30 p-4 pixel-corners">
+       {schematic.body} 
+      </pre>
     {/if}
     {#if selectedOption === "details"}
       <div class="bg-white dark:bg-black/30 p-4 pixel-corners">
