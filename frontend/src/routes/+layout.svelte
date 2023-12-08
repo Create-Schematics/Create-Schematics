@@ -54,18 +54,18 @@
     </div>
     <div class="flex items-center gap-3">
       <button
-        class="bg-white/50 dark:bg-create-blue/50 hover:bg-white/30 dark:hover:bg-create-blue/80 w-10 h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"
+        class="w-12 h-12 outline-none accent-create-blue pixel-corners text-xl whitespace-nowrap"
         on:click={() => {
           handleSwitchDarkMode();
         }}
       >
-      {#if (typeof window !== 'undefined')}
-        {#if (document.body.classList.contains("dark"))}
-          <SunIcon />
-        {:else}
-          <MoonIcon />
-        {/if}
-      {/if}
+      <div class="fill-minecraft-ui-dark/90 dark:fill-white flex items-center justify-center">
+          {#if darkMode}
+            <SunIcon/>
+          {:else}
+            <MoonIcon/>
+          {/if}
+      </div>
     </button>
       <a
         href="/upload"

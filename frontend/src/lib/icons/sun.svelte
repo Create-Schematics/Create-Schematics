@@ -1,8 +1,8 @@
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
- width="14pt" height="14pt" viewBox="0 0 200 200"
+ width="32pt" height="32pt" viewBox="0 0 200 200"
  preserveAspectRatio="xMidYMid meet" class="inline fill-inherit">
 
- <g transform="translate(0.000000,200.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+ <g transform="translate(0.000000,200.000000) scale(0.100000,-0.100000)" stroke="none">
     <path d="M900 1800 l0 -200 100 0 100 0 0 200 0 200 -100 0 -100 0 0 -200z"/>
     <path d="M200 1700 l0 -100 50 0 50 0 0 -50 0 -50 100 0 100 0 0 100 0 100 -50 0 -50 0 0 50 0 50 -100 0 -100 0 0 -100z"/>
     <path d="M1600 1750 l0 -50 -50 0 -50 0 0 -100 0 -100 100 0 100 0 0 50 0 50 50 0 50 0 0 100 0 100 -100 0 -100 0 0 -50z"/>
