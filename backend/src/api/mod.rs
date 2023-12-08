@@ -10,6 +10,7 @@ use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
 use tower_http::trace::TraceLayer;
 use tower_http::cors::{Any, CorsLayer};
+use tower_http::services::ServeDir;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -73,6 +74,7 @@ pub async fn init(
             .merge(crate::api::configure())
             .merge(crate::api::auth::configure(oauth)?)
         )
+        .nest_service("/upload", ServeDir::new("static/upload"))
         .merge(SwaggerUi::new("/swagger-ui").url("/openapi.json", openapi::ApiDoc::openapi()))
         .layer(CorsLayer::default()
             .allow_headers([
