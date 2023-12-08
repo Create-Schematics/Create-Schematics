@@ -16,6 +16,7 @@ use crate::response::ApiResult;
 use crate::models::schematic::Schematic;
 use crate::api::ApiContext;
 use crate::storage::upload::save_schematic_files;
+use crate::storage::upload;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub (in crate::api) struct FullSchematic {
@@ -395,7 +396,9 @@ async fn upload_schematic(
     let mut transaction = ctx.pool.begin().await?;
 
     let schematic_id = Uuid::new_v4();
-    let (files, images) = save_schematic_files(schematic_id, form.files, form.images).await?;
+    
+    let upload_dir = upload::build_upload_directory(&schematic_id)?;
+    let (files, images) = save_schematic_files(&upload_dir, form.files, form.images).await?;
 
     let schematic = sqlx::query_as!(
         Schematic,
@@ -435,6 +438,7 @@ async fn upload_schematic(
     })?;
     
     transaction.commit().await?;
+    let _persist = upload_dir.into_path();
 
     Ok(Json(schematic))
 }
