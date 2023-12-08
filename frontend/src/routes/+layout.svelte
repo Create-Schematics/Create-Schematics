@@ -1,5 +1,7 @@
 <script>
   import "../app.css";
+  import SunIcon from "$lib/icons/sun.svelte"
+  import MoonIcon from "$lib/icons/moon.svelte";
 </script>
 
 <body
@@ -26,6 +28,20 @@
       </search>
     </div>
     <div class="flex items-center gap-3">
+      <button
+        class="bg-white/50 dark:bg-create-blue/50 hover:bg-white/30 dark:hover:bg-create-blue/80 w-10 h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"
+        on:click={() => {
+          document.body.classList.toggle("dark");
+        }}
+      >
+      {#if (typeof window !== 'undefined')}
+        {#if (document.body.classList.contains("dark"))}
+          <SunIcon />
+        {:else}
+          <MoonIcon />
+        {/if}
+      {/if}
+    </button>
       <a
         href="/upload"
         class="bg-create-blue/80 no-default-link
