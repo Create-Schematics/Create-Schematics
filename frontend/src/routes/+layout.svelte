@@ -1,7 +1,32 @@
-<script>
+<script lang="ts">
   import "../app.css";
   import SunIcon from "$lib/icons/sun.svelte"
   import MoonIcon from "$lib/icons/moon.svelte";
+  import { browser } from '$app/environment';
+
+  let darkMode = false;
+
+  function handleSwitchDarkMode() {
+    darkMode = !darkMode;
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+
+    document.body.classList.toggle("dark");
+  }
+
+  if (browser) {
+    const storedTheme = localStorage.getItem('theme');
+    console.log(storedTheme)
+    if (storedTheme === 'dark') {
+      document.body.classList.add('dark');
+      darkMode = true;
+    } else if (storedTheme === 'light') {
+      document.body.classList.remove('dark');
+      darkMode = false;
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark');
+      darkMode = true;
+    }
+  }
 </script>
 
 <body
@@ -31,7 +56,7 @@
       <button
         class="bg-white/50 dark:bg-create-blue/50 hover:bg-white/30 dark:hover:bg-create-blue/80 w-10 h-10 outline-none px-3 accent-create-blue pixel-corners text-xl whitespace-nowrap"
         on:click={() => {
-          document.body.classList.toggle("dark");
+          handleSwitchDarkMode();
         }}
       >
       {#if (typeof window !== 'undefined')}
