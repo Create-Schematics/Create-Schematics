@@ -41,12 +41,12 @@ impl LikeAction {
 
 #[utoipa::path(
     delete,
-    path = "/schematics/{id}/like",
+    path = "/schematics/{schematic_id}/like",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the schematic to vote on"),
-        ("action" = String, Query, description = "Weather you want to like, or dislike the schematic")
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to vote on"),
+        ("action" = LikeAction, Query, description = "Weather you want to like, or dislike the schematic")
     ),
     responses(
         (status = 200, description = "Successfully liked the schematic"),
@@ -90,11 +90,11 @@ async fn like_schematic(
 
 #[utoipa::path(
     delete,
-    path = "/schematics/{id}/like",
+    path = "/schematics/{schematic_id}/like",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the comment to remove the vote from")
+        ("schematic_id" = Uuid, Path, description = "The id of the comment to remove the vote from")
     ),
     responses(
         (status = 200, description = "Successfully removed the vote"),

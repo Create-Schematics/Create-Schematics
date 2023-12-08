@@ -199,7 +199,7 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 
 #[utoipa::path(
     get,
-    path = "/schematics/{id}",
+    path = "/schematics/{schematic_id}",
     context_path = "/api/v1",
     tag = "v1",
     params(
@@ -280,7 +280,7 @@ async fn get_schematic_by_id(
 
 #[utoipa::path(
     patch,
-    path = "/schematics/{id}",
+    path = "/schematics/{schematic_id}",
     context_path = "/api/v1",
     tag = "v1",
     params(
@@ -345,7 +345,7 @@ async fn update_schematic_by_id(
 
 #[utoipa::path(
     delete,
-    path = "/schematics/{id}",
+    path = "/schematics/{schematic_id}",
     context_path = "/api/v1",
     tag = "v1",
     params(

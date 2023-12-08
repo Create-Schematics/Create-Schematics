@@ -63,7 +63,7 @@ async fn current_user(
 
 #[utoipa::path(
     patch,
-    path = "/schematics/{id}",
+    path = "/schematics/{schematic_id}",
     context_path = "/api/v1",
     tag = "v1",
     request_body(
@@ -115,7 +115,7 @@ async fn update_current_user(
 }
 
 #[utoipa::path(
-    post,
+    delete,
     path = "/users",
     context_path = "/api/v1",
     tag = "v1",

@@ -55,10 +55,11 @@ pub (in crate::api) struct UpdateComment {
 
 #[utoipa::path(
     get,
-    path = "/schematics/{id}/comments",
+    path = "/schematics/{schematic_id}/comments",
     context_path = "/api/v1",
     tag = "v1",
     params(
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to fetch comments from"),
         ("query" = SearchQuery, Query, description = "Options to search with")
     ),
     responses(
@@ -99,11 +100,11 @@ async fn get_comments_by_schematic(
 
 #[utoipa::path(
     get,
-    path = "/comments/{id}",
+    path = "/comments/{comment_id}",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the comment to fetch")
+        ("comment_id" = Uuid, Path, description = "The id of the comment to fetch")
     ),
     responses(
         (status = 200, description = "Successfully retrieved the comment", body = FullComment, content_type = "application/json"),
@@ -139,9 +140,12 @@ async fn get_comment_by_id(
 
 #[utoipa::path(
     post,
-    path = "/schematics/{id}/comments",
+    path = "/schematics/{schematic_id}/comments",
     context_path = "/api/v1",
     tag = "v1",
+    params(
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to comment on")
+    ),
     request_body(
         content = CommentBuilder, description = "The text of the comment", content_type = "application/json"
     ),
@@ -191,11 +195,11 @@ async fn post_comment(
 
 #[utoipa::path(
     patch,
-    path = "/comments/{id}",
+    path = "/comments/{comment_id}",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the comment to update")
+        ("comment_id" = Uuid, Path, description = "The id of the comment to update")
     ),
     request_body(
         content = UpdateComment, description = "The new body of the comment", content_type = "application/json"
@@ -247,11 +251,11 @@ async fn update_comment_by_id(
 
 #[utoipa::path(
     delete,
-    path = "/comments/{id}",
+    path = "/comments/{comment_id}",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the comment to remove")
+        ("comment_id" = Uuid, Path, description = "The id of the comment to remove")
     ),
     responses(
         (status = 200, description = "Successfully deleted the comment"),

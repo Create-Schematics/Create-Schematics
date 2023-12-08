@@ -60,11 +60,11 @@ async fn get_favorites(
 
 #[utoipa::path(
     post,
-    path = "/schematics/{id}/favorite",
+    path = "/schematics/{schematic_id}/favorite",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the schematic to favorite")
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to favorite")
     ),
     responses(
         (status = 200, description = "Successfully favorited the schematic"),
@@ -99,11 +99,11 @@ async fn favorite_schematic(
 
 #[utoipa::path(
     delete,
-    path = "/schematics/{id}/favorite",
+    path = "/schematics/{schematic_id}/favorite",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the schematic to unfavorite")
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to unfavorite")
     ),
     responses(
         (status = 200, description = "Successfully unfavorited the schematic"),

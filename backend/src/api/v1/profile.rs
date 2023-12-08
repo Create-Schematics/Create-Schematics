@@ -15,11 +15,11 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 
 #[utoipa::path(
     get,
-    path = "/users/{id}/schematics",
+    path = "/users/{user_id}/schematics",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the user to get the schematics from"),
+        ("user_id" = String, Path, description = "The id of the user to get the schematics from"),
         ("query" = PaginationQuery, Query, description = "How many schematics to fetch")
     ),
     responses(

@@ -33,11 +33,11 @@ pub (in crate::api) struct FullTag {
 
 #[utoipa::path(
     get,
-    path = "/schematics/{id}/tags",
+    path = "/schematics/{schematic_id}/tags",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the schematic to fetch tags from")
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to fetch tags from")
     ),
     responses(
         (status = 200, description = "Successfully retrieved the schematic's tags", body = [FullTag], content_type = "application/json"),
@@ -102,11 +102,11 @@ async fn get_valid_tags(
 
 #[utoipa::path(
     post,
-    path = "/schematics/{id}/tags",
+    path = "/schematics/{schematic_id}/tags",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the schematic to remove")
+        ("schematic_id" = String, Path, description = "The id of the schematic to remove")
     ),
     request_body(
         content = TagBody, description = "The new tags to apply by name", content_type = "application/json"
@@ -163,11 +163,11 @@ async fn tag_schematic_by_id(
 
 #[utoipa::path(
     delete,
-    path = "/schematics/{id}/tags",
+    path = "/schematics/{schematic_id}/tags",
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the schematic to remove tags from")
+        ("schematic_id" = String, Path, description = "The id of the schematic to remove tags from")
     ),
     request_body(
         content = Tags, description = "The tags to remove from the schematic", content_type = "application/json"
