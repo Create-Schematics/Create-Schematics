@@ -10,6 +10,8 @@ apity.configure({
     baseUrl: import.meta.env.PROD ? "https://api.createschematics.com/" : "http://localhost:3000",
 })
 
+//Schematics
+
 export const getSchematics = apity.path('/api/v1/schematics')
     .method('get')
     .create()
@@ -23,5 +25,11 @@ export const getSchematicTags = apity.path('/api/v1/schematics/{id}/tags')
     .create()
 
 export const getSchematicComments = apity.path('/api/v1/schematics/{id}/comments')
+    .method('get')
+    .create()
+
+//Users
+
+export const getCurrentUser = apity.path('/api/v1/users')
     .method('get')
     .create()

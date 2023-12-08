@@ -3,6 +3,10 @@
   import SunIcon from "$lib/icons/sun.svelte";
   import MoonIcon from "$lib/icons/moon.svelte";
   import { browser } from "$app/environment";
+  import type { PageData } from "./$types";
+
+  export let data: PageData;
+  const { user } = data;
 
   let darkMode = false;
 
@@ -69,17 +73,30 @@
           {/if}
         </div>
       </button>
-      <a
-        href="/upload"
-        class="bg-create-blue/80 no-default-link
+      {#if user.ok}
+        <a
+          href="/upload"
+          class="bg-create-blue/80 no-default-link
         flex h-10 w-10 text-center hover:bg-create-blue/80 cursor-pointer text-white
         items-center justify-center text-4xl font-mono font-black pixel-corners"
-      >
-        +
-      </a>
-      <div class="w-10 h-10 bg-white/50 overflow-hidden pixel-corners">
-        <img src="https://picsum.photos/50" alt="" />
-      </div>
+        >
+          +
+        </a>
+        <a
+          href={`/user/${data.user.data.username}`}
+          class="w-10 h-10 bg-white/50 overflow-hidden pixel-corners"
+        >
+          <!-- TODO: make it display the user avatar image -->
+          <!-- <img src={user.data.user_id} alt="avatar" /> -->
+        </a>
+      {:else}
+        <a
+          href="/auth"
+          class="h-10 bg-create-blue/50 overflow-hidden pixel-corners flex items-center p-3 no-default-link"
+        >
+          Sign in
+        </a>
+      {/if}
     </div>
   </header>
   <main class="flex-grow">
