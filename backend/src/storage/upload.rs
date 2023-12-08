@@ -39,6 +39,11 @@ fn save_images(location: PathBuf, images: Vec<FieldData<Bytes>>) -> Result<Vec<S
         let file_name = image.metadata.file_name.ok_or(ApiError::BadRequest)?;
         let sanitized = sanitize_filename::sanitize(&file_name);
 
+        if files.contains(&sanitized) {
+            // Prevent duplicate requests
+            return Err(ApiError::BadRequest);
+        }
+
         let image_buffer = image::load_from_memory(&image.contents)
             .map_err(|_| ApiError::BadRequest)?;
 
@@ -64,8 +69,13 @@ fn save_schematics(location: PathBuf, files: Vec<FieldData<Bytes>>) -> Result<Ve
         }
 
         let sanitized = sanitize_filename::sanitize(&file_name);
+
+        if output.contains(&sanitized) {
+            // Prevent duplicate requests
+            return Err(ApiError::BadRequest);
+        }
+
         let path = location.join(&sanitized);
-        
         output.push(sanitized);
         
         std::fs::write(path, file.contents).map_err(anyhow::Error::new)?;
