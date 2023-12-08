@@ -2,6 +2,8 @@ import { getSchematic, getSchematicComments, getSchematicTags } from '$lib/reque
 import { error } from '@sveltejs/kit'
 
 export const load = async ({ params }) => {
+    //TODO: remove this comment when the schema is updated
+    //@ts-ignore this is a temporary bug in the schema
     const schematic = await getSchematic(params).result
     const tags = await getSchematicTags(params).result
     const comments = await getSchematicComments({...params, query: {}}).result

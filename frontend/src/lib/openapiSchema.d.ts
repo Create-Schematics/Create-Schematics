@@ -83,6 +83,53 @@ export interface components {
       comment_id: string;
       schematic_id: string;
     };
+    FullSchematic: {
+      /** Format: uuid */
+      author: string;
+      /** @example Rabbitminers */
+      author_name: string;
+      body: string;
+      /**
+       * Format: int64
+       * @example 8
+       */
+      create_version_id: number;
+      /** @example 0.5.1 */
+      create_version_name: string;
+      /**
+       * Format: int64
+       * @example 0
+       */
+      dislike_count: number;
+      /**
+       * Format: int64
+       * @example 0
+       */
+      downloads: number;
+      /**
+       * Format: int64
+       * @example 0
+       */
+      favorite_count: number;
+      files: string[];
+      /**
+       * Format: int64
+       * @example 4
+       */
+      game_version_id: number;
+      /** @example 1.18.2 */
+      game_version_name: string;
+      images: string[];
+      /**
+       * Format: int64
+       * @example 0
+       */
+      like_count: number;
+      schematic_id: string;
+      /** @example My schematic */
+      schematic_name: string;
+      tags: number[];
+    };
     FullTag: {
       /** Format: int64 */
       tag_id: number;
@@ -104,12 +151,24 @@ export interface components {
     Schematic: {
       /** Format: uuid */
       author: string;
-      /** Format: int32 */
+      body: string;
+      /**
+       * Format: int32
+       * @example 8
+       */
       create_version_id: number;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @example 0
+       */
       downloads: number;
-      /** Format: int32 */
+      files: string[];
+      /**
+       * Format: int32
+       * @example 4
+       */
       game_version_id: number;
+      images: string[];
       /** Format: uuid */
       schematic_id: string;
       schematic_name: string;
@@ -170,6 +229,8 @@ export interface components {
        */
       term?: string | null;
     };
+    /** @enum {string} */
+    SortBy: "downloads" | "likes" | "created_at";
     Tags: {
       tag_names: number[];
     };
@@ -437,6 +498,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the schematic to fetch */
+        schematic_id: string;
         id: string;
       };
     };
@@ -444,7 +506,7 @@ export interface operations {
       /** @description Successfully retrieved the schematic */
       200: {
         content: {
-          "application/json": components["schemas"]["Schematic"];
+          "application/json": components["schemas"]["FullSchematic"];
         };
       };
       /** @description A schematic with that id was not found */
