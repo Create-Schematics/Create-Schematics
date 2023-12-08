@@ -1,9 +1,7 @@
 <script lang="ts">
-  import type { Schematic } from "$lib/types";
   import { abbreviateNumber } from "$lib/utils";
   import type { components } from "./openapiSchema";
-  import { getSchematicTags } from "./requests";
-  export let schematic: components["schemas"]["Schematic"];
+  export let schematic: components["schemas"]["FullSchematic"];
 
   let isUserPage = false;
   if (typeof window !== "undefined") {
