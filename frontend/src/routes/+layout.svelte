@@ -1,29 +1,29 @@
 <script lang="ts">
   import "../app.css";
-  import SunIcon from "$lib/icons/sun.svelte"
+  import SunIcon from "$lib/icons/sun.svelte";
   import MoonIcon from "$lib/icons/moon.svelte";
-  import { browser } from '$app/environment';
+  import { browser } from "$app/environment";
 
   let darkMode = false;
 
   function handleSwitchDarkMode() {
     darkMode = !darkMode;
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
 
     document.body.classList.toggle("dark");
   }
 
   if (browser) {
-    const storedTheme = localStorage.getItem('theme');
-    console.log(storedTheme)
-    if (storedTheme === 'dark') {
-      document.body.classList.add('dark');
+    const storedTheme = localStorage.getItem("theme");
+    console.log(storedTheme);
+    if (storedTheme === "dark") {
+      document.body.classList.add("dark");
       darkMode = true;
-    } else if (storedTheme === 'light') {
-      document.body.classList.remove('dark');
+    } else if (storedTheme === "light") {
+      document.body.classList.remove("dark");
       darkMode = false;
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.add('dark');
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.body.classList.add("dark");
       darkMode = true;
     }
   }
@@ -59,14 +59,16 @@
           handleSwitchDarkMode();
         }}
       >
-      <div class="fill-minecraft-ui-dark/90 dark:fill-white flex items-center justify-center">
+        <div
+          class="fill-minecraft-ui-dark/90 dark:fill-white flex items-center justify-center"
+        >
           {#if darkMode}
-            <SunIcon/>
+            <SunIcon />
           {:else}
-            <MoonIcon/>
+            <MoonIcon />
           {/if}
-      </div>
-    </button>
+        </div>
+      </button>
       <a
         href="/upload"
         class="bg-create-blue/80 no-default-link
@@ -83,9 +85,7 @@
   <main class="flex-grow">
     <slot />
   </main>
-  <footer
-    class="p-4 justify-between items-center"
-  >
+  <footer class="p-4 justify-between items-center">
     <div class="container mx-auto text-center md:text-left p-4 opacity-100">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
         <div class="mb-4 md:mb-0 items-center">
