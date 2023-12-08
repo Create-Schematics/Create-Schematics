@@ -9,6 +9,9 @@ pub struct User {
     #[schema(min_length=3, max_length=20)]
     pub username: String,
 
+    #[schema(example="https://example.com/avatar.png")]
+    pub avatar: Option<String>,
+
     #[schema(value_type=u64, example=7)]
     pub permissions: Permissions,
 

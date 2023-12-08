@@ -52,7 +52,8 @@ where
             r#"
             select
                 user_id, username,
-                permissions, email
+                permissions, email,
+                avatar
             from
                 users
             where

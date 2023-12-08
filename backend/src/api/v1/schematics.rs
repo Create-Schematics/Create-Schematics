@@ -34,6 +34,8 @@ pub (in crate::api) struct FullSchematic {
     #[schema(min_length=3, max_length=20)]
     pub author_name: String,
 
+    pub author_avatar: Option<String>,
+
     #[schema(example=0)]
     pub favorite_count: i64,
 
@@ -237,6 +239,7 @@ async fn get_schematic_by_id(
             schematic_name, 
             body,
             author, 
+            avatar as author_avatar,
             username as author_name, 
             downloads,
             files,
@@ -261,6 +264,7 @@ async fn get_schematic_by_id(
             schematic_id = $1
         group by 
             schematic_id,
+            avatar,
             game_version_id,
             game_version_name,
             username,
@@ -490,6 +494,7 @@ async fn search_schematics(
             schematic_name, 
             author, 
             body,
+            avatar as author_avatar,
             username as author_name, 
             downloads,
             files,
@@ -517,6 +522,7 @@ async fn search_schematics(
             schematic_id,
             game_version_id,
             game_version_name,
+            avatar,
             username,
             create_version_id,
             create_version_name

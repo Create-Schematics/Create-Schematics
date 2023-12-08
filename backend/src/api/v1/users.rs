@@ -47,8 +47,9 @@ async fn current_user(
     sqlx::query_as!(
         User,
         r#"
-        select user_id, username,
-               permissions, email
+        select user_id, username, 
+               email, permissions,
+               avatar
         from users
         where user_id = $1
         "#,
@@ -95,6 +96,7 @@ async fn update_current_user(
                 user_id,
                 username,
                 email,
+                avatar,
                 permissions
         "#,
         form.username,
