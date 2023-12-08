@@ -26,6 +26,8 @@ pub (in crate::api) struct FullSchematic {
     #[schema(example="My schematic")]
     pub schematic_name: String,
 
+    pub body: String,
+
     pub author: Uuid,
 
     #[schema(example="Rabbitminers")]
@@ -45,6 +47,12 @@ pub (in crate::api) struct FullSchematic {
     pub downloads: i64,
 
     pub tags: Vec<i64>,
+
+    #[schema(min_length=1, max_length=10)]
+    pub images: Vec<String>,
+
+    #[schema(min_length=1, max_length=5)]
+    pub files: Vec<String>,
 
     #[schema(example=4, minimum=1)]
     pub game_version_id: i64,
@@ -193,10 +201,10 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
     context_path = "/api/v1",
     tag = "v1",
     params(
-        ("id" = String, Path, description = "The id of the schematic to fetch")
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to fetch")
     ),
     responses(
-        (status = 200, description = "Successfully retrieved the schematic", body = Schematic, content_type = "application/json"),
+        (status = 200, description = "Successfully retrieved the schematic", body = FullSchematic, content_type = "application/json"),
         (status = 404, description = "A schematic with that id was not found"),
         (status = 500, description = "An internal server error occurred")
     ),
@@ -227,9 +235,12 @@ async fn get_schematic_by_id(
         select 
             schematic_id, 
             schematic_name, 
+            body,
             author, 
             username as author_name, 
             downloads,
+            files,
+            images,
             create_version_id, 
             create_version_name,
             game_version_id, 
@@ -306,8 +317,11 @@ async fn update_schematic_by_id(
             returning
                 schematic_id,
                 schematic_name,
+                body,
                 game_version_id,
                 create_version_id,
+                files,
+                images,
                 author,
                 downloads
         "#,
@@ -414,8 +428,11 @@ async fn upload_schematic(
         returning
             schematic_id,
             schematic_name,
+            body,
             game_version_id,
             create_version_id,
+            images,
+            files,
             author,
             downloads
         "#,
@@ -472,8 +489,11 @@ async fn search_schematics(
             schematic_id,
             schematic_name, 
             author, 
+            body,
             username as author_name, 
             downloads,
+            files,
+            images,
             create_version_id, 
             create_version_name,
             game_version_id,

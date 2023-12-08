@@ -69,6 +69,8 @@ impl Modify for AuthenticationModifier {
 
         crate::models::user::User,
         
+        v1::schematics::FullSchematic,
+        v1::schematics::SortBy,
         v1::schematics::SearchQuery,
         v1::schematics::UpdateSchematic,
         v1::schematics::SchematicBuilder,

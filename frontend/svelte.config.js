@@ -10,6 +10,7 @@ const config = {
 			pages: 'build',
 			assets: 'build',
 			fallback: undefined,
+			out: '../backend/static/dist',
 			strict: true
 		})
 	}
