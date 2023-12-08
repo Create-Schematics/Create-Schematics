@@ -86,8 +86,7 @@
           href={`/user/${data.user.data.username}`}
           class="w-10 h-10 bg-white/50 overflow-hidden pixel-corners"
         >
-          <!-- TODO: make it display the user avatar image -->
-          <!-- <img src={user.data.user_id} alt="avatar" /> -->
+          <img src={user.data.avatar} alt="avatar" />
         </a>
       {:else}
         <a
