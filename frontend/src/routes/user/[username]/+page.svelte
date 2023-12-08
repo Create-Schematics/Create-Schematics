@@ -3,7 +3,7 @@
   import type { Schematic, User, Collection } from "$lib/types";
   import SchematicCard from "$lib/SchematicCard.svelte";
   import CollectionCard from "$lib/CollectionCard.svelte";
-  import { abbreviateNumber } from "../../../utils";
+  import { abbreviateNumber } from "$lib/utils";
   import { onMount } from 'svelte';
 
   let userData: string

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Collection } from "$lib/types";
-  import { abbreviateNumber } from "../utils";
+  import { abbreviateNumber } from "$lib/utils";
 
   let isUserPage = false;
   if (typeof window !== 'undefined') {

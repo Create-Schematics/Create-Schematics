@@ -4,7 +4,7 @@
   import { getCollection, getSchematic } from "$lib/requests";
   import SchematicCard from "$lib/SchematicCard.svelte";
   import SortAndFilter from "$lib/SortAndFilter.svelte";
-  import { abbreviateNumber } from "../../../../../utils";
+  import { abbreviateNumber } from "$lib/utils";
 
   let collectionId = '';
 
