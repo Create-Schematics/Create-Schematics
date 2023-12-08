@@ -11,7 +11,7 @@ export interface paths {
   "/api/auth/{provider}/callback": {
     get: operations["oauth_callback"];
   };
-  "/api/v1/comments/{id}": {
+  "/api/v1/comments/{comment_id}": {
     get: operations["get_comment_by_id"];
     delete: operations["delete_comment_by_id"];
     patch: operations["update_comment_by_id"];
@@ -23,23 +23,23 @@ export interface paths {
   "/api/v1/schematics/favorites": {
     get: operations["get_favorites"];
   };
-  "/api/v1/schematics/{id}": {
+  "/api/v1/schematics/{schematic_id}": {
     get: operations["get_schematic_by_id"];
     delete: operations["delete_schematic_by_id"];
     patch: operations["update_schematic_by_id"];
   };
-  "/api/v1/schematics/{id}/comments": {
+  "/api/v1/schematics/{schematic_id}/comments": {
     get: operations["get_comments_by_schematic"];
     post: operations["post_comment"];
   };
-  "/api/v1/schematics/{id}/favorite": {
+  "/api/v1/schematics/{schematic_id}/favorite": {
     post: operations["favorite_schematic"];
     delete: operations["unfavorite_schematic"];
   };
-  "/api/v1/schematics/{id}/like": {
+  "/api/v1/schematics/{schematic_id}/like": {
     delete: operations["remove_like_from_schematic"];
   };
-  "/api/v1/schematics/{id}/tags": {
+  "/api/v1/schematics/{schematic_id}/tags": {
     get: operations["get_schematic_tags"];
     post: operations["tag_schematic_by_id"];
     delete: operations["untag_schematic_by_id"];
@@ -49,9 +49,9 @@ export interface paths {
   };
   "/api/v1/users": {
     get: operations["current_user"];
-    post: operations["remove_current_user"];
+    delete: operations["remove_current_user"];
   };
-  "/api/v1/users/{id}/schematics": {
+  "/api/v1/users/{user_id}/schematics": {
     get: operations["get_uploaded_schematics"];
   };
 }
@@ -86,6 +86,7 @@ export interface components {
     FullSchematic: {
       /** Format: uuid */
       author: string;
+      author_avatar?: string | null;
       /** @example Rabbitminers */
       author_name: string;
       body: string;
@@ -260,6 +261,8 @@ export interface components {
       username?: string | null;
     };
     User: {
+      /** @example https://example.com/avatar.png */
+      avatar?: string | null;
       /** @example email@email.com */
       email: string;
       /**
@@ -290,7 +293,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The oauth provider to authenticate with */
-        schematic_id: components["schemas"]["OauthProviders"];
+        provider: components["schemas"]["OauthProviders"];
       };
     };
     responses: {
@@ -315,7 +318,7 @@ export interface operations {
       };
       path: {
         /** @description The oauth provider to authenticate with */
-        schematic_id: components["schemas"]["OauthProviders"];
+        provider: components["schemas"]["OauthProviders"];
       };
     };
     responses: {
@@ -340,7 +343,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the comment to fetch */
-        id: string;
+        comment_id: string;
       };
     };
     responses: {
@@ -364,7 +367,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the comment to remove */
-        id: string;
+        comment_id: string;
       };
     };
     responses: {
@@ -394,7 +397,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the comment to update */
-        id: string;
+        comment_id: string;
       };
     };
     /** @description The new body of the comment */
@@ -499,7 +502,6 @@ export interface operations {
       path: {
         /** @description The id of the schematic to fetch */
         schematic_id: string;
-        id: string;
       };
     };
     responses: {
@@ -524,7 +526,6 @@ export interface operations {
       path: {
         /** @description The id of the schematic to remove */
         schematic_id: string;
-        id: string;
       };
     };
     responses: {
@@ -555,7 +556,6 @@ export interface operations {
       path: {
         /** @description The id of the schematic to update */
         schematic_id: string;
-        id: string;
       };
     };
     /** @description The values to update */
@@ -600,7 +600,8 @@ export interface operations {
         query: components["schemas"]["SearchQuery"];
       };
       path: {
-        id: string;
+        /** @description The id of the schematic to fetch comments from */
+        schematic_id: string;
       };
     };
     responses: {
@@ -619,7 +620,8 @@ export interface operations {
   post_comment: {
     parameters: {
       path: {
-        id: string;
+        /** @description The id of the schematic to comment on */
+        schematic_id: string;
       };
     };
     /** @description The text of the comment */
@@ -653,7 +655,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the schematic to favorite */
-        id: string;
+        schematic_id: string;
       };
     };
     responses: {
@@ -675,7 +677,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the schematic to unfavorite */
-        id: string;
+        schematic_id: string;
       };
     };
     responses: {
@@ -697,7 +699,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the comment to remove the vote from */
-        id: string;
+        schematic_id: string;
       };
     };
     responses: {
@@ -723,7 +725,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the schematic to fetch tags from */
-        id: string;
+        schematic_id: string;
       };
     };
     responses: {
@@ -747,7 +749,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the schematic to remove */
-        id: string;
+        schematic_id: string;
       };
     };
     /** @description The new tags to apply by name */
@@ -781,7 +783,7 @@ export interface operations {
     parameters: {
       path: {
         /** @description The id of the schematic to remove tags from */
-        id: string;
+        schematic_id: string;
       };
     };
     /** @description The tags to remove from the schematic */
@@ -875,7 +877,7 @@ export interface operations {
       };
       path: {
         /** @description The id of the user to get the schematics from */
-        id: string;
+        user_id: string;
       };
     };
     responses: {

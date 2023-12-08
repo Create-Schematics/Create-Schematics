@@ -16,15 +16,15 @@ export const getSchematics = apity.path('/api/v1/schematics')
     .method('get')
     .create()
 
-export const getSchematic = apity.path('/api/v1/schematics/{id}')
+export const getSchematic = apity.path('/api/v1/schematics/{schematic_id}')
     .method('get')
     .create()
 
-export const getSchematicTags = apity.path('/api/v1/schematics/{id}/tags')
+export const getSchematicTags = apity.path('/api/v1/schematics/{schematic_id}/tags')
     .method('get')
     .create()
 
-export const getSchematicComments = apity.path('/api/v1/schematics/{id}/comments')
+export const getSchematicComments = apity.path('/api/v1/schematics/{schematic_id}/comments')
     .method('get')
     .create()
 

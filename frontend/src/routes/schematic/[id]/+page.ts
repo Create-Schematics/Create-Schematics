@@ -2,11 +2,10 @@ import { getSchematic, getSchematicComments, getSchematicTags } from '$lib/reque
 import { error } from '@sveltejs/kit'
 
 export const load = async ({ params }) => {
-    //TODO: remove this comment when the schema is updated
-    //@ts-ignore this is a temporary bug in the schema
-    const schematic = await getSchematic(params).result
-    const tags = await getSchematicTags(params).result
-    const comments = await getSchematicComments({...params, query: {}}).result
+
+    const schematic = await getSchematic({schematic_id: params.id}).result
+    const tags = await getSchematicTags({schematic_id: params.id}).result
+    const comments = await getSchematicComments({schematic_id: params.id, query: {}}).result
     if(!schematic.ok) throw error(404, "Schematic not found")
     if(!tags.ok) throw error(500)
     if(!comments.ok) throw error(500)
