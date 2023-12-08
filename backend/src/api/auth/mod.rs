@@ -108,7 +108,7 @@ pub struct OauthClients {
     context_path = "/api",
     tag = "authentication",
     params(
-        ("schematic_id" = OauthProviders, Path, description = "The oauth provider to authenticate with"),
+        ("provider" = OauthProviders, Path, description = "The oauth provider to authenticate with"),
     ),
     responses(
         (status = 303, description = "Redirecting to oauth provider", headers(("Location" = String))),
@@ -136,7 +136,7 @@ async fn oauth_authorization(
     context_path = "/api",
     tag = "authentication",
     params(
-        ("schematic_id" = OauthProviders, Path, description = "The oauth provider to authenticate with"),
+        ("provider" = OauthProviders, Path, description = "The oauth provider to authenticate with"),
         ("query" = AuthRequest, Query, description = "Current oauth state")
     ),
     responses(

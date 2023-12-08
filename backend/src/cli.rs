@@ -2,7 +2,9 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
-use crate::api::{self, StartCommandServerArguments, openapi::OpenApiSchemaCommandArguements};
+use crate::api;
+use crate::api::openapi::OpenApiSchemaCommandArguements;
+use crate::api::StartCommandServerArguments;
 
 #[derive(Parser, Debug)]
 #[command(name = "Create schematics command line interface")]
