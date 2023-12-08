@@ -14,6 +14,96 @@
     "version": "0.0.1"
   },
   "paths": {
+    "/api/auth/{provider}": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "operationId": "oauth_authorization",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "in": "path",
+            "description": "The oauth provider to authenticate with",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/OauthProviders"
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "Redirecting to oauth provider",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid oauth provider"
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          }
+        ]
+      }
+    },
+    "/api/auth/{provider}/callback": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "operationId": "oauth_callback",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "in": "path",
+            "description": "The oauth provider to authenticate with",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/OauthProviders"
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Current oauth state",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/AuthRequest"
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "Redirecting to home page",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid oauth provider"
+          },
+          "500": {
+            "description": "Internal server error while authorizing user"
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          }
+        ]
+      }
+    },
     "/api/v1/comments/{id}": {
       "get": {
         "tags": [
@@ -200,7 +290,7 @@
         "requestBody": {
           "description": "Information about the new schematic",
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/SchematicBuilder"
               }
@@ -370,7 +460,8 @@
             "description": "The id of the schematic to update",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
@@ -939,6 +1030,17 @@
   },
   "components": {
     "schemas": {
+      "AuthRequest": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
       "Comment": {
         "type": "object",
         "required": [
@@ -1040,6 +1142,15 @@
           }
         }
       },
+      "OauthProviders": {
+        "type": "string",
+        "enum": [
+          "github",
+          "microsoft",
+          "google",
+          "discord"
+        ]
+      },
       "PaginationQuery": {
         "type": "object",
         "properties": {
@@ -1095,8 +1206,11 @@
         "type": "object",
         "required": [
           "schematic_name",
+          "schematic_body",
           "game_version",
-          "create_version"
+          "create_version",
+          "files",
+          "images"
         ],
         "properties": {
           "create_version": {
@@ -1106,12 +1220,34 @@
             "example": 8,
             "minimum": 1
           },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "description": "The schematic file to upload\n"
+          },
           "game_version": {
             "type": "integer",
             "format": "int32",
             "description": "The id of the game version of the new schematic\n",
             "example": 4,
             "minimum": 1
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "description": "The images of the schematic to upload\n"
+          },
+          "schematic_body": {
+            "type": "string",
+            "description": "The body (description) of the schematic\n",
+            "maxLength": 2048,
+            "minLength": 128
           },
           "schematic_name": {
             "type": "string",
@@ -1123,9 +1259,6 @@
       },
       "SearchQuery": {
         "type": "object",
-        "required": [
-          "term"
-        ],
         "properties": {
           "limit": {
             "type": "integer",
@@ -1164,7 +1297,8 @@
           "term": {
             "type": "string",
             "description": "The term to search schematics for. Both schematic names and\ndescriptions will be matched agaisnt the this term.\n",
-            "example": "test"
+            "example": "test",
+            "nullable": true
           }
         }
       },
