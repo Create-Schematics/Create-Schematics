@@ -1,19 +1,16 @@
-import type { Schematic, Collection } from "$lib/types";
+import { Apity } from '@cocreators-ee/apity'
+import type { paths } from '$lib/openapiSchema'
 
-export async function getCollection(collectionId: string): Promise<Collection> {
-    const res = await fetch(`/api/v1/schematics/collection/${collectionId}`, {
-        method: 'GET'
-    })
-    
-    const json = await res.json()
-    return JSON.parse(json);
-}
+const apity = Apity.for<paths>()
 
-export async function getSchematic(schematicId: string): Promise<Schematic> {
-    const res = await fetch(`/api/v1/schematic/${schematicId}`, {
-        method: 'GET'
-    })
-    
-    const json = await res.json()
-    return JSON.parse(json);
-}
+// apity.configure({
+//     baseUrl: ''
+// })
+
+export const getSchematics = apity.path('/api/v1/schematics')
+    .method('get')
+    .create()
+
+export const getSchematic = apity.path('/api/v1/schematics/{id}')
+.method('get')
+.create()
