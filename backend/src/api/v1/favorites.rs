@@ -42,8 +42,9 @@ async fn get_favorites(
         Schematic,
         r#"
         select schematic_id, schematic_name,
-               game_version_id, author,
-               create_version_id, downloads
+               body, files, images, author,
+               create_version_id, downloads,
+               game_version_id
         from favorites
         inner join schematics
         using (schematic_id)
