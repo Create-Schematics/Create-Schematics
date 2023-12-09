@@ -104,7 +104,7 @@ pub (in crate::api) struct SchematicBuilder {
     pub images: Vec<FieldData<Bytes>>,
 }
 
-#[derive(Debug, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, TryFromMultipart, ToSchema)]
 pub (in crate::api) struct UpdateSchematic {
     /// The new name for the schematic
     ///
@@ -240,7 +240,7 @@ async fn get_schematic_by_id(
             body,
             author, 
             avatar as author_avatar,
-            username as author_name, 
+            username as author_name,
             downloads,
             files,
             images,
@@ -287,7 +287,7 @@ async fn get_schematic_by_id(
         ("schematic_id" = Uuid, Path, description = "The id of the schematic to update")
     ),
     request_body(
-        content = UpdateSchematic, description = "The values to update", content_type = "application/json"
+        content = UpdateSchematic, description = "The values to update", content_type = "multipart/form-data"
     ),
     responses(
         (status = 200, description = "Successfully updated the schematic", body = Schematic, content_type = "application/json"),
@@ -303,7 +303,7 @@ async fn update_schematic_by_id(
     State(ctx): State<ApiContext>,
     Path(schematic_id): Path<Uuid>,
     user: User,
-    Json(schematic): Json<UpdateSchematic>,
+    TypedMultipart(schematic): TypedMultipart<UpdateSchematic>,
 ) -> ApiResult<Json<Schematic>> {
     let mut transaction = ctx.pool.begin().await?;
 

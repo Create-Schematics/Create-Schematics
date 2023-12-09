@@ -2,6 +2,7 @@ use axum::extract::{State, Path, Query};
 use axum::Json;
 use axum::Router;
 use axum::routing::get;
+use axum_typed_multipart::{TypedMultipart, TryFromMultipart};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
@@ -43,12 +44,12 @@ pub (in crate::api) struct FullComment {
     pub author_username: String
 }
 
-#[derive(Deserialize, ToSchema)]
+#[derive(Deserialize, TryFromMultipart, ToSchema)]
 pub (in crate::api) struct CommentBuilder {
     pub comment_body: String
 }
 
-#[derive(Deserialize, ToSchema)]
+#[derive(Deserialize, TryFromMultipart, ToSchema)]
 pub (in crate::api) struct UpdateComment {
     pub comment_body: Option<String>
 }
@@ -147,7 +148,7 @@ async fn get_comment_by_id(
         ("schematic_id" = Uuid, Path, description = "The id of the schematic to comment on")
     ),
     request_body(
-        content = CommentBuilder, description = "The text of the comment", content_type = "application/json"
+        content = CommentBuilder, description = "The text of the comment", content_type = "multipart/form-data"
     ),
     responses(
         (status = 200, description = "Successfully added comment to schematic", body = Comment, content_type = "application/json"),
@@ -161,7 +162,7 @@ async fn post_comment(
     State(ctx): State<ApiContext>,
     Path(schematic_id): Path<Uuid>,
     session: Session,
-    Json(builder): Json<CommentBuilder>
+    TypedMultipart(builder): TypedMultipart<CommentBuilder>
 ) -> ApiResult<Json<Comment>> {
     let mut transaction = ctx.pool.begin().await?;
 
@@ -202,7 +203,7 @@ async fn post_comment(
         ("comment_id" = Uuid, Path, description = "The id of the comment to update")
     ),
     request_body(
-        content = UpdateComment, description = "The new body of the comment", content_type = "application/json"
+        content = UpdateComment, description = "The new body of the comment", content_type = "multipart/form-data"
     ),
     responses(
         (status = 200, description = "Successfully updated the comment", body = Schematic, content_type = "application/json"),
@@ -217,7 +218,7 @@ async fn update_comment_by_id(
     State(ctx): State<ApiContext>,
     Path(comment_id): Path<Uuid>,
     user: User,
-    Json(update): Json<UpdateComment>
+    TypedMultipart(update): TypedMultipart<UpdateComment>
 ) -> ApiResult<Json<Comment>> {
     let mut transaction = ctx.pool.begin().await?;
 
