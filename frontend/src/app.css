@@ -51,6 +51,10 @@
     );
 }
 
+.pixelated{
+    image-rendering: pixelated;
+}
+
 a:not(.no-default-link) {
     color: #7695EC;
     /* Not sure if underlined links is desired or not. */
