@@ -19,7 +19,6 @@
 
   if (browser) {
     const storedTheme = localStorage.getItem("theme");
-    console.log(storedTheme);
     if (storedTheme === "dark") {
       document.body.classList.add("dark");
       darkMode = true;
