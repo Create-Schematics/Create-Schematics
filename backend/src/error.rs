@@ -33,9 +33,14 @@ pub enum ApiError {
     #[error("insufficient permissions to perform this action")]
     Forbidden,
 
+    
     // Return '404' Not Found
     #[error("resource not found")]
     NotFound,
+    
+    /// Return '409 Conflict'
+    #[error("this resource already exists")]
+    Conflict,
 
     /// Return `422 Unprocessable Entity`
     ///
@@ -125,6 +130,7 @@ impl ApiError {
             Self::BadRequest => StatusCode::BAD_REQUEST,
             Self::Unauthorized => StatusCode::UNAUTHORIZED,
             Self::Forbidden => StatusCode::FORBIDDEN,
+            Self::Conflict => StatusCode::CONFLICT,
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::UnprocessableEntity { .. } => StatusCode::UNPROCESSABLE_ENTITY,
             _ => StatusCode::INTERNAL_SERVER_ERROR, 
@@ -158,7 +164,6 @@ impl IntoResponse for ApiError {
                 )
                     .into_response();
             }
-
 
             Self::Sqlx(ref e) => {
                 tracing::error!("SQLx error: {:?}", e);
