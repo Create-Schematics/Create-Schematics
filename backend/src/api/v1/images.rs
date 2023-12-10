@@ -26,18 +26,18 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 }
 
 #[derive(Serialize, Debug, ToSchema)]
-pub struct Images {
-    images: Vec<String>
+pub (in crate::api) struct Images {
+    pub images: Vec<String>
 }
 
 #[derive(TryFromMultipart, Debug, ToSchema)]
-pub struct UploadImage {
-    image: FieldData<Bytes>
+pub (in crate::api) struct UploadImage {
+    pub image: FieldData<Bytes>
 }
 
 #[derive(TryFromMultipart, Debug, ToSchema)]
-pub struct DeleteImage {
-    file_name: String
+pub (in crate::api) struct DeleteImage {
+    pub file_name: String
 }
 
 async fn get_images_from_schematic(
