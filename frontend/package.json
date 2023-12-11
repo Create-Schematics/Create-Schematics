@@ -34,6 +34,7 @@
 	"type": "module",
 	"dependencies": {
 		"date-fns": "^2.30.0",
+		"mode-watcher": "^0.1.2",
 		"openapi-fetch": "^0.8.2",
 		"prismarine-nbt": "^2.2.1"
 	}

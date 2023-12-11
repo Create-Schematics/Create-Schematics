@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { ModeWatcher, toggleMode, mode } from 'mode-watcher';
+
   import "../app.css";
   import SunIcon from "$lib/icons/sun.svelte";
   import MoonIcon from "$lib/icons/moon.svelte";
@@ -7,34 +9,13 @@
 
   export let data: PageData;
   const { user } = data;
-
-  let darkMode = false;
-
-  function handleSwitchDarkMode() {
-    darkMode = !darkMode;
-    localStorage.setItem("theme", darkMode ? "dark" : "light");
-
-    document.body.classList.toggle("dark");
-  }
-
-  if (browser) {
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme === "dark") {
-      document.body.classList.add("dark");
-      darkMode = true;
-    } else if (storedTheme === "light") {
-      document.body.classList.remove("dark");
-      darkMode = false;
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.body.classList.add("dark");
-      darkMode = true;
-    }
-  }
 </script>
-
+<ModeWatcher />
+<slot />
 <body
   class=" bg-create-blue/40 dark:bg-gray-800 dark:text-white h-screen absolute w-full flex flex-col gap-3 overflow-x-hidden font-pixel"
 >
+
   <header
     class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark max-w-6xl p-4 mx-auto mt-3
     w-[calc(100vw-2rem)] flex justify-between items-center pixel-corners"
@@ -58,14 +39,12 @@
     <div class="flex items-center gap-3">
       <button
         class="w-12 h-12 outline-none accent-create-blue pixel-corners text-xl whitespace-nowrap"
-        on:click={() => {
-          handleSwitchDarkMode();
-        }}
+        on:click={toggleMode}
       >
         <div
           class="fill-minecraft-ui-dark/90 dark:fill-white flex items-center justify-center"
         >
-          {#if darkMode}
+          {#if $mode === 'light'}
             <SunIcon />
           {:else}
             <MoonIcon />
