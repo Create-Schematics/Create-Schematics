@@ -40,7 +40,7 @@ impl LikeAction {
 }
 
 #[utoipa::path(
-    delete,
+    post,
     path = "/schematics/{schematic_id}/like",
     context_path = "/api/v1",
     tag = "v1",
