@@ -41,6 +41,10 @@ impl Modify for AuthenticationModifier {
         v1::schematics::get_schematic_by_id,
         v1::schematics::update_schematic_by_id,
         v1::schematics::delete_schematic_by_id,
+
+        v1::images::get_images_from_schematic,
+        v1::images::upload_image_to_schematic,
+        v1::images::remove_image_from_schematic,
         
         v1::comments::get_comments_by_schematic,
         v1::comments::post_comment,
@@ -69,16 +73,20 @@ impl Modify for AuthenticationModifier {
 
         crate::models::user::User,
         
+        v1::users::UpdateUser,
+        
+        crate::models::schematic::Schematic,
+        
         v1::schematics::FullSchematic,
         v1::schematics::SortBy,
         v1::schematics::SearchQuery,
         v1::schematics::UpdateSchematic,
         v1::schematics::SchematicBuilder,
         
-        crate::models::schematic::Schematic,
- 
-        v1::users::UpdateUser,
-
+        v1::images::Images,
+        v1::images::UploadImage,
+        v1::images::DeleteImage,
+        
         crate::models::comment::Comment,
 
         v1::comments::PaginationQuery,

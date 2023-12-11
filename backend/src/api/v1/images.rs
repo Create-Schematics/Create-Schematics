@@ -27,19 +27,37 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 
 #[derive(Serialize, Debug, ToSchema)]
 pub (in crate::api) struct Images {
+    #[schema(min_length=1)]
     pub images: Vec<String>
 }
 
 #[derive(TryFromMultipart, Debug, ToSchema)]
 pub (in crate::api) struct UploadImage {
+    #[form_data(limit = "2MiB")]
+    #[schema(value_type=String, format=Binary)]
     pub image: FieldData<Bytes>
 }
 
 #[derive(TryFromMultipart, Debug, ToSchema)]
 pub (in crate::api) struct DeleteImage {
+    #[schema(example="my_image.webp")]
     pub file_name: String
 }
 
+#[utoipa::path(
+    get,
+    path = "/schematics/{schematic_id}/images",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to fetch images from"),
+    ),
+    responses(
+        (status = 200, description = "Successfully retrieved the images", body = Images, content_type = "application/json"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(())
+)]
 async fn get_images_from_schematic(
     Path(schematic_id): Path<Uuid>,
     State(ctx): State<ApiContext>
@@ -59,6 +77,27 @@ async fn get_images_from_schematic(
     .map(Json)
 }
 
+#[utoipa::path(
+    post,
+    path = "/schematics/{schematic_id}/images",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to upload an image to")
+    ),
+    request_body(
+        content = UploadImage, description = "The new image", content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Successfully uploaded image to schematic"),
+        (status = 401, description = "You need to be logged in to upload an image to a schematic"),
+        (status = 403, description = "You do not have permission to add an image to this schematic"),
+        (status = 404, description = "A schematic with that id was not found"),
+        (status = 409, description = "This schematic already has an image with that name"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn upload_image_to_schematic(
     Path(schematic_id): Path<Uuid>,
     State(ctx): State<ApiContext>,
@@ -105,6 +144,26 @@ async fn upload_image_to_schematic(
     Ok(())
 }
 
+#[utoipa::path(
+    delete,
+    path = "/schematics/{schematic_id}/images",
+    context_path = "/api/v1",
+    tag = "v1",
+    params(
+        ("schematic_id" = Uuid, Path, description = "The id of the schematic to remove an image from")
+    ),
+    request_body(
+        content = DeleteImage, description = "The name of the image to remvoe", content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Successfully deleted image from the schematic", body = Images, content_type = "application/json"),
+        (status = 401, description = "You need to be logged in to remove an image from a schematic"),
+        (status = 403, description = "You do not have permission to remove an image from this schematic"),
+        (status = 404, description = "A schematic with that id or an image with that name was not found"),
+        (status = 500, description = "An internal server error occurred")
+    ),
+    security(("session_cookie" = []))
+)]
 async fn remove_image_from_schematic(
     Path(schematic_id): Path<Uuid>,
     State(ctx): State<ApiContext>,
