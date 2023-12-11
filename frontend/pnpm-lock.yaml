@@ -5,12 +5,12 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@cocreators-ee/apity':
-    specifier: ^0.0.5
-    version: 0.0.5
   date-fns:
     specifier: ^2.30.0
     version: 2.30.0
+  openapi-fetch:
+    specifier: ^0.8.2
+    version: 0.8.2
   prismarine-nbt:
     specifier: ^2.2.1
     version: 2.2.1
@@ -93,11 +93,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.0
-    dev: false
-
-  /@cocreators-ee/apity@0.0.5:
-    resolution: {integrity: sha512-OZMEOGgnw9uCltrYWfYjPRHllP/+Lcv1zY+Hp4BosGHZyT7XXGh3p36iHBbYlcx3+iMWoqLXwfdtbpa/JxULFw==}
-    engines: {node: '>= 12.0.0', npm: '>= 7.0.0'}
     dev: false
 
   /@esbuild/android-arm64@0.18.20:
@@ -1736,6 +1731,16 @@ packages:
     dependencies:
       wrappy: 1.0.2
     dev: true
+
+  /openapi-fetch@0.8.2:
+    resolution: {integrity: sha512-4g+NLK8FmQ51RW6zLcCBOVy/lwYmFJiiT+ckYZxJWxUxH4XFhsNcX2eeqVMfVOi+mDNFja6qDXIZAz2c5J/RVw==}
+    dependencies:
+      openapi-typescript-helpers: 0.0.5
+    dev: false
+
+  /openapi-typescript-helpers@0.0.5:
+    resolution: {integrity: sha512-MRffg93t0hgGZbYTxg60hkRIK2sRuEOHEtCUgMuLgbCC33TMQ68AmxskzUlauzZYD47+ENeGV/ElI7qnWqrAxA==}
+    dev: false
 
   /openapi-typescript@6.7.2:
     resolution: {integrity: sha512-7rsUArlMBqmSaRd6EzPl2nGKzPFNRicsRGrxf6W+/HLEDZoOxghR3B53YlyGjcqak8YDZMBNzZQ3o93Bp3qY9Q==}

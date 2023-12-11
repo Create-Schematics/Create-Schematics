@@ -72,7 +72,7 @@
           {/if}
         </div>
       </button>
-      {#if user.ok}
+      {#if user}
         <a
           href="/upload"
           class="bg-create-blue/80 no-default-link
@@ -82,10 +82,10 @@
           +
         </a>
         <a
-          href={`/user/${data.user.data.username}`}
+          href={`/user/${user.username}`}
           class="w-10 h-10 bg-white/50 overflow-hidden pixel-corners"
         >
-          <img src={user.data.avatar} alt="avatar" />
+          <img src={user.avatar} alt="avatar" />
         </a>
       {:else}
         <a
