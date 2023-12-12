@@ -56,6 +56,16 @@ impl Modify for AuthenticationModifier {
         v1::favorites::favorite_schematic,
         v1::favorites::unfavorite_schematic,
 
+        v1::collections::collections_containing_schematic,
+        v1::collections::get_users_collections,
+        v1::collections::get_current_users_collections,
+        v1::collections::create_new_collection,
+        v1::collections::get_collection_by_id,
+        v1::collections::remove_collection_by_id,
+        v1::collections::fetch_collection_entries,
+        v1::collections::add_schematic_to_collection,
+        v1::collections::remove_schematic_from_collection,
+
         v1::tags::get_schematic_tags,
         v1::tags::tag_schematic_by_id,
         v1::tags::get_valid_tags,
@@ -93,6 +103,13 @@ impl Modify for AuthenticationModifier {
         v1::comments::FullComment,
         v1::comments::CommentBuilder,
         v1::comments::UpdateComment,
+
+        v1::collections::Collection,
+        v1::collections::UserCollection,
+        v1::collections::FullCollection,
+        v1::collections::UpdateCollection,
+        v1::collections::CollectionBuilder,
+        v1::collections::CollectionEntry,
 
         v1::tags::Tags,
         v1::tags::FullTag,
