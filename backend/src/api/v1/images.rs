@@ -153,7 +153,7 @@ async fn upload_image_to_schematic(
         ("schematic_id" = Uuid, Path, description = "The id of the schematic to remove an image from")
     ),
     request_body(
-        content = DeleteImage, description = "The name of the image to remvoe", content_type = "multipart/form-data"
+        content = DeleteImage, description = "The name of the image to remove", content_type = "multipart/form-data"
     ),
     responses(
         (status = 200, description = "Successfully deleted image from the schematic", body = Images, content_type = "application/json"),
