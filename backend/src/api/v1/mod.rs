@@ -9,6 +9,7 @@ pub mod likes;
 pub mod users;
 pub mod profile;
 pub mod tags;
+pub mod collections;
 pub mod images;
 
 pub (in crate::api) fn configure() -> Router<ApiContext> {
@@ -19,6 +20,7 @@ pub (in crate::api) fn configure() -> Router<ApiContext> {
         .merge(comments::configure())
         .merge(profile::configure())
         .merge(favorites::configure())
+        .merge(collections::configure())
         .merge(likes::configure())
         .merge(tags::configure())
 }
