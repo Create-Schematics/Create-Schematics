@@ -4,6 +4,7 @@ create table users
     username     text        not null,
     avatar       text,
     email        text        not null    unique collate "case_insensitive",
+    about        text,       
     github_id    text                    unique,
     discord_id   text                    unique,
     google_id    text                    unique,
