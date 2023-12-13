@@ -17,8 +17,8 @@
   <div class="text-xs text-opacity-50 w-full">
     {#if !isUserPage}
       <p class="inline">
-        by <a href={`/user/${schematic.author}`} class="underline"
-          >{schematic.author}</a
+        by <a href={`/user/${schematic.author_name}`} class="underline"
+          >{schematic.author_name}</a
         >
       </p>
       <p class="inline px-2">|</p>
