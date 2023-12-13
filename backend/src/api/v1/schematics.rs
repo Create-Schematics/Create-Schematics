@@ -5,6 +5,7 @@ use axum::routing::get;
 use axum::{Router, Json};
 use axum::extract::{State, Path, Query};
 use axum_typed_multipart::{TryFromMultipart, FieldData, TypedMultipart};
+use axum_valid::Valid;
 use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
@@ -17,6 +18,7 @@ use crate::models::schematic::Schematic;
 use crate::api::ApiContext;
 use crate::storage::upload::save_schematic_files;
 use crate::storage::upload;
+use crate::middleware::validators::profanity;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub (in crate::api) struct FullSchematic {
@@ -66,26 +68,30 @@ pub (in crate::api) struct FullSchematic {
     pub create_version_name: String,
 }
 
-#[derive(Debug, TryFromMultipart, ToSchema)]
+#[derive(TryFromMultipart, Validate, Debug, ToSchema)]
 pub (in crate::api) struct SchematicBuilder {
     /// The name of the new schematic
     /// 
     #[schema(min_length=3, max_length=50)]
+    #[validate(length(min=3, max=50), custom="profanity")]
     pub schematic_name: String,
 
     /// The body (description) of the schematic
     /// 
     #[schema(min_length=128, max_length=2048)]
+    #[validate(length(min=128, max=2048), custom="profanity")]
     pub schematic_body: String,
     
     /// The id of the game version of the new schematic
     /// 
     #[schema(example=4, minimum=1)]
+    #[validate(range(min=1))]
     pub game_version: i32,
     
     /// The id of the create version of the new schematic
     /// 
     #[schema(example=8, minimum=1)]
+    #[validate(range(min=1))]
     pub create_version: i32,
 
     /// The schematic file to upload
@@ -101,16 +107,18 @@ pub (in crate::api) struct SchematicBuilder {
     pub images: Vec<FieldData<Bytes>>,
 }
 
-#[derive(Debug, Deserialize, TryFromMultipart, ToSchema)]
+#[derive(TryFromMultipart, Validate, Debug, ToSchema)]
 pub (in crate::api) struct UpdateSchematic {
     /// The new name for the schematic
     ///
     #[schema(min_length=3, max_length=50)]
+    #[validate(length(min=3, max=50), custom="profanity")]
     pub schematic_name: Option<String>,
     
     /// The id of the new game version of the schematic
     /// 
     #[schema(example=4, minimum=1)]
+    #[validate(range(min=1))]
     pub game_version: Option<i32>,
     
     /// The id of the new create version of the schematic
@@ -125,7 +133,8 @@ pub (in crate::api) struct SearchQuery {
     /// provided it will default to 20. No more than 50 schematics
     /// can be fetched at once. 
     ///
-    #[schema(example=20, minimum=0, maximum=50)]
+    #[schema(example=20, minimum=1, maximum=50)]
+    #[validate(range(max=50, min=1))]
     pub limit: Option<i64>,
     
     /// The page of schematics to fetch from. If this is not provided
@@ -298,7 +307,7 @@ async fn update_schematic_by_id(
     State(ctx): State<ApiContext>,
     Path(schematic_id): Path<Uuid>,
     user: User,
-    TypedMultipart(schematic): TypedMultipart<UpdateSchematic>,
+    Valid(TypedMultipart(schematic)): Valid<TypedMultipart<UpdateSchematic>>,
 ) -> ApiResult<Json<Schematic>> {
     let mut transaction = ctx.pool.begin().await?;
 
@@ -404,7 +413,7 @@ async fn delete_schematic_by_id(
 async fn upload_schematic(
     State(ctx): State<ApiContext>,
     session: Session,
-    TypedMultipart(form): TypedMultipart<SchematicBuilder>,
+    Valid(TypedMultipart(form)): Valid<TypedMultipart<SchematicBuilder>>,
 ) -> ApiResult<Json<Schematic>> {
     let mut transaction = ctx.pool.begin().await?;
 
@@ -476,7 +485,7 @@ async fn upload_schematic(
 )]
 async fn search_schematics(
     State(ctx): State<ApiContext>,
-    Query(query): Query<SearchQuery>,
+    Valid(Query(query)): Valid<Query<SearchQuery>>,
 ) -> ApiResult<Json<Vec<FullSchematic>>> {
     let tags = query.tag_ids.unwrap_or_default();
     let ordering = query.sort.unwrap_or(SortBy::CreatedAt);

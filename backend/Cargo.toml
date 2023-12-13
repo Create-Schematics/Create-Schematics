@@ -15,6 +15,7 @@ discord-oauth = []
 axum = { version = "0.7.2", features = ["tracing", "macros"] }
 axum-extra = { version = "0.9.0", features = ["typed-routing"] }
 axum_typed_multipart = "0.11.0"
+axum-valid = { version = "0.12.0", features = ["typed_multipart"] }
 
 tower = "0.4.13"
 tower-http = { version = "0.5.0", features = ["trace", "fs", "cors", "auth", "add-extension", "util"] } 
@@ -55,6 +56,7 @@ sanitize-filename = "0.5.0"
 tempfile = "3.8.1"
 image = "0.24.7"
 webp = "0.2.6"
+rustrict = "0.7.19"
 
 [dev-dependencies]
 axum-test = "14.0.0"
