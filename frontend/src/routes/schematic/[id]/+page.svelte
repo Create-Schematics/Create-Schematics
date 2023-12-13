@@ -12,7 +12,7 @@
 </script>
 
 <svelte:head>
-  <title>{schematic} - Create Schematics</title>
+  <title>{schematic.schematic_name} - Create Schematics</title>
 </svelte:head>
 
 <main class="max-w-6xl w-[calc(100vw-2rem)] flex flex-col mx-auto gap-3">
@@ -20,13 +20,7 @@
     <div
       class="flex md:w-2/3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners"
     >
-      <Slider
-        images={[
-          "https://picsum.photos/700/500",
-          "https://picsum.photos/700/500",
-          "https://picsum.photos/700/500",
-        ]}
-      />
+      <Slider images={schematic.images} />
     </div>
     <div
       class="flex flex-col gap-2 w-full md:w-1/3 justify-between bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners"
@@ -35,8 +29,8 @@
         <div class="p-3 pb-0">
           <h1 class="text-2xl font-bold">{schematic.schematic_name}</h1>
           <h3 class="text-xs text-opacity-50">
-            by <a href={`/user/${schematic.author}`} class="underline"
-              >{schematic.author}</a
+            by <a href={`/user/${schematic.author_name}`} class="underline"
+              >{schematic.author_name}</a
             >
           </h3>
         </div>
@@ -47,13 +41,15 @@
             <h1 class="text-xl">{schematic.downloads}</h1>
             <span class="text-xs">Downloads</span>
           </div>
-          <div class="flex flex-col items-center w-full">
-            <h1 class="text-xl">60%</h1>
+          <div class="flex flex-col items-center w-full cursor-pointer">
+            <h1 class="text-xl">
+              {schematic.like_count}
+            </h1>
             <span class="text-xs">Likes</span>
           </div>
-          <div class="flex flex-col items-center w-full">
-            <h1 class="text-xl">894</h1>
-            <span class="text-xs">Views</span>
+          <div class="flex flex-col items-center w-full cursor-pointer">
+            <h1 class="text-xl">{schematic.dislike_count}</h1>
+            <span class="text-xs">Dislikes</span>
           </div>
         </div>
         <ul class="flex flex-wrap gap-2 px-2">
@@ -94,7 +90,7 @@
       </div>
       <div class="flex flex-col gap-3 p-3 pt-0">
         <a
-          href="create-schem://123124"
+          href={schematic.files[0]}
           style="--checker-color: #fff1"
           class="w-full no-default-link bg-create-blue text-xl hover:text-slate-100 font-bold p-2 text-center pixel-corners bg-checker text-white"
           >Download</a
@@ -136,6 +132,7 @@
     {#if selectedOption === "details"}
       <div class="bg-white dark:bg-black/30 p-4 pixel-corners">
         details, whatever those are
+        {schematic.files[0]}
       </div>
     {/if}
     {#if selectedOption === "comments"}
