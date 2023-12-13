@@ -45,6 +45,10 @@ impl Modify for AuthenticationModifier {
         v1::images::get_images_from_schematic,
         v1::images::upload_image_to_schematic,
         v1::images::remove_image_from_schematic,
+
+        v1::files::get_files_from_schematic,
+        v1::files::upload_file_to_schematic,
+        v1::files::remove_file_from_schematic,
         
         v1::comments::get_comments_by_schematic,
         v1::comments::post_comment,
@@ -92,6 +96,10 @@ impl Modify for AuthenticationModifier {
         v1::images::Images,
         v1::images::UploadImage,
         v1::images::DeleteImage,
+
+        v1::files::Files,
+        v1::files::UploadFile,
+        v1::files::DeleteFile,
         
         crate::models::comment::Comment,
 

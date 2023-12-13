@@ -7,7 +7,12 @@ use axum_typed_multipart::{TypedMultipart, TryFromMultipart};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::{api::ApiContext, response::ApiResult, error::ApiError, models::user::{User, Permissions}, authentication::session::Session};
+use crate::authentication::session::Session;
+use crate::models::user::{User, Permissions};
+use crate::error::ApiError;
+use crate::response::ApiResult;
+use crate::api::ApiContext;
+use crate::error::ResultExt;
 
 use super::comments::PaginationQuery;
 
@@ -418,7 +423,8 @@ async fn add_schematic_to_collection(
         form.schematic_id,
     )
     .execute(&mut *transaction)
-    .await?;
+    .await
+    .on_constraint("collection_entries_pkey", |_| ApiError::Conflict)?;
 
     transaction.commit().await?;
 
