@@ -37,9 +37,6 @@ pub (in crate::api) struct FullSchematic {
     pub author_avatar: Option<String>,
 
     #[schema(example=0)]
-    pub favorite_count: i64,
-
-    #[schema(example=0)]
     pub like_count: i64,
 
     #[schema(example=0)]
@@ -250,15 +247,13 @@ async fn get_schematic_by_id(
             game_version_name, 
             coalesce(array_agg(tag_id) filter (where tag_id is not null), array []::bigint[]) as "tags!",
             coalesce(count(likes.schematic_id) filter (where positive = true), 0) as "like_count!",
-            coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!",
-            coalesce(count(favorites.schematic_id), 0) as "favorite_count!"
+            coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!"
         from 
             schematics
             inner join create_versions using (create_version_id)
             inner join game_versions using (game_version_id)
             inner join users on user_id = author
             left join schematic_likes likes using (schematic_id)
-            left join favorites using (schematic_id)
             left join applied_tags using (schematic_id)
         where 
             schematic_id = $1
@@ -505,15 +500,13 @@ async fn search_schematics(
             game_version_name,
             coalesce(array_agg(tag_id) filter (where tag_id is not null), array []::bigint[]) as "tags!",
             coalesce(count(likes.schematic_id) filter (where positive = true), 0) as "like_count!",
-            coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!",
-            coalesce(count(favorites.schematic_id), 0) as "favorite_count!"
+            coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!"
         from 
             schematics
             inner join create_versions using (create_version_id)
             inner join game_versions using (game_version_id)
             inner join users on user_id = author
             left join schematic_likes likes using (schematic_id)
-            left join favorites using (schematic_id)
             left join applied_tags using (schematic_id)
         where 
             ($1::text is null or schematic_name % $1)

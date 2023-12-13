@@ -3,7 +3,6 @@ use axum::Router;
 use crate::api::ApiContext;
 
 pub mod comments;
-pub mod favorites;
 pub mod schematics;
 pub mod likes;
 pub mod users;
@@ -19,7 +18,6 @@ pub (in crate::api) fn configure() -> Router<ApiContext> {
         .merge(images::configure())
         .merge(comments::configure())
         .merge(profile::configure())
-        .merge(favorites::configure())
         .merge(collections::configure())
         .merge(likes::configure())
         .merge(tags::configure())

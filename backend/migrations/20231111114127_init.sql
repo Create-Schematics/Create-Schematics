@@ -92,14 +92,6 @@ create table mod_dependencies
     primary key (schematic_id, mod_id)
 );
 
-create table favorites
-(
-    schematic_id uuid       not null references schematics (schematic_id) on delete cascade,
-    user_id      uuid        not null references users      (user_id)      on delete cascade,
-    created_at   timestamptz not null default now(),
-    primary key (schematic_id, user_id)
-);
-
 create table tags
 (
     tag_id     bigserial    primary key,

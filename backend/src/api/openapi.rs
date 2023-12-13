@@ -52,10 +52,6 @@ impl Modify for AuthenticationModifier {
         v1::comments::update_comment_by_id,
         v1::comments::delete_comment_by_id,
 
-        v1::favorites::get_favorites,
-        v1::favorites::favorite_schematic,
-        v1::favorites::unfavorite_schematic,
-
         v1::collections::collections_containing_schematic,
         v1::collections::get_users_collections,
         v1::collections::get_current_users_collections,
