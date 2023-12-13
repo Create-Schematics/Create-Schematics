@@ -33,6 +33,7 @@ impl Modify for AuthenticationModifier {
         v1::users::current_user,
         v1::users::update_current_user,
         v1::users::remove_current_user,
+        v1::users::fetch_user_by_id,
 
         v1::profile::get_uploaded_schematics,
 
@@ -84,6 +85,7 @@ impl Modify for AuthenticationModifier {
         crate::models::user::User,
         
         v1::users::UpdateUser,
+        v1::users::CurrentUser,
         
         crate::models::schematic::Schematic,
         

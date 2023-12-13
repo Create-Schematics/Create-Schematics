@@ -12,11 +12,11 @@ pub struct User {
     #[schema(example="https://example.com/avatar.png")]
     pub avatar: Option<String>,
 
+    #[schema(example="Hello world")]
+    pub about: Option<String>,
+
     #[schema(value_type=u64, example=7)]
     pub permissions: Permissions,
-
-    #[schema(example="email@email.com")]
-    pub email: String,
 }
 
 bitflags::bitflags! {

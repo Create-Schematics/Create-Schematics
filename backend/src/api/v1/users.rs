@@ -1,13 +1,14 @@
 use axum::Router;
 use axum::routing::get;
 use axum::Json;
-use axum::extract::State;
+use axum::extract::{State, Path};
 use tower_cookies::Cookies;
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 use crate::authentication::session::Session;
 use crate::error::{ApiError, ResultExt};
-use crate::models::user::User;
+use crate::models::user::{User, Permissions};
 use crate::response::ApiResult;
 use crate::api::ApiContext;
 
@@ -16,6 +17,33 @@ pub (in crate::api) struct UpdateUser {
     #[schema(example="My new username")]
     #[schema(min_length=3, max_length=20)]
     username: Option<String>,
+
+    #[schema(example="About me")]
+    about: Option<String>,
+
+    #[schema(example="https://example.com/avatar.png")]
+    avatar_url: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct CurrentUser {
+    pub user_id: Uuid,
+
+    #[schema(example="My username")]
+    #[schema(min_length=3, max_length=20)]
+    pub username: String,
+
+    #[schema(example="https://example.com/avatar.png")]
+    pub avatar: Option<String>,
+
+    #[schema(example="Hello world")]
+    pub about: Option<String>,
+
+    #[schema(value_type=u64, example=7)]
+    pub permissions: Permissions,
+
+    #[schema(example="email@email.com")]
+    pub email: String,
 }
 
 pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
@@ -26,6 +54,10 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
             .patch(update_current_user) 
             .delete(remove_current_user)
         )
+        .route(
+            "/users/:id",
+            get(fetch_user_by_id)
+        )
 }
 
 #[utoipa::path(
@@ -34,7 +66,7 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
     context_path = "/api/v1",
     tag = "v1",
     responses(
-        (status = 200, description = "Successfully found current users", body = User, content_type = "application/json"),
+        (status = 200, description = "Successfully found current users", body = CurrentUser, content_type = "application/json"),
         (status = 401, description = "You must be logged in"),
         (status = 500, description = "An error occurred while authenticating the user")
     ),
@@ -43,17 +75,53 @@ pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
 async fn current_user(
     State(ctx): State<ApiContext>,
     session: Session
+) -> ApiResult<Json<CurrentUser>> {
+    sqlx::query_as!(
+        CurrentUser,
+        r#"
+        select user_id, username, 
+               email, permissions,
+               avatar, about
+        from users
+        where user_id = $1
+        "#,
+        session.user_id
+    )
+    .fetch_optional(&ctx.pool)
+    .await?
+    .ok_or(ApiError::Unauthorized)
+    .map(Json)
+}
+
+#[utoipa::path(
+    get,
+    path = "/users",
+    context_path = "/api/v1/{user_id}",
+    tag = "v1",
+    params(
+        ("user_id" = Uuid, Path, description = "The id of the user to fetch")
+    ),
+    responses(
+        (status = 200, description = "Successfully found current users", body = User, content_type = "application/json"),
+        (status = 401, description = "You must be logged in"),
+        (status = 500, description = "An error occurred while authenticating the user")
+    ),
+    security(("session_cookie" = []))
+)]
+async fn fetch_user_by_id(
+    State(ctx): State<ApiContext>,
+    Path(user_id): Path<Uuid>
 ) -> ApiResult<Json<User>> {
     sqlx::query_as!(
         User,
         r#"
         select user_id, username, 
-               email, permissions,
+               permissions, about,
                avatar
         from users
         where user_id = $1
         "#,
-        session.user_id
+        user_id
     )
     .fetch_optional(&ctx.pool)
     .await?
@@ -70,7 +138,7 @@ async fn current_user(
         content = UpdateUser, description = "The values to update", content_type = "application/json"
     ),
     responses(
-        (status = 200, description = "Successfully updated the schematic", body = Schematic, content_type = "application/json"),
+        (status = 200, description = "Successfully updated the user", body = CurrentUser, content_type = "application/json"),
         (status = 401, description = "You need to be logged in to update your profile"),
         (status = 422, description = "An account witht that username already exists"),
         (status = 500, description = "An internal server error occurred")
@@ -81,25 +149,30 @@ async fn update_current_user(
     State(ctx): State<ApiContext>,
     session: Session,
     Json(form): Json<UpdateUser>
-) -> ApiResult<Json<User>> {
+) -> ApiResult<Json<CurrentUser>> {
     let mut transaction = ctx.pool.begin().await?;
 
     let user = sqlx::query_as!(
-        User,
+        CurrentUser,
         r#"
         update users
             set 
-                username = coalesce($1, username)
+                username = coalesce($1, username),
+                about = coalesce($2, about),
+                avatar = coalesce($3, avatar)
             where 
-                user_id = $2
+                user_id = $4
             returning
                 user_id,
                 username,
+                about,
                 email,
                 avatar,
                 permissions
         "#,
         form.username,
+        form.about,
+        form.avatar_url,
         session.user_id
     )
     .fetch_optional(&mut *transaction)
