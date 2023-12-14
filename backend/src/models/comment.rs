@@ -1,12 +1,12 @@
+use poem_openapi_derive::Object;
 use sqlx::Postgres;
-use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::{response::ApiResult, error::ApiError};
 
 use super::user::{User, Permissions};
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Serialize, Object)]
 pub struct Comment {
     pub comment_id: Uuid,
     pub comment_author: Uuid,

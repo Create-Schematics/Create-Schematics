@@ -1,5 +1,5 @@
+use poem_openapi_derive::Object;
 use sqlx::Postgres;
-use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::error::ApiError;
@@ -7,29 +7,16 @@ use crate::response::ApiResult;
 
 use super::user::{User, Permissions};
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Serialize, Object)]
 pub struct Schematic {
     pub schematic_id: Uuid,
-
     pub body: String,
-
     pub schematic_name: String,
-
-    #[schema(example=4, minimum=1)]
     pub game_version_id: i32,
-
-    #[schema(example=8, minimum=1)]
     pub create_version_id: i32,
-
     pub author: Uuid,
-
-    #[schema(min_length=1)]
     pub images: Vec<String>,
-    
-    #[schema(min_length=1)]
     pub files: Vec<String>,
-
-    #[schema(example=0)]
     pub downloads: i64,
 }
 

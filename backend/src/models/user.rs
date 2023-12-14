@@ -1,26 +1,17 @@
-use utoipa::ToSchema;
+use poem_openapi_derive::Object;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Object)]
 pub struct User {
     pub user_id: Uuid,
-
-    #[schema(example="My username")]
-    #[schema(min_length=3, max_length=20)]
     pub username: String,
-
-    #[schema(example="https://example.com/avatar.png")]
     pub avatar: Option<String>,
-
-    #[schema(example="Hello world")]
     pub about: Option<String>,
-
-    #[schema(value_type=u64, example=7)]
     pub permissions: Permissions,
 }
 
 bitflags::bitflags! {
-    #[derive(Debug, Serialize, Deserialize, ToSchema)]
+    #[derive(Debug, Serialize, Deserialize)]
     #[serde(transparent)]
     pub struct Permissions: u32 {
         const MODERATE_COMMENTS = 1 << 1;
