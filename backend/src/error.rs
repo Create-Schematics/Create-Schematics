@@ -1,7 +1,9 @@
-use axum::http::header::WWW_AUTHENTICATE;
-use axum::http::{HeaderMap, HeaderValue, StatusCode};
-use axum::response::{IntoResponse, Response};
-use axum::Json;
+use poem::web::headers::Header;
+use poem::{IntoResponse, Response};
+use poem::http::StatusCode;
+use poem::http::header::WWW_AUTHENTICATE;
+use poem::http::HeaderMap;
+use poem_openapi::payload::Json;
 use sqlx::error::DatabaseError;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -33,7 +35,6 @@ pub enum ApiError {
     #[error("insufficient permissions to perform this action")]
     Forbidden,
 
-    
     // Return '404' Not Found
     #[error("resource not found")]
     NotFound,
@@ -64,17 +65,6 @@ pub enum ApiError {
     /// See `ResultExt` below for a convenient way to do this.
     #[error("an error occurred with the database")]
     Sqlx(#[from] sqlx::Error),
-
-    /// Automatically return `500 Internal Server Error` on a `deadpool_redis::PoolError`.
-    ///
-    /// Via the generated `From<deadpool_redis::PoolError> for Error` impl,
-    /// this allows using `?` on database calls in handler functions without a manual mapping step.
-    ///
-    /// The actual error message isn't returned to the client for security reasons.
-    /// It should be logged instead.
-    /// 
-    #[error("an error occurred with the database")]
-    RedisPool(#[from] deadpool_redis::PoolError),
 
     /// Automatically return `500 Internal Server Error` on a `redis::RedisError`.
     ///
@@ -146,7 +136,7 @@ impl IntoResponse for ApiError {
                 struct Errors {
                     errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>,
                 }
-
+                    
                 return (StatusCode::UNPROCESSABLE_ENTITY, Json(Errors { errors })).into_response();
             },
 
@@ -157,7 +147,7 @@ impl IntoResponse for ApiError {
                     // for the `401 Unauthorized` response code:
                     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
                     //
-                    [(WWW_AUTHENTICATE, HeaderValue::from_static("Token"))]
+                    [(WWW_AUTHENTICATE, Header::from_static("Token"))]
                         .into_iter()
                         .collect::<HeaderMap>(),
                     self.to_string(),
@@ -167,10 +157,6 @@ impl IntoResponse for ApiError {
 
             Self::Sqlx(ref e) => {
                 tracing::error!("SQLx error: {:?}", e);
-            }
-
-            Self::RedisPool(ref e) => {
-                tracing::error!("Redis pool error: {:?}", e);
             }
 
             Self::Redis(ref e) => {
