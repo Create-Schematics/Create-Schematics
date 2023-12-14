@@ -128,6 +128,9 @@ impl ImageApi {
     /// Each schematic must have at least one image so requests to remove the
     /// final one will be rejected with a `400 Bad Request` response.
     /// 
+    /// This endpoint requires the user to either own the schematic or have
+    /// permissions to moderate schematics.
+    /// 
     #[oai(path="/schematics/:id/images", method="delete")]
     async fn remove_image_from_schematic(
         &self,
