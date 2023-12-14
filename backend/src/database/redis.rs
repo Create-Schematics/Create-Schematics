@@ -2,8 +2,7 @@
 use std::fmt::Display;
 
 use clap::Args;
-use deadpool_redis::{Config, Runtime};
-use redis::{FromRedisValue, ToRedisArgs};
+use redis::{FromRedisValue, ToRedisArgs, aio::ConnectionManager, Client};
 
 use crate::response::ApiResult;
 
@@ -18,7 +17,7 @@ pub struct StartCommandRedisArguments {
 }
 
 #[derive(Clone)]
-pub struct RedisPool(pub deadpool_redis::Pool);
+pub struct RedisPool(pub ConnectionManager);
 
 pub fn connect(
     StartCommandRedisArguments {
@@ -26,12 +25,9 @@ pub fn connect(
         ..
     }: StartCommandRedisArguments,
 ) -> Result<RedisPool, anyhow::Error> {
-    let pool = Config::from_url(redis_url)
-        .builder()?
-        .runtime(Runtime::Tokio1)
-        .build()?;
+    let client = Client::open(redis_url)?;
 
-    Ok(RedisPool(pool))
+    Ok(RedisPool(ConnectionManager::new(client)))
 }
 
 impl RedisPool {
