@@ -1,9 +1,8 @@
-use poem::web::headers::Header;
+use poem::web::Json;
 use poem::{IntoResponse, Response};
-use poem::http::StatusCode;
+use poem::http::{StatusCode, HeaderValue};
 use poem::http::header::WWW_AUTHENTICATE;
 use poem::http::HeaderMap;
-use poem_openapi::payload::Json;
 use sqlx::error::DatabaseError;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -141,18 +140,15 @@ impl IntoResponse for ApiError {
             },
 
             Self::Unauthorized => {
-                return (
-                    self.status_code(),
-                    // Include the `WWW-Authenticate` challenge required in the specification
-                    // for the `401 Unauthorized` response code:
-                    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
-                    //
-                    [(WWW_AUTHENTICATE, Header::from_static("Token"))]
-                        .into_iter()
-                        .collect::<HeaderMap>(),
-                    self.to_string(),
-                )
-                    .into_response();
+                let mut headers = HeaderMap::new();
+                
+                // Include the `WWW-Authenticate` challenge required in the specification
+                // for the `401 Unauthorized` response code:
+                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+                //
+                headers.append(WWW_AUTHENTICATE, HeaderValue::from_static("session"));
+
+                return (headers, self.status_code()).into_response();
             }
 
             Self::Sqlx(ref e) => {
