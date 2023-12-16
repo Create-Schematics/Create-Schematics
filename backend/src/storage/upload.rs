@@ -1,10 +1,8 @@
 use std::path::PathBuf;
 
-use axum::body::Bytes;
-use axum_typed_multipart::FieldData;
 use tempfile::{Builder, TempDir};
 use uuid::Uuid;
-use crate::error::ApiError;
+use crate::{error::ApiError, middleware::files::FileUpload};
 
 pub fn build_upload_directory(
     schematic_id: &Uuid
@@ -18,8 +16,8 @@ pub fn build_upload_directory(
 
 pub async fn save_schematic_files(
     dir: &TempDir,
-    files: Vec<FieldData<Bytes>>,
-    images: Vec<FieldData<Bytes>>
+    files: Vec<FileUpload>,
+    images: Vec<FileUpload>
 ) -> Result<(Vec<String>, Vec<String>), ApiError> {
     let schematic_dir = dir.path().join(super::SCHEMATIC_PATH);
     let schematics = save_schematics(schematic_dir, files)?;
@@ -30,7 +28,7 @@ pub async fn save_schematic_files(
     Ok((schematics, images))
 }   
 
-fn save_images(location: PathBuf, images: Vec<FieldData<Bytes>>) -> Result<Vec<String>, ApiError> {
+fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
     let mut files: Vec<String> = vec![];
 
     std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
@@ -56,7 +54,7 @@ fn save_images(location: PathBuf, images: Vec<FieldData<Bytes>>) -> Result<Vec<S
     Ok(files)
 }
 
-fn save_schematics(location: PathBuf, files: Vec<FieldData<Bytes>>) -> Result<Vec<String>, ApiError> {
+fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
     let mut output: Vec<String> = vec![];
 
     std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
