@@ -1,17 +1,15 @@
 create table users
 (
-    user_id      uuid        primary key default uuid_generate_v1mc(),
-    username     text        not null,
-    avatar       text,
-    email        text        not null    unique collate "case_insensitive",
-    about        text,       
-    github_id    text                    unique,
-    discord_id   text                    unique,
-    google_id    text                    unique,
-    microsoft_id text                    unique,
-    permissions  integer     not null,
-    created_at   timestamptz not null    default now(),
-    updated_at   timestamptz
+    user_id        uuid        primary key default uuid_generate_v1mc(),
+    username       text        not null,
+    avatar         text,
+    email          text                    unique collate "case_insensitive",
+    oauth_provider text        not null,
+    oauth_id       text        not null,
+    about          text,       
+    permissions    integer     not null,
+    created_at     timestamptz not null    default now(),
+    updated_at     timestamptz
 );
 
 select trigger_updated_at('users');
