@@ -12,7 +12,7 @@ google-oauth = []
 discord-oauth = []
 
 [dependencies]
-poem = { version = "1.3.59", features = ["cookie", "multipart", "session", "redis-session" ] }
+poem = { version = "1.3.59", features = ["cookie", "multipart"] }
 poem-openapi = { version = "3.0.6", features = ["swagger-ui", "time", "uuid", "static-files"] }
 poem-openapi-derive = "3.0.6"
 
