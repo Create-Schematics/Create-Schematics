@@ -10,17 +10,16 @@ use crate::error::ApiError;
 use crate::response::ApiResult;
 use crate::api::ApiContext;
 
-use super::comments::PaginationQuery;
 
 pub (in crate::api::v1) struct TagsApi;
 
 #[derive(Debug, Deserialize, Object)]
-pub (in crate::api) struct Tags {
+pub (in crate::api::v1) struct Tags {
     pub tag_names: Vec<i64>,
 }
 
 #[derive(Debug, Serialize, Object)]
-pub (in crate::api) struct FullTag {
+pub (in crate::api::v1) struct FullTag {
     pub tag_id: i64,
     pub tag_name: String,
 }
@@ -64,7 +63,8 @@ impl TagsApi {
     async fn get_valid_tags(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Query(query): Query<PaginationQuery>
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>
     ) -> ApiResult<Json<Vec<FullTag>>> {
         let tags = sqlx::query_as!(
             FullTag,
@@ -73,8 +73,8 @@ impl TagsApi {
             from tags
             limit $1 offset $2
             "#,
-            query.limit.unwrap_or(20),
-            query.offset.unwrap_or(0)
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
         )
         .fetch_all(&ctx.pool)
         .await?;
@@ -91,7 +91,7 @@ impl TagsApi {
     async fn tag_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Session,
+        Session(user_id): Session,
         Path(schematic_id): Path<Uuid>,
         Json(query): Json<Tags>
     ) -> ApiResult<()> {
@@ -103,7 +103,7 @@ impl TagsApi {
         .await?
         .ok_or(ApiError::NotFound)?;
 
-        if schematic_meta.author != session.user_id {
+        if schematic_meta.author != user_id {
             return Err(ApiError::Forbidden.into());
         }
 
@@ -139,7 +139,7 @@ impl TagsApi {
     async fn untag_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Session,
+        Session(user_id): Session,
         Path(schematic_id): Path<Uuid>,
         Json(query): Json<Tags>
     ) -> ApiResult<()> {
@@ -151,7 +151,7 @@ impl TagsApi {
         .await?
         .ok_or(ApiError::NotFound)?;
 
-        if schematic_meta.author != session.user_id {
+        if schematic_meta.author != user_id {
             return Err(ApiError::Forbidden.into());
         }
 
