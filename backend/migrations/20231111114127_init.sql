@@ -7,7 +7,7 @@ create table users
     oauth_provider text        not null,
     oauth_id       text        not null,
     about          text,       
-    permissions    integer     not null,
+    role           text        not null    default 'user',
     created_at     timestamptz not null    default now(),
     updated_at     timestamptz
 );
