@@ -57,7 +57,7 @@ pub (in crate::api::v1) struct CollectionEntry {
     pub schematic_id: Uuid,
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl CollectionsApi {
 
     /// Fetches a number of collections that contain a given schematic including
@@ -67,7 +67,7 @@ impl CollectionsApi {
     /// Note that private collections even if the user requesting them is the
     /// owner will not be returned from this endpoint.
     /// 
-    #[oai(path = "/schematics/:id/collections", method = "get")]
+    #[oai(path = "/schematics/:schematic_id/collections", method = "get")]
     async fn collections_containing_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -114,7 +114,7 @@ impl CollectionsApi {
     /// then `404 Not Found` will be returned even if the collection does exist
     /// for privacy
     /// 
-    #[oai(path = "/collections/:id", method = "get")]
+    #[oai(path = "/collections/:collection_id", method = "get")]
     async fn get_collection_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -158,7 +158,7 @@ impl CollectionsApi {
     /// refer to `/api/v1/collections` which fetches collections owned by the 
     /// current user
     /// 
-    #[oai(path = "/users/:id/collections", method = "get")]
+    #[oai(path = "/users/:user_id/collections", method = "get")]
     async fn get_users_collections(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -285,7 +285,7 @@ impl CollectionsApi {
     /// If you are looking to add a schematic to add a schematic to the collection
     /// see `POST /api/v1/collections/{id}/schematics`
     /// 
-    #[oai(path = "/collections/:id", method = "patch")]
+    #[oai(path = "/collections/:collection_id", method = "patch")]
     async fn update_collection_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -336,7 +336,7 @@ impl CollectionsApi {
     /// If you are looking to fetch information about the collection itself
     /// see `GET /collections/:id`
     /// 
-    #[oai(path = "/collections/:id/schematics", method = "get")]
+    #[oai(path = "/collections/:collection_id/schematics", method = "get")]
     async fn fetch_collection_entries(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -380,7 +380,7 @@ impl CollectionsApi {
     /// a given colleciton twice, if the collection already contains the new
     /// schematic then a `409 Conflict` will be returned.
     /// 
-    #[oai(path = "/collections/:id/schematics", method = "post")]
+    #[oai(path = "/collections/:collection_id/schematics", method = "post")]
     async fn add_schematic_to_collection(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -428,7 +428,7 @@ impl CollectionsApi {
     /// If you are looking to entirely remove a collection not just specific 
     /// schematics within it see `DELETE /api/v1/collections/:id`
     /// 
-    #[oai(path = "/collections/:id/schematics", method = "delete")]
+    #[oai(path = "/collections/:collection_id/schematics", method = "delete")]
     async fn remove_schematic_from_collection(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -474,7 +474,7 @@ impl CollectionsApi {
     /// If you are looking to remove a specific schematic from a collection
     /// see `DELETE /api/v1/collections/:id/schematics`
     /// 
-    #[oai(path = "/collections/:id", method = "delete")]
+    #[oai(path = "/collections/:collection_id", method = "delete")]
     async fn remove_collection_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,

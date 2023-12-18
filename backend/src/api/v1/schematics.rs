@@ -89,7 +89,7 @@ impl fmt::Display for SortBy {
     }
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl SchematicsApi {
 
     /// Fetches a given schematic by it's id including some additional information
@@ -100,7 +100,7 @@ impl SchematicsApi {
     /// If you are looking to search for schematics not for a specific one see
     /// `GET /api/v1/schematics`
     /// 
-    #[oai(path = "/schematics/:id", method = "get")]
+    #[oai(path = "/schematics/:schematic_id", method = "get")]
     async fn get_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -176,7 +176,7 @@ impl SchematicsApi {
     /// This endpoint requires for the current user to either own the schematic
     /// or to have permission to moderate posts 
     /// 
-    #[oai(path = "/schematics/:id", method = "post")]
+    #[oai(path = "/schematics/:schematic_id", method = "post")]
     async fn update_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -239,7 +239,7 @@ impl SchematicsApi {
     /// This endpoint requires for the current user to either own the schematic
     /// or to have permissiosn to moderate posts
     /// 
-    #[oai(path = "/schematics/:id", method = "delete")]
+    #[oai(path = "/schematics/:schematic_id", method = "delete")]
     async fn delete_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,

@@ -27,7 +27,7 @@ impl LikeAction {
     }
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl LikesApi {
     
     /// Adds either a like or dislike reaction to a schematic by the current user.
@@ -36,7 +36,7 @@ impl LikesApi {
     /// 
     /// If you are looking to remove a like see the `DELETE /api/v1/schematics/:id/like`
     ///  
-    #[oai(path = "/schematics/:id/like", method="get")]
+    #[oai(path = "/schematics/:schematic_id/like", method="get")]
     async fn like_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,    
@@ -73,7 +73,7 @@ impl LikesApi {
     /// If the user hasnt already liked the schematic or a schematic with the given
     /// id doesnt exist then a `404 Not Found` error will be returned
     /// 
-    #[oai(path = "/schematics/:id/like", method="delete")]
+    #[oai(path = "/schematics/:schematic_id/like", method="delete")]
     async fn remove_like_from_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,    

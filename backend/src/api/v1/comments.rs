@@ -32,7 +32,7 @@ pub (in crate::api::v1) struct UpdateComment {
     pub comment_body: Option<String>
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl CommentsApi {
 
     /// Fetches a number of the comments on a schematic as well as some basic
@@ -44,7 +44,7 @@ impl CommentsApi {
     /// Note that comment bodies can contain markdown which will need to be 
     /// handled accordingly
     /// 
-    #[oai(path = "/schematics/:id/comments", method = "get")]
+    #[oai(path = "/schematics/:schematic_id/comments", method = "get")]
     async fn get_comments_by_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,        
@@ -88,7 +88,7 @@ impl CommentsApi {
     /// contact us either on github or through other chanels provided in the 
     /// openapi spec.
     /// 
-    #[oai(path = "/schematics/:id/comments", method = "post")]
+    #[oai(path = "/schematics/:schematic_id/comments", method = "post")]
     async fn post_comment(
         &self,
         Data(ctx): Data<&ApiContext>,  
@@ -136,7 +136,7 @@ impl CommentsApi {
     /// If you are looking to fetch comments from a schematic see 
     /// `GET /schematics/:id/comments`
     /// 
-    #[oai(path = "/comments/:id", method = "get")]
+    #[oai(path = "/comments/:comment_id", method = "get")]
     async fn get_comment_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,  
@@ -173,7 +173,7 @@ impl CommentsApi {
     /// The current user must also own the comment even if they have permission to
     /// moderate comments
     /// 
-    #[oai(path = "/comments/:id", method = "patch")]
+    #[oai(path = "/comments/:comment_id", method = "patch")]
     async fn update_comment_by_id(
         &self,
         Data(ctx): Data<&ApiContext>, 
@@ -225,7 +225,7 @@ impl CommentsApi {
     /// current user to either own the comment or have permission to moderate
     /// comments
     /// 
-    #[oai(path = "/comments/:id", method = "delete")]
+    #[oai(path = "/comments/:comment_id", method = "delete")]
     async fn delete_comment_by_id(
         &self,
         Data(ctx): Data<&ApiContext>, 

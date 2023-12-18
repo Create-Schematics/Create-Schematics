@@ -32,7 +32,7 @@ pub struct DeleteImage {
     pub file_name: String
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl ImageApi {
 
     /// Fetches the file names of all images associated with a given schematic
@@ -41,7 +41,7 @@ impl ImageApi {
     /// retrieved from the static file endpoint here
     /// `GET /upload/schematics/{schematic_id}/images/{image_name}.{extension}`
     /// 
-    #[oai(path="/schematics/:id/images", method="get")]
+    #[oai(path="/schematics/:schematic_id/images", method="get")]
     async fn get_images_from_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,    
@@ -74,7 +74,7 @@ impl ImageApi {
     /// Aswell as this file names cannot contain profanity if the file name is deemed
     /// to be profane the request will be rejected 
     /// 
-    #[oai(path="/schematics/:id/images", method="post")]
+    #[oai(path="/schematics/:schematic_id/images", method="post")]
     async fn upload_image_to_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,  
@@ -145,7 +145,7 @@ impl ImageApi {
     /// This endpoint requires the user to either own the schematic or have
     /// permissions to moderate schematics.
     /// 
-    #[oai(path="/schematics/:id/images", method="delete")]
+    #[oai(path="/schematics/:schematic_id/images", method="delete")]
     async fn remove_image_from_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,   

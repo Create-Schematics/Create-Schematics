@@ -24,14 +24,14 @@ pub (in crate::api::v1) struct FullTag {
     pub tag_name: String,
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl TagsApi {
 
     /// Fetch all the tags applied to a given schematic
     /// 
     /// This also includes the name of each tag aswell as their underlying id
     /// 
-    #[oai(path = "/schematics/:id/tags", method = "get")]
+    #[oai(path = "/schematics/:schematic_id/tags", method = "get")]
     async fn get_schematic_tags(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -87,7 +87,7 @@ impl TagsApi {
     /// 
     /// This requires for the current user to be the schematics author
     /// 
-    #[oai(path = "/schematis/:id/tags", method = "post")]
+    #[oai(path = "/schematis/:schematic_id/tags", method = "post")]
     async fn tag_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -135,7 +135,7 @@ impl TagsApi {
     /// 
     /// This requires for the current user to be the schematics author
     /// 
-    #[oai(path = "/schematis/:id/tags", method = "delete")]
+    #[oai(path = "/schematis/:schematic_id/tags", method = "delete")]
     async fn untag_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,

@@ -34,7 +34,7 @@ pub struct CurrentUser {
     pub email: Option<String>,
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl UsersApi {
 
     /// Fetches information about the current user including their email
@@ -64,7 +64,7 @@ impl UsersApi {
 
     /// Fetches a user by their id, for privacy their email will not be included
     /// 
-    #[oai(path="/users/:id", method = "get")]
+    #[oai(path="/users/:user_id", method = "get")]
     async fn fetch_user_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -92,7 +92,7 @@ impl UsersApi {
     /// 
     /// If a limit is not specified 20 will be fetched by default.
     /// 
-    #[oai(path="/users/:id/schematics", method = "get")]
+    #[oai(path="/users/:user_id/schematics", method = "get")]
     async fn get_uploaded_schematics(
         &self,
         Data(ctx): Data<&ApiContext>,

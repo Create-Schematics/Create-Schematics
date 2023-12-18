@@ -15,8 +15,6 @@ pub struct OpenApiSchemaCommandArguements {
 
 pub fn save_schema(
     OpenApiSchemaCommandArguements {
-        yaml,
-        json,
         ..
     }: OpenApiSchemaCommandArguements
 ) -> Result<(), anyhow::Error>{

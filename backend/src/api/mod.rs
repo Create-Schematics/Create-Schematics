@@ -82,8 +82,8 @@ pub async fn init(
 
     let app = Route::new()
         .nest("/api", Route::new()
-            .at("/", api_service)
-            .at("/swagger-ui", swagger)
+            .nest("/", api_service)
+            .nest("/swagger-ui", swagger)
             .at("/openapi.json", json_spec)
             .at("/openapi.yaml", yaml_spec)
         )
@@ -109,8 +109,6 @@ pub async fn init(
         )
         .with(CookieJarManager::new())
         .data(ApiContext { pool, redis_pool });
-
-    tracing::info!("Listening on http://{}", listen_address);
 
     Server::new(TcpListener::bind(listen_address))
         .run(app)

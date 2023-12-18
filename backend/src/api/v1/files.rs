@@ -34,7 +34,7 @@ pub struct DeleteFile {
     pub file_name: String
 }
 
-#[OpenApi(prefix_path="/api/v1")]
+#[OpenApi(prefix_path="/v1")]
 impl FileApi {
 
     /// Fetches the name of all uploaded schematic files on a given schematic
@@ -44,7 +44,7 @@ impl FileApi {
     /// id for the given schematic and file_name for one of the values returned
     /// here `GET /upload/schematics/{schematic_id}/files/{file_name}.nbt`
     /// 
-    #[oai(path = "/schematics/:id/files", method = "get")]
+    #[oai(path = "/schematics/:schematic_id/files", method = "get")]
     async fn get_files_from_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,    
@@ -74,7 +74,7 @@ impl FileApi {
     /// there are conflicting file names `422 Unprocessable Entity` will be returned
     /// with a message explaining this
     ///  
-    #[oai(path = "/schematics/:id/files", method = "post")]
+    #[oai(path = "/schematics/:schematic_id/files", method = "post")]
     async fn upload_file_to_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,    
@@ -143,7 +143,7 @@ impl FileApi {
     /// This requires the current to user to either own the schematic or have
     /// permissions to moderate schematics
     /// 
-    #[oai(path = "/schematics/:id/files", method = "delete")]
+    #[oai(path = "/schematics/:schematic_id/files", method = "delete")]
     async fn remove_file_from_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,   
