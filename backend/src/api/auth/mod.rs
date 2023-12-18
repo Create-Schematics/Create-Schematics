@@ -47,7 +47,7 @@ impl RedirectResponse {
     }
 }
 
-#[OpenApi(prefix_path="/api")]
+#[OpenApi]
 impl AuthApi {
     #[oai(path = "/auth/:provider", method = "get")]
     async fn oauth_authorization(
