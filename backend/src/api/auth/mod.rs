@@ -1,18 +1,18 @@
 
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
 use oauth2::{AuthorizationCode, TokenResponse};
 use oauth2::reqwest::async_http_client;
-use poem::web::{Data, Redirect};
+use poem::web::cookie::CookieJar;
+use poem::web::Data;
 use poem_openapi::OpenApi;
 use poem_openapi::param::{Path, Query};
-use poem_openapi_derive::Object;
+use poem_openapi_derive::ApiResponse;
 use reqwest::header;
 use uuid::Uuid;
 
 use crate::authentication::oauth::{OauthUser, OauthProvider};
-use crate::authentication::session::Session;
-use crate::models::user::Permissions;
+use crate::authentication::session::UserSession;
 use crate::response::ApiResult;
 
 use super::ApiContext;
@@ -30,11 +30,21 @@ pub fn configure() -> impl OpenApi {
     AuthApi
 }
 
-pub (in crate::api) struct AuthApi;
+pub struct AuthApi;
 
-#[derive(Debug, Deserialize, Object)]
-pub (in crate::api) struct AuthRequest {
-    pub code: String,
+#[derive(ApiResponse)]
+pub enum RedirectResponse {
+    #[oai(status = 302)]
+    Found(#[oai(header = "location")] String)
+}
+
+impl RedirectResponse {
+    pub fn to<T>(location: T) -> Self 
+    where
+        T: Into<String>
+    {
+        Self::Found(location.into())
+    }
 }
 
 #[OpenApi(prefix_path="/api")]
@@ -43,7 +53,7 @@ impl AuthApi {
     async fn oauth_authorization(
         &self,
         Path(provider): Path<OauthProvider>
-    ) -> ApiResult<Redirect> {
+    ) -> ApiResult<RedirectResponse> {
         let oauth_client = provider.build_client()?;
         
         let (auth_url, _csrf_state) = oauth_client
@@ -52,7 +62,7 @@ impl AuthApi {
             .add_scopes(oauth_client.scopes)
             .url();
 
-        Ok(Redirect::temporary(&auth_url.to_string()))
+        Ok(RedirectResponse::to(auth_url))
     }
 
     #[oai(path = "/auth/:provider/callback", method = "get")]
@@ -60,13 +70,14 @@ impl AuthApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(provider): Path<OauthProvider>,
-        Query(query): Query<AuthRequest>,
-    ) -> ApiResult<Redirect> {
+        Query(code): Query<String>,
+        cookies: &CookieJar
+    ) -> ApiResult<RedirectResponse> {
         let oauth_client = provider.build_client()?;
 
         let token = oauth_client
             .inner
-            .exchange_code(AuthorizationCode::new(query.code))
+            .exchange_code(AuthorizationCode::new(code))
             .request_async(async_http_client)
             .await
             .map_err(|e| anyhow::anyhow!(e))?;
@@ -90,12 +101,12 @@ impl AuthApi {
         let user_id = provider.get_or_create_user(oauth_user, &mut transaction).await?;
         transaction.commit().await?;
         
-        let session = Session::new_for_user(user_id);
+        let session = UserSession::new_for_user(user_id);
 
         session.save(&ctx.redis_pool).await?;
-        // cookies.add(session.into_cookie());
+        cookies.add(session.into_cookie());
 
-        Ok(Redirect::temporary("/"))
+        Ok(RedirectResponse::to("/"))
     }
 }
 
@@ -105,40 +116,39 @@ impl OauthProvider {
         user: OauthUser,
         transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     ) -> ApiResult<Uuid> {
+        let provider = self.to_string();
+
         let user_meta = sqlx::query!(
             r#"select user_id from users where oauth_provider = $1 and oauth_id = $2"#,
-            self, user.id
+            provider, user.oauth_id
         )
-        .fetch_optional(&mut *transaction)
+        .fetch_optional(&mut **transaction)
         .await?;
 
         if let Some(user_meta) = user_meta {
             return Ok(user_meta.user_id)
         } 
 
-        let permissions = Permissions::default().bits() as i32;
         let username = user.display_name.unwrap_or(user.username);  
 
         let user_id = sqlx::query!(
             r#"
             insert into users (
                 username, email, avatar,
-                oauth_provider, oauth_id,
-                permissions
+                oauth_provider, oauth_id
             )
             values (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5
             )
             returning user_id
             "#,
             username,
             user.email,
             user.avatar_url,
-            self,
+            provider,
             user.oauth_id,
-            permissions
         )
-        .fetch_one(&mut *transaction)
+        .fetch_one(&mut **transaction)
         .await?
         .user_id;
 
