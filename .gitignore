@@ -15,3 +15,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 backend/static/upload
+
+.idea/
