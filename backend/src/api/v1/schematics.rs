@@ -10,7 +10,6 @@ use uuid::Uuid;
 use crate::authentication::session::Session;
 use crate::error::{ApiError, ResultExt};
 use crate::middleware::files::FileUpload;
-use crate::models::user::{User, Permissions};
 use crate::response::ApiResult;
 use crate::models::schematic::Schematic;
 use crate::api::ApiContext;
@@ -63,19 +62,9 @@ pub (in crate::api::v1) struct UpdateSchematic {
     pub create_version: Option<i32>,
 }
 
-#[derive(Multipart, Debug)]
-pub (in crate::api::v1) struct SearchQuery {
-    #[oai(validator(minimum(value = "1"), maximum(value = "50")))]
-    pub limit: Option<i64>,
-    pub offset: Option<i64>,
-    pub tag_ids: Option<Vec<i64>>,
-    pub term: Option<String>,
-    pub sort: Option<SortBy>
-}
-
 #[derive(Enum, Deserialize, Debug)]
 #[serde(rename_all="snake_case")]
-pub (in crate::api) enum SortBy {
+pub enum SortBy {
     /// Fetch the schematics with the most downloads first
     /// 
     Downloads,
@@ -192,12 +181,22 @@ impl SchematicsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(schematic_id): Path<Uuid>,
-        user: User,
+        Session(user_id): Session,
         schematic: UpdateSchematic
     ) -> ApiResult<Json<Schematic>> {
         let mut transaction = ctx.pool.begin().await?;
 
-        Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+        if schematic_meta.author != user_id {
+            return Err(ApiError::Unauthorized);
+        }
 
         let schematic = sqlx::query_as!(
             Schematic,
@@ -245,15 +244,22 @@ impl SchematicsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(schematic_id): Path<Uuid>,
-        user: User
+        session: Session,
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
 
-        // This permission check could potentially be nicely merged into the
-        // subsequent query by checking like so in the where clause.
-        //
-        // and (author = $2 or (select permissions from users where user_id = $2) & $3 = $3)
-        Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+        if schematic_meta.author != session.user_id() &&
+                !session.is_moderator(&mut *transaction).await? {
+            return Err(ApiError::Unauthorized);
+        }
 
         // We dont need to ensure the user owns the schematic here or that they are the owner
         // as that has already been checked and in doing so validated that the schematic exists
@@ -267,7 +273,7 @@ impl SchematicsApi {
         .execute(&mut *transaction)
         .await?;
 
-        todo!("Remove schematic files");
+        // TODO: Remove schematic files
 
         transaction.commit().await?;
 
@@ -289,10 +295,14 @@ impl SchematicsApi {
     async fn search_schematics(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Query(query): Query<SearchQuery>,
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>,
+        Query(tag_ids): Query<Option<Vec<i64>>>,
+        Query(term): Query<Option<String>>,
+        Query(sort): Query<Option<SortBy>>,
     ) -> ApiResult<Json<Vec<FullSchematic>>> {
-        let tags = query.tag_ids.unwrap_or_default();
-        let ordering = query.sort.unwrap_or(SortBy::CreatedAt);
+        let tags = tag_ids.unwrap_or_default();
+        let ordering = sort.unwrap_or(SortBy::CreatedAt);
 
         let schematics = sqlx::query_as!(
             FullSchematic,
@@ -335,11 +345,11 @@ impl SchematicsApi {
             order by $3
             limit $4 offset $5
             "#,
-            query.term,
+            term,
             &tags,
             ordering.to_string(),
-            query.limit.unwrap_or(20),
-            query.offset.unwrap_or(0)
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
         )
         .fetch_all(&ctx.pool)
         .await?;
@@ -360,7 +370,7 @@ impl SchematicsApi {
     async fn upload_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Session,
+        Session(user_id): Session,
         form: SchematicBuilder
     ) -> ApiResult<Json<Schematic>> {
         let mut transaction = ctx.pool.begin().await?;
@@ -395,7 +405,7 @@ impl SchematicsApi {
             schematic_id,
             form.schematic_name,
             form.schematic_body,
-            session.user_id,
+            user_id,
             &images,
             &files,
             form.game_version,
@@ -405,9 +415,6 @@ impl SchematicsApi {
         .await
         .on_constraint("schematics_game_version_id_fkey", |_| {
             ApiError::unprocessable_entity([("game_version", "that version does not exist")])
-        })
-        .on_constraint("schematics_create_version_id_fkey", |_| {
-            ApiError::unprocessable_entity([("create_version", "that version does not exist")])
         })?;
         
         transaction.commit().await?;

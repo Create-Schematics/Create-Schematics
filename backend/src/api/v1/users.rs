@@ -7,16 +7,14 @@ use uuid::Uuid;
 use crate::authentication::session::Session;
 use crate::error::{ApiError, ResultExt};
 use crate::models::schematic::Schematic;
-use crate::models::user::{User, Permissions};
+use crate::models::user::{User, Role};
 use crate::response::ApiResult;
 use crate::api::ApiContext;
 
-use super::comments::PaginationQuery;
-
-pub (in crate::api::v1) struct UsersApi;
+pub struct UsersApi;
 
 #[derive(Debug, Deserialize, Object)]
-pub (in crate::api) struct UpdateUser {
+pub struct UpdateUser {
     #[oai(validator(min_length=3, max_length=30))]
     username: Option<String>,
     #[oai(validator(max_length=256))]
@@ -32,8 +30,8 @@ pub struct CurrentUser {
     pub avatar: Option<String>,
     #[oai(validator(max_length=256))]
     pub about: Option<String>,
-    pub permissions: Permissions,
-    pub email: String,
+    pub role: Role,
+    pub email: Option<String>,
 }
 
 #[OpenApi(prefix_path="/api/v1")]
@@ -45,18 +43,18 @@ impl UsersApi {
     async fn current_user(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Session
+        Session(user_id): Session
     ) -> ApiResult<Json<CurrentUser>> {
         sqlx::query_as!(
             CurrentUser,
             r#"
-            select user_id, username, 
-                   email, permissions,
-                   avatar, about
+            select user_id, username,
+                   email, about, role,
+                   avatar
             from users
             where user_id = $1
             "#,
-            session.user_id
+            user_id
         )
         .fetch_optional(&ctx.pool)
         .await?
@@ -76,8 +74,7 @@ impl UsersApi {
             User,
             r#"
             select user_id, username, 
-                   permissions, about,
-                   avatar
+                   avatar, role, about
             from users
             where user_id = $1
             "#,
@@ -100,7 +97,8 @@ impl UsersApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(user_id): Path<Uuid>,
-        Query(query): Query<PaginationQuery>
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>,
     ) -> ApiResult<Json<Vec<Schematic>>> {
         let schematics = sqlx::query_as!(
             Schematic,
@@ -114,8 +112,8 @@ impl UsersApi {
             limit $2 offset $3
             "#,
             user_id,
-            query.limit.unwrap_or(20),
-            query.offset.unwrap_or(0)
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
         )
         .fetch_all(&ctx.pool)
         .await?;
@@ -133,7 +131,7 @@ impl UsersApi {
     async fn update_current_user(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Session,
+        Session(user_id): Session,
         Json(form): Json<UpdateUser>
     ) -> ApiResult<Json<CurrentUser>> {
         let mut transaction = ctx.pool.begin().await?;
@@ -153,13 +151,13 @@ impl UsersApi {
                     username,
                     about,
                     email,
-                    avatar,
-                    permissions
+                    role,
+                    avatar
             "#,
             form.username,
             form.about,
             form.avatar_url,
-            session.user_id
+            user_id
         )
         .fetch_optional(&mut *transaction)
         .await
@@ -180,7 +178,7 @@ impl UsersApi {
     async fn remove_current_user(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Session,
+        Session(user_id): Session
     ) -> ApiResult<()>  {
         let mut transaction = ctx.pool.begin().await?;
 
@@ -189,12 +187,12 @@ impl UsersApi {
             delete from users
             where user_id = $1
             "#,
-            session.user_id
+            user_id
         )
         .execute(&mut *transaction)
         .await?;
 
-        todo!("Handle removing session");
+        // TDOO: Handle removing session
 
         transaction.commit().await?;
 

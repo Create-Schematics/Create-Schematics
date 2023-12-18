@@ -1,23 +1,18 @@
-use poem::web::Data;
 use poem_openapi::OpenApi;
 use poem_openapi::param::{Path, Query};
-use poem_openapi_derive::{Object, Enum};
+use poem_openapi_derive::Enum;
+use poem::web::Data;
 use uuid::Uuid;
 
+use crate::authentication::session::Session;
 use crate::error::ApiError;
 use crate::response::ApiResult;
-use crate::authentication::session::Session;
 use crate::api::ApiContext;
 
 pub (in crate::api::v1) struct LikesApi;
 
-#[derive(Deserialize, Debug, Object)]
-pub (in crate::api) struct LikeQuery {
-    action: Option<LikeAction> 
-}
-
 #[derive(Deserialize, Debug, Enum)]
-pub (in crate::api) enum LikeAction {
+pub (in crate::api::v1) enum LikeAction {
     #[serde(rename = "like")]
     Like,
 
@@ -45,16 +40,14 @@ impl LikesApi {
     async fn like_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,    
-        session: Session,
+        Session(user_id): Session,
         Path(schematic_id): Path<Uuid>,
-        Query(query): Query<LikeQuery>
+        Query(query): Query<LikeAction>
     ) -> ApiResult<()> {
-        let action = query.action.ok_or(ApiError::BadRequest)?;
-    
         sqlx::query!(
             r#"
             insert into schematic_likes (
-                schematic_id, user_id, 
+                schematic_id, user_id,
                 positive
             )
             values (
@@ -66,8 +59,8 @@ impl LikesApi {
             do update set positive = $3
             "#,
             schematic_id,
-            session.user_id,
-            action.positive()
+            user_id,
+            query.positive()
         )
         .execute(&ctx.pool)
         .await?;
@@ -84,7 +77,7 @@ impl LikesApi {
     async fn remove_like_from_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,    
-        session: Session,
+        Session(user_id): Session,
         Path(schematic_id): Path<Uuid>,
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
@@ -100,7 +93,7 @@ impl LikesApi {
             select
                 exists(select 1 from deleted_like) "deleted"
             "#,
-            session.user_id,
+            user_id,
             schematic_id
         )
         .fetch_one(&mut *transaction)

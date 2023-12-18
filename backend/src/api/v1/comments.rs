@@ -6,8 +6,6 @@ use poem_openapi_derive::{Object, Multipart};
 use uuid::Uuid;
 
 use crate::api::ApiContext;
-use crate::models::schematic::Schematic;
-use crate::models::user::{Permissions, User};
 use crate::response::ApiResult;
 use crate::models::comment::Comment;
 use crate::error::ApiError;
@@ -15,14 +13,8 @@ use crate::authentication::session::Session;
 
 pub (in crate::api::v1) struct CommentsApi;
 
-#[derive(Deserialize, Debug, Object)]
-pub (in crate::api::v1) struct PaginationQuery {
-    pub limit: Option<i64>,
-    pub offset: Option<i64>,
-}
-
 #[derive(Serialize, Debug, Object)]
-pub (in crate::api) struct FullComment {
+pub (in crate::api::v1) struct FullComment {
     pub comment_id: Uuid,
     pub comment_author: Uuid,
     pub comment_body: String,
@@ -31,12 +23,12 @@ pub (in crate::api) struct FullComment {
 }
 
 #[derive(Multipart, Debug)]
-pub (in crate::api) struct CommentBuilder {
+pub (in crate::api::v1) struct CommentBuilder {
     pub comment_body: String
 }
 
 #[derive(Multipart, Debug)]
-pub (in crate::api) struct UpdateComment {
+pub (in crate::api::v1) struct UpdateComment {
     pub comment_body: Option<String>
 }
 
@@ -56,8 +48,9 @@ impl CommentsApi {
     async fn get_comments_by_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,        
-        Query(query): Query<PaginationQuery>,
         Path(schematic_id): Path<Uuid>,
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>,
     ) -> ApiResult<Json<Vec<FullComment>>> {
         let schematics = sqlx::query_as!(
             FullComment,
@@ -75,8 +68,8 @@ impl CommentsApi {
             offset $3
             "#,
             schematic_id,
-            query.limit.unwrap_or(20),
-            query.offset.unwrap_or(0)
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
         )
         .fetch_all(&ctx.pool)
         .await?;
@@ -88,7 +81,7 @@ impl CommentsApi {
     /// information about the new comment including its id. 
     /// 
     /// The comments body can contain markdown which will be sanitized
-    /// accordinly, however it cannot contain profanity wich will result in
+    /// accordingly, however it cannot contain profanity wich will result in
     /// a `422 Conflict` being returned. 
     /// 
     /// If you believe something is being falsely flagged as profanity please
@@ -100,7 +93,7 @@ impl CommentsApi {
         &self,
         Data(ctx): Data<&ApiContext>,  
         Path(schematic_id): Path<Uuid>,
-        session: Session,
+        Session(user_id): Session,
         builder: CommentBuilder
     ) -> ApiResult<Json<Comment>> {
         let mut transaction = ctx.pool.begin().await?;
@@ -121,7 +114,7 @@ impl CommentsApi {
                 comment_body,
                 schematic_id
             "#,
-            session.user_id,
+            user_id,
             builder.comment_body,
             schematic_id
         )
@@ -177,20 +170,30 @@ impl CommentsApi {
     /// to be innapropriate then the reqeust will be denied with `422 Unprocessable
     /// Entity`
     /// 
-    /// The current user must also own the comment or have permission to manage 
-    /// comments.
+    /// The current user must also own the comment even if they have permission to
+    /// moderate comments
     /// 
     #[oai(path = "/comments/:id", method = "patch")]
     async fn update_comment_by_id(
         &self,
         Data(ctx): Data<&ApiContext>, 
         Path(comment_id): Path<Uuid>,
-        user: User,
+        Session(user_id): Session,
         update: UpdateComment
     ) -> ApiResult<Json<Comment>> {
         let mut transaction = ctx.pool.begin().await?;
-    
-        Comment::check_user_permissions(user, &comment_id, Permissions::MODERATE_COMMENTS, &mut *transaction).await?;
+        
+        let user_meta = sqlx::query!(
+            r#"select comment_author from comments where comment_id = $1"#,
+            comment_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+        if user_meta.comment_author != user_id {
+            return Err(ApiError::Forbidden)
+        }
     
         let comment = sqlx::query_as!(
             Comment,
@@ -227,12 +230,23 @@ impl CommentsApi {
         &self,
         Data(ctx): Data<&ApiContext>, 
         Path(comment_id): Path<Uuid>,
-        user: User
+        session: Session,
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
     
-        Schematic::check_user_permissions(user, &comment_id, Permissions::MODERATE_COMMENTS, &mut *transaction).await?;
-    
+        let user_meta = sqlx::query!(
+            r#"select comment_author from comments where comment_id = $1"#,
+            comment_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+        if user_meta.comment_author != session.user_id()
+                && !session.is_moderator(&mut *transaction).await? {
+            return Err(ApiError::Forbidden)
+        }
+
         // We dont need to validate the the comment previously existed here as that was implicitly
         // checked when ensuring the user was the author of the comment
         sqlx::query!(

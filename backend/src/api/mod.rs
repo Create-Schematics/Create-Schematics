@@ -1,35 +1,24 @@
-use std::time::Duration;
 use std::net::SocketAddr;
 
-use axum::Router;
-use axum::http::header;
-use axum::http::Method;
 use clap::Args;
+use poem::endpoint::StaticFilesEndpoint;
+use poem::http::header;
+use poem::listener::TcpListener;
+use poem::{Route, Server, EndpointExt};
+use poem::middleware::{Cors, CookieJarManager};
+use poem_openapi::{LicenseObject, ContactObject, OpenApiService, OpenApi};
+use reqwest::Method;
 use sqlx::PgPool;
-use tokio::net::TcpListener;
-use tower_cookies::CookieManagerLayer;
-use tower_http::trace::TraceLayer;
-use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::ServeDir;
-use utoipa::OpenApi;
-use utoipa_swagger_ui::SwaggerUi;
 
 use crate::database::postgres;
 use crate::database::postgres::StartCommandDatabaseArguments;
 use crate::database::redis;
 use crate::database::redis::{RedisPool, StartCommandRedisArguments};
 
-use self::auth::StartCommandOauthArguments;
-
 pub mod auth;
 pub mod v1;
 
 pub mod openapi;
-
-pub fn configure() -> Router<ApiContext> {
-    Router::new()
-        .nest("/v1", v1::configure())
-}
 
 #[derive(Args, Debug)]
 pub struct StartCommandServerArguments {
@@ -45,10 +34,6 @@ pub struct StartCommandServerArguments {
     #[command(next_help_heading = "Redis")]
     #[command(flatten)]
     pub redis: StartCommandRedisArguments,
-
-    #[command(next_help_heading = "Oauth")]
-    #[command(flatten)]
-    pub oauth: StartCommandOauthArguments,
 }
 
 #[derive(Clone)]
@@ -57,26 +42,53 @@ pub struct ApiContext {
     pub redis_pool: RedisPool
 }
 
+pub fn configure() -> impl OpenApi {
+    (auth::configure(), v1::configure())
+} 
+
+pub fn build_openapi_service() -> OpenApiService<impl OpenApi, ()> {
+    let apis = configure();
+    
+    let license = LicenseObject::new("MIT")
+        .url("https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE");
+
+    let contact = ContactObject::new()
+        .name("Create-Schematics")
+        .url("https://github.com/Create-Schematics");
+
+    OpenApiService::new(apis, "Create Schematics REST API", "0.1")
+        .license(license)
+        .contact(contact)
+        .external_document("https://github.com/Create-Schematics/Create-Schematics")
+}
+
 pub async fn init(
     StartCommandServerArguments {
         listen_address,
         postgres,
         redis,
-        oauth,
         ..
     }: StartCommandServerArguments,
 ) -> Result<(), anyhow::Error> {
     let pool = postgres::connect(postgres).await?;
-    let redis_pool = redis::connect(redis)?;
+    let redis_pool = redis::connect(redis).await?;
 
-    let app = Router::new()
-        .nest("/api", Router::new()
-            .merge(crate::api::configure())
-            .merge(crate::api::auth::configure(oauth)?)
+    let api_service = build_openapi_service();
+
+    let swagger = api_service.swagger_ui();
+
+    let json_spec = api_service.spec_endpoint();
+    let yaml_spec = api_service.spec_endpoint_yaml();
+
+    let app = Route::new()
+        .nest("/api", Route::new()
+            .at("/", api_service)
+            .at("/swagger-ui", swagger)
+            .at("/openapi.json", json_spec)
+            .at("/openapi.yaml", yaml_spec)
         )
-        .nest_service("/upload", ServeDir::new("static/upload"))
-        .merge(SwaggerUi::new("/swagger-ui").url("/openapi.json", openapi::ApiDoc::openapi()))
-        .layer(CorsLayer::default()
+        .nest("/upload", StaticFilesEndpoint::new("/static/upload").show_files_listing())
+        .with(Cors::new()
             .allow_headers([
                 header::AUTHORIZATION,
                 header::WWW_AUTHENTICATE,
@@ -93,17 +105,16 @@ pub async fn init(
                 Method::PATCH,
                 Method::OPTIONS
             ])
-            .allow_origin(Any)
-            .max_age(Duration::from_secs(86400))
+            .max_age(86400)
         )
-        .layer(CookieManagerLayer::new())
-        .layer(TraceLayer::new_for_http())
-        .with_state(ApiContext { pool, redis_pool });
+        .with(CookieJarManager::new())
+        .data(ApiContext { pool, redis_pool });
 
     tracing::info!("Listening on http://{}", listen_address);
 
-    let listener = TcpListener::bind(listen_address).await?;
-    axum::serve(listener, app).await?;
+    Server::new(TcpListener::bind(listen_address))
+        .run(app)
+        .await?;
 
     Ok(())
 }

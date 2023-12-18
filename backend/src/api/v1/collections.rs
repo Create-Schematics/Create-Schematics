@@ -4,14 +4,10 @@ use poem_openapi::payload::Json;
 use poem_openapi_derive::{OpenApi, Object, Multipart};
 use uuid::Uuid;
 
-use crate::authentication::session::Session;
-use crate::models::user::{User, Permissions};
+use crate::authentication::session::{Session, OptionalSession};
 use crate::error::ApiError;
 use crate::response::ApiResult;
 use crate::api::ApiContext;
-use crate::error::ResultExt;
-
-use super::comments::PaginationQuery;
 
 pub (in crate::api::v1) struct CollectionsApi;
 
@@ -56,11 +52,11 @@ pub (in crate::api::v1) struct CollectionBuilder {
     pub is_private: bool,
 }
 
-#[derive(Multipart, Debug)]
+#[derive(Multipart, Object, Debug)]
 pub (in crate::api::v1) struct CollectionEntry {
     pub schematic_id: Uuid,
 }
- 
+
 #[OpenApi(prefix_path="/api/v1")]
 impl CollectionsApi {
 
@@ -76,7 +72,8 @@ impl CollectionsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(schematic_id): Path<Uuid>,
-        Query(query): Query<PaginationQuery>
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>
     ) -> ApiResult<Json<Vec<FullCollection>>> {
         let collections = sqlx::query_as!(
             FullCollection,
@@ -100,8 +97,8 @@ impl CollectionsApi {
             limit $2 offset $3
             "#,
             schematic_id,
-            query.limit,
-            query.offset
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
         )
         .fetch_all(&ctx.pool)
         .await?;
@@ -122,10 +119,8 @@ impl CollectionsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(collection_id): Path<Uuid>,
-        session: Option<Session>
+        OptionalSession(user_id): OptionalSession
     ) -> ApiResult<Json<FullCollection>> {
-        let user_id = session.map(|s| s.user_id);
-    
         sqlx::query_as!(
             FullCollection,
             r#"
@@ -168,7 +163,8 @@ impl CollectionsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(user_id): Path<Uuid>,
-        Query(query): Query<PaginationQuery>
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>
     ) -> ApiResult<Json<Vec<UserCollection>>> {
         let schematics = sqlx::query_as!(
             UserCollection,
@@ -188,8 +184,8 @@ impl CollectionsApi {
             limit $2 offset $3
             "#,
             user_id,
-            query.limit,
-            query.offset
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
         )
         .fetch_all(&ctx.pool)
         .await?;
@@ -210,8 +206,9 @@ impl CollectionsApi {
     async fn get_current_users_collections(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Query(query): Query<PaginationQuery>,
-        session: Session
+        Session(user_id): Session,
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>
     ) -> ApiResult<Json<Vec<UserCollection>>> {
         let schematics = sqlx::query_as!(
             UserCollection,
@@ -230,9 +227,9 @@ impl CollectionsApi {
                 collection_id
             limit $2 offset $3
             "#,
-            session.user_id,
-            query.limit,
-            query.offset
+            user_id,
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
         )
         .fetch_all(&ctx.pool)
         .await?;
@@ -249,7 +246,7 @@ impl CollectionsApi {
     async fn create_new_collection(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Session,
+        Session(user_id): Session,
         form: CollectionBuilder
     ) -> ApiResult<Json<Collection>> {
         let mut transaction = ctx.pool.begin().await?;
@@ -271,7 +268,7 @@ impl CollectionsApi {
             "#,
             form.collection_name,
             form.is_private,
-            session.user_id,
+            user_id,
         )
         .fetch_one(&mut *transaction)
         .await?;
@@ -293,7 +290,7 @@ impl CollectionsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(collection_id): Path<Uuid>,
-        user: User,
+        Session(user_id): Session,
         form: UpdateCollection
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
@@ -306,8 +303,7 @@ impl CollectionsApi {
         .await?
         .ok_or(ApiError::NotFound)?;
         
-        if !user.permissions.contains(Permissions::MODERATE_POSTS) 
-                && collection_meta.user_id != user.user_id {
+        if collection_meta.user_id != user_id {
             return Err(ApiError::Forbidden);
         }
 
@@ -344,10 +340,9 @@ impl CollectionsApi {
     async fn fetch_collection_entries(
         &self,
         Data(ctx): Data<&ApiContext>,
-        session: Option<Session>,
+        OptionalSession(user_id): OptionalSession,
         Path(collection_id): Path<Uuid>,
     ) -> ApiResult<Json<Vec<CollectionEntry>>> {
-        let user_id = session.map(|s| s.user_id);
 
         // Needs testing but it should be quicker to perform an initial query
         // checking permission here rather than joining the collections table
@@ -390,7 +385,7 @@ impl CollectionsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(collection_id): Path<Uuid>,
-        session: Session,
+        Session(user_id): Session,
         form: CollectionEntry
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
@@ -403,7 +398,7 @@ impl CollectionsApi {
         .await?
         .ok_or(ApiError::NotFound)?;
         
-        if collection_meta.user_id != session.user_id {
+        if collection_meta.user_id != user_id {
             return Err(ApiError::Forbidden);
         }
 
@@ -420,8 +415,7 @@ impl CollectionsApi {
             form.schematic_id,
         )
         .execute(&mut *transaction)
-        .await
-        .on_constraint("collection_entries_pkey", |_| ApiError::Conflict)?;
+        .await?;
 
         transaction.commit().await?;
 
@@ -439,7 +433,7 @@ impl CollectionsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(collection_id): Path<Uuid>,
-        session: Session,
+        Session(user_id): Session,
         form: CollectionEntry
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
@@ -452,7 +446,7 @@ impl CollectionsApi {
         .await?
         .ok_or(ApiError::NotFound)?;
     
-        if collection_meta.user_id != session.user_id {
+        if collection_meta.user_id != user_id {
             return Err(ApiError::Forbidden);
         }
     
@@ -485,10 +479,10 @@ impl CollectionsApi {
         &self,
         Data(ctx): Data<&ApiContext>,
         Path(collection_id): Path<Uuid>,
-        user: User,
+        session: Session,
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
-    
+
         let collection_meta = sqlx::query!(
             r#"select user_id from collections where collection_id = $1"#,
             collection_id
@@ -497,9 +491,9 @@ impl CollectionsApi {
         .await?
         .ok_or(ApiError::NotFound)?;
         
-        if !user.permissions.contains(Permissions::MODERATE_POSTS) 
-                && collection_meta.user_id != user.user_id {
-            return Err(ApiError::Forbidden);
+        if collection_meta.user_id != session.user_id() &&
+                !session.is_moderator(&mut *transaction).await? {
+            return Err(ApiError::Unauthorized);
         }
     
         sqlx::query!(

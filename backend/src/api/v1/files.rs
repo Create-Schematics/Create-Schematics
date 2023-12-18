@@ -6,30 +6,30 @@ use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, Multipart, OpenApi};
 use uuid::Uuid;
 
+use crate::authentication::session::Session;
 use crate::error::ApiError;
-use crate::models::schematic::Schematic;
-use crate::models::user::{User, Permissions};
+use crate::middleware::files::FileUpload;
 use crate::storage::{UPLOAD_PATH, SCHEMATIC_PATH};
 use crate::response::ApiResult;
 use crate::api::ApiContext;
 
-const MAX_FILE_SIZE: u64 = 256 * 1024; // 256kb
+const MAX_FILE_SIZE: usize = 256 * 1024; // 256kb
 
-pub (in crate::api::v1) struct FileApi;
+pub struct FileApi;
 
 #[derive(Serialize, Debug, Object)]
-pub (in crate::api::v1) struct Files {
+pub struct Files {
     #[oai(validator(min_items=1))]
     pub files: Vec<String>
 }
 
 #[derive(Multipart, Debug)]
-pub (in crate::api) struct UploadFile {
-    pub file: UploadFile
+pub struct UploadFile {
+    pub file: FileUpload
 }
 
 #[derive(Multipart, Debug)]
-pub (in crate::api) struct DeleteFile {
+pub struct DeleteFile {
 
     pub file_name: String
 }
@@ -79,13 +79,13 @@ impl FileApi {
         &self,
         Data(ctx): Data<&ApiContext>,    
         Path(schematic_id): Path<Uuid>,
-        user: User,
+        Session(user_id): Session,
         form: UploadFile
     ) -> ApiResult<()> {
         let file_name = form.file.file_name.ok_or(ApiError::BadRequest)?;
         let sanitized = sanitize_filename::sanitize(file_name);
         
-        if form.file.contents.len() > MAX_FILE_SIZE || !sanitized.endswith(".nbt") {
+        if form.file.contents.len() > MAX_FILE_SIZE || !sanitized.ends_with(".nbt") {
             return Err(ApiError::BadRequest);
         }
 
@@ -93,14 +93,25 @@ impl FileApi {
         path.push(schematic_id.to_string());
         path.push(SCHEMATIC_PATH);
     
-        let file = path.join(sanitized);
+        let file = path.join(&sanitized);
         
         if file.exists() {
-            return Err(ApiError::Conflict);
+            return Err(ApiError::unprocessable_entity([("file", "a file with this name already exists")]));
         }
 
         let mut transaction = ctx.pool.begin().await?;
-        Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
+
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    
+        if schematic_meta.author != user_id {
+            return Err(ApiError::Unauthorized);
+        }
     
         sqlx::query!(
             r#"
@@ -137,12 +148,24 @@ impl FileApi {
         &self,
         Data(ctx): Data<&ApiContext>,   
         Path(schematic_id): Path<Uuid>,
-        user: User,
+        session: Session,
         form: DeleteFile
     ) -> ApiResult<Json<Files>> {
         let mut transaction = ctx.pool.begin().await?;
         
-        Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+        if schematic_meta.author != session.user_id() &&
+                !session.is_moderator(&mut *transaction).await? {
+            return Err(ApiError::Unauthorized);
+        }
+
         let file_name = sanitize_filename::sanitize(form.file_name);
     
         let files = sqlx::query_as!(

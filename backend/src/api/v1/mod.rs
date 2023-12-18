@@ -1,5 +1,4 @@
-use poem::Route;
-use poem_openapi::{OpenApiService, LicenseObject, ContactObject, OpenApi};
+use poem_openapi::OpenApi;
 
 use self::likes::LikesApi;
 use self::files::FileApi;
@@ -19,7 +18,7 @@ pub mod collections;
 pub mod images;
 pub mod files;
 
-pub (in crate::api) fn configure() -> impl OpenApi {
+pub fn configure() -> impl OpenApi {
     (
         CommentsApi, 
         SchematicsApi, 

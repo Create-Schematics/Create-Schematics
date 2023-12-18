@@ -6,30 +6,29 @@ use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, Multipart, OpenApi};
 use uuid::Uuid;
 
+use crate::authentication::session::Session;
 use crate::middleware::files::FileUpload;
 use crate::storage::{UPLOAD_PATH, IMAGE_PATH};
 use crate::api::ApiContext;
 use crate::response::ApiResult;
 use crate::error::ApiError;
-use crate::models::schematic::Schematic;
-use crate::models::user::{Permissions, User};
 
-const MAX_IMAGE_SIZE: u64 = 1024 * 1024 * 2; // 2mb
+const MAX_IMAGE_SIZE: usize = 1024 * 1024 * 2; // 2mb
 
-pub (in crate::api::v1) struct ImageApi;
+pub struct ImageApi;
 
 #[derive(Serialize, Debug, Object)]
-pub (in crate::api) struct Images {
+pub struct Images {
     pub images: Vec<String>
 }
 
 #[derive(Multipart, Debug)]
-pub (in crate::api) struct UploadImage {
+pub struct UploadImage {
     pub image: FileUpload
 }
 
 #[derive(Multipart, Debug)]
-pub (in crate::api) struct DeleteImage {
+pub struct DeleteImage {
     pub file_name: String
 }
 
@@ -80,13 +79,24 @@ impl ImageApi {
         &self,
         Data(ctx): Data<&ApiContext>,  
         Path(schematic_id): Path<Uuid>,
-        user: User,
+        Session(user_id): Session,
         form: UploadImage
     ) -> ApiResult<()> {
-        let file_name = form.image.metadata.file_name.ok_or(ApiError::BadRequest)?;
+        let file_name = form.image.file_name.ok_or(ApiError::BadRequest)?;
         let mut transaction = ctx.pool.begin().await?;
         
-        Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    
+        if schematic_meta.author != user_id {
+            return Err(ApiError::Unauthorized);
+        }
+        
         let sanitized = sanitize_filename::sanitize(file_name);
     
         sqlx::query!(
@@ -109,8 +119,12 @@ impl ImageApi {
     
         let file = path.join(sanitized);
         
-        if file.exists() || form.image.contents.len() > MAX_IMAGE_SIZE {
-            return Err(ApiError::Conflict);
+        if file.exists() {
+            return Err(ApiError::unprocessable_entity([("image", "a file with this name already exists")]));
+        }
+
+        if form.image.contents.len() > MAX_IMAGE_SIZE {
+            return Err(ApiError::unprocessable_entity([("image", "file size too large")]));
         }
     
         image::load_from_memory(&form.image.contents)
@@ -136,12 +150,24 @@ impl ImageApi {
         &self,
         Data(ctx): Data<&ApiContext>,   
         Path(schematic_id): Path<Uuid>,
-        user: User,
+        session: Session,
         form: DeleteImage
     ) -> ApiResult<Json<Images>> {
         let mut transaction = ctx.pool.begin().await?;
         
-        Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+        if schematic_meta.author != session.user_id() &&
+                !session.is_moderator(&mut *transaction).await? {
+            return Err(ApiError::Unauthorized);
+        }
+
         let file_name = sanitize_filename::sanitize(form.file_name);
     
         let images = sqlx::query_as!(
