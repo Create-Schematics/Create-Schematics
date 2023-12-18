@@ -3,7 +3,7 @@ use std::env;
 use oauth2::{ClientId, ClientSecret, AuthUrl, TokenUrl, RedirectUrl, Scope};
 use oauth2::basic::BasicClient;
 use poem_openapi_derive::Enum;
-use reqwest::Response;
+use strum::Display;
 
 #[cfg(feature="discord-oauth")]
 use crate::api::auth::discord::DiscordUser;
@@ -17,8 +17,9 @@ use crate::api::auth::google::GoogleUser;
 #[cfg(feature="microsoft-oauth")]
 use crate::api::auth::microsoft::MicrosoftUser;
 
-#[derive(Deserialize, Serialize, Debug, Enum)]
+#[derive(Deserialize, Serialize, Display, Debug, Enum)]
 #[serde(rename_all="lowercase")]
+#[strum(serialize_all="lowercase")]
 pub enum OauthProvider {
     #[cfg(feature="github-oauth")]
     GitHub,
@@ -113,7 +114,7 @@ impl OauthProvider {
                     "profile"
                 ],
                 data_uri: "https://www.googleapis.com/oauth2/v3/userinfo",
-                extractor: |r| r.json::<GoogleUser>(),
+                extractor: |r| serde_json::from_slice::<GoogleUser>(&r).map(|u| u.into())
             },
 
             #[cfg(feature="discord-oauth")]
@@ -128,7 +129,7 @@ impl OauthProvider {
                     "email"
                 ],
                 data_uri: "https://discordapp.com/api/users/@me",
-                extractor: |r| r.json::<DiscordUser>(),
+                extractor: |r| serde_json::from_slice::<DiscordUser>(&r).map(|u| u.into())
             },
         };
 
