@@ -1,26 +1,32 @@
-use axum::Router;
+use poem_openapi::OpenApi;
 
-use crate::api::ApiContext;
+use self::likes::LikesApi;
+use self::files::FileApi;
+use self::images::ImageApi;
+use self::collections::CollectionsApi;
+use self::tags::TagsApi;
+use self::users::UsersApi;
+use self::schematics::SchematicsApi;
+use self::comments::CommentsApi;
 
 pub mod comments;
 pub mod schematics;
 pub mod likes;
 pub mod users;
-pub mod profile;
 pub mod tags;
 pub mod collections;
 pub mod images;
 pub mod files;
 
-pub (in crate::api) fn configure() -> Router<ApiContext> {
-    Router::new()
-        .merge(users::configure())
-        .merge(schematics::configure())
-        .merge(images::configure())
-        .merge(files::configure())
-        .merge(comments::configure())
-        .merge(profile::configure())
-        .merge(collections::configure())
-        .merge(likes::configure())
-        .merge(tags::configure())
+pub fn configure() -> impl OpenApi {
+    (
+        CommentsApi, 
+        SchematicsApi, 
+        LikesApi, 
+        UsersApi, 
+        TagsApi, 
+        CollectionsApi, 
+        ImageApi, 
+        FileApi
+    )
 }

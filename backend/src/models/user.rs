@@ -1,42 +1,56 @@
-use utoipa::ToSchema;
+use poem_openapi_derive::{Enum, Object};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Object)]
 pub struct User {
     pub user_id: Uuid,
-
-    #[schema(example="My username")]
-    #[schema(min_length=3, max_length=20)]
     pub username: String,
-
-    #[schema(example="https://example.com/avatar.png")]
     pub avatar: Option<String>,
-
-    #[schema(example="Hello world")]
     pub about: Option<String>,
-
-    #[schema(value_type=u64, example=7)]
-    pub permissions: Permissions,
+    pub role: Role,
 }
 
-bitflags::bitflags! {
-    #[derive(Debug, Serialize, Deserialize, ToSchema)]
-    #[serde(transparent)]
-    pub struct Permissions: u32 {
-        const MODERATE_COMMENTS = 1 << 1;
-        const MODERATE_POSTS = 1 << 2;
-        const MODERATE_USERS = 1 << 3;
+impl User {
+    pub fn is_moderator(&self) -> bool {
+        self.role.is_moderator()
     }
-}   
 
-impl From<i32> for Permissions {
-    fn from(value: i32) -> Self {
-        Permissions::from_bits(value as u32).unwrap_or_default()
+    pub fn is_administrator(&self) -> bool {
+        self.role.is_administrator()    
     }
 }
 
-impl Default for Permissions {
-    fn default() -> Self {
-        Permissions::empty()
+#[derive(Enum, Serialize, Debug)]
+#[serde(rename_all="snake_case")]
+#[non_exhaustive]
+pub enum Role {
+    User,
+    Moderator,
+    Administrator
+}
+
+impl From<std::string::String> for Role {
+    fn from(value: std::string::String) -> Self {
+        match value.as_str() {
+            "administrator" => Self::Administrator,
+            "moderator" => Self::Moderator,
+            _ => Self::User,
+        }
+    }
+}
+
+impl Role {
+    pub fn is_moderator(&self) -> bool {
+        match self {
+            Self::Moderator | Self::Administrator => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_administrator(&self) -> bool {
+        match self {
+            Self::Administrator => true,
+            _ => false,
+        }
     }
 }

@@ -12,19 +12,11 @@ google-oauth = []
 discord-oauth = []
 
 [dependencies]
-axum = { version = "0.7.2", features = ["tracing", "macros"] }
-axum-extra = { version = "0.9.0", features = ["typed-routing"] }
-axum_typed_multipart = "0.11.0"
-axum-valid = { version = "0.12.0", features = ["typed_multipart"] }
-
-tower = "0.4.13"
-tower-http = { version = "0.5.0", features = ["trace", "fs", "cors", "auth", "add-extension", "util"] } 
-tower-cookies = { version = "0.10.0", features = ["private", "signed"]} 
+poem = { version = "1.3.59", features = ["cookie", "multipart"] }
+poem-openapi = { version = "3.0.6", features = ["swagger-ui", "time", "uuid", "static-files"] }
+poem-openapi-derive = "3.0.6"
 
 tokio = { version = "1.34.0", features = ["full"] }
-
-utoipa = { version = "4.1.0", features = ["axum_extras", "yaml", "uuid"] }
-utoipa-swagger-ui = { version = "5.0.0", features = ["axum"] }
 
 tracing = "0.1.40"
 tracing-subscriber = "0.3.17"
@@ -36,8 +28,7 @@ serde_json = "1.0.108"
 clap = { version = "4.4.8", features = ["derive", "env"] }
 
 sqlx = { version = "0.7.2", features = ["runtime-tokio", "macros", "migrate", "time", "uuid", "postgres"] }
-redis = { version = "0.23.3", features = ["tokio-comp", "connection-manager"] }
-deadpool-redis = { version = "0.13.0", features = ["rt_tokio_1", "serde" ] }
+redis = { version = "0.24.0", features = ["tokio-comp", "connection-manager"] }
 
 thiserror = "1.0.50"
 anyhow = "1.0.48"
@@ -49,7 +40,6 @@ time = "0.3.23"
 argon2 = "0.5.2"
 rand = "0.8.5"
 nanoid = "0.4.0"
-bitflags = { version = "2.4.1", features = ["serde"] }
 oauth2 = "4.4.2"
 reqwest = { version = "0.11.22", features = ["json"] }
 sanitize-filename = "0.5.0"
@@ -57,6 +47,4 @@ tempfile = "3.8.1"
 image = "0.24.7"
 webp = "0.2.6"
 rustrict = "0.7.19"
-
-[dev-dependencies]
-axum-test = "14.0.0"
+strum = { version = "0.25.0", features = ["derive"] }

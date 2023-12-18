@@ -1,42 +1,29 @@
-use clap::Args;
-use oauth2::{ClientSecret, ClientId, AuthUrl, TokenUrl, RedirectUrl};
-use oauth2::basic::BasicClient;
+use crate::authentication::oauth::OauthUser;
 
-#[derive(Args, Debug)]
-pub struct MicrosoftOauthArguments {  
-    #[arg(help = "Your microsoft oauth client id")]
-    #[arg(env = "MICROSOFT_CLIENT_ID", long = "microsoft-client-id")]
-    pub microsoft_client_id: String,
-
-    #[arg(help = "Your microsoft oauth client secret")]
-    #[arg(env = "MICROSOFT_CLIENT_SECRET", long = "microsoft-client-secret")]
-    pub microsoft_client_secret: String,
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MicrosoftUser {
+    pub id: String,
+    pub display_name: Option<String>,
+    pub mail: String,
+    pub user_principal_name: String,
 }
 
-pub (in crate::api::auth) fn build_client(
-    MicrosoftOauthArguments {
-        microsoft_client_id,
-        microsoft_client_secret,
-        ..
-    }: MicrosoftOauthArguments
-) -> Result<BasicClient, anyhow::Error> {
-    let self_address = dotenv::var("SELF_ADDRESS")?;
+impl From<MicrosoftUser> for OauthUser {
+    fn from(microsoft_user: MicrosoftUser) -> Self {
+        Self {
+            oauth_id: microsoft_user.id,
+            username: username_from_email(&microsoft_user.mail),
+            display_name: microsoft_user.display_name,
+            email: Some(microsoft_user.mail),
+            avatar_url: None,
+        }
+    } 
+}
 
-    let microsoft_client_secret = ClientSecret::new(microsoft_client_secret);
-    let microsoft_client_id = ClientId::new(microsoft_client_id);
-
-    let auth_url = AuthUrl::new("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code".to_string())?;
-    let token_url = TokenUrl::new("https://login.microsoftonline.com/common/oauth2/v2.0/token".to_string())?;
-
-    let redirect_url = RedirectUrl::new(format!("{self_address}/api/auth/microsoft/callback"))?;
-
-    let client = BasicClient::new(
-        microsoft_client_id,
-        Some(microsoft_client_secret),
-        auth_url,
-        Some(token_url)
-    )
-    .set_redirect_uri(redirect_url);
-
-    Ok(client)
-}  
+fn username_from_email(email: &str) -> String {
+    email.split('@')
+        .next()
+        .unwrap_or_default()
+        .to_string()
+}

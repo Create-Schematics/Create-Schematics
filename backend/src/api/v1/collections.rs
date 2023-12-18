@@ -1,653 +1,510 @@
-use axum::extract::Query;
-use axum::routing::get;
-use axum::Json;
-use axum::Router;
-use axum::extract::{State, Path};
-use axum_typed_multipart::{TypedMultipart, TryFromMultipart};
-use utoipa::ToSchema;
+use poem::web::Data;
+use poem_openapi::param::{Path, Query};
+use poem_openapi::payload::Json;
+use poem_openapi_derive::{OpenApi, Object, Multipart};
 use uuid::Uuid;
 
-use crate::authentication::session::Session;
-use crate::models::user::{User, Permissions};
+use crate::authentication::session::{Session, OptionalSession};
 use crate::error::ApiError;
 use crate::response::ApiResult;
 use crate::api::ApiContext;
-use crate::error::ResultExt;
 
-use super::comments::PaginationQuery;
+pub (in crate::api::v1) struct CollectionsApi;
 
-pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
-    Router::new()
-        .route(
-            "/schematics/:id/collections",
-            get(collections_containing_schematic)
-        )
-        .route(
-            "/users/:id/collections",
-            get(get_users_collections)
-        )
-        .route(
-            "/collections",
-            get(get_current_users_collections)
-            .post(create_new_collection)
-        )
-        .route(
-            "/collections/:id",
-            get(get_collection_by_id)
-            .patch(update_collection_by_id)
-            .delete(remove_collection_by_id)
-        )
-        .route(
-            "/collections/:id/schematics",
-            get(fetch_collection_entries)
-            .post(add_schematic_to_collection)
-            .delete(remove_schematic_from_collection)
-        )
-}
-
-#[derive(Serialize, Debug, ToSchema)]
-pub (in crate::api) struct Collection {
+#[derive(Serialize, Debug, Object)]
+pub (in crate::api::v1) struct Collection {
     pub collection_id: Uuid,
-    
-    #[schema(example="My Collection")]
-    #[schema(min_length=3, max_length=50)]
     pub collection_name: String,
-
     pub user_id: Uuid,
-
-    #[schema(example=false)]
     pub is_private: bool,
 }
 
-#[derive(Serialize, Debug, ToSchema)]
-pub (in crate::api) struct UserCollection {
+#[derive(Serialize, Debug, Object)]
+pub (in crate::api::v1) struct UserCollection {
     pub collection_id: Uuid,
-
-    #[schema(example="My Collection")]
-    #[schema(min_length=3, max_length=50)]
     pub collection_name: String,
-
-    #[schema(example=false)]
     pub is_private: bool,
-
-    #[schema(max_items=100)]
     pub entries: Vec<Uuid>,
 }
 
-#[derive(Serialize, Debug, ToSchema)]
-pub (in crate::api) struct FullCollection {
+#[derive(Serialize, Debug, Object)]
+pub (in crate::api::v1) struct FullCollection {
     pub collection_id: Uuid,
-    
-    #[schema(example="My Collection")]
-    #[schema(min_length=3, max_length=50)]
     pub collection_name: String,
-
-    #[schema(example=false)]
     pub is_private: bool,
-
     pub user_id: Uuid,
-    
-    #[schema(example="Rabbitminers")]
     pub username: String,
-
-    #[schema(example="https://example.com/avatar.png")]
     pub avatar: Option<String>,
-
-    #[schema(max_items=100)]
     pub entries: Vec<Uuid>,
 }
 
-#[derive(TryFromMultipart, Debug, ToSchema)]
-pub (in crate::api) struct UpdateCollection {
-    #[schema(example="My Collection")]
-    #[schema(min_length=3, max_length=50)]
+#[derive(Multipart, Debug)]
+pub (in crate::api::v1) struct UpdateCollection {
+    #[oai(validator(min_length=3, max_length=50))]
     pub collection_name: Option<String>,
-
-    #[schema(example=false)]
     pub is_private: Option<bool>,
 }
 
-#[derive(TryFromMultipart, Debug, ToSchema)]
-pub (in crate::api) struct CollectionBuilder {
-    #[schema(example="My Collection")]
-    #[schema(min_length=3, max_length=50)]
+#[derive(Multipart, Debug)]
+pub (in crate::api::v1) struct CollectionBuilder {
+    #[oai(validator(min_length=3, max_length=50))]
     pub collection_name: String,
-
-    #[schema(example=false)]
     pub is_private: bool,
 }
 
-#[derive(TryFromMultipart, Serialize, Debug, ToSchema)]
-pub (in crate::api) struct CollectionEntry {
+#[derive(Multipart, Object, Debug)]
+pub (in crate::api::v1) struct CollectionEntry {
     pub schematic_id: Uuid,
 }
 
-#[utoipa::path(
-    get,
-    path = "/schematics/{schematic_id}/collections",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("schematic_id" = Uuid, Path, description = "The id of the schematic to fetch collections from"),
-        ("query" = PaginationQuery, Query, description = "How many collections to fetch")
-    ),
-    responses(
-        (status = 200, description = "Successfully retrieved the collections containing this schematic", body = [FullCollection], content_type = "application/json"),
-        (status = 400, description = "The query was invalid"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(())
-)]
-async fn collections_containing_schematic(
-    State(ctx): State<ApiContext>,
-    Path(schematic_id): Path<Uuid>,
-    Query(query): Query<PaginationQuery>
-) -> ApiResult<Json<Vec<FullCollection>>> {
-    let collections = sqlx::query_as!(
-        FullCollection,
-        r#"
-        select
-            collection_id, is_private,
-            collection_name, user_id,
-            avatar, username,
-            coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
-        from
-            collections
-            inner join users using (user_id)
-            inner join collection_entries using (collection_id)
-        where
-            $1 = schematic_id
-            and is_private = false
-        group by
-            collection_id,
-            avatar,
-            username
-        limit $2 offset $3
-        "#,
-        schematic_id,
-        query.limit,
-        query.offset
-    )
-    .fetch_all(&ctx.pool)
-    .await?;
+#[OpenApi(prefix_path="/v1")]
+impl CollectionsApi {
 
-    Ok(Json(collections))
-}
-
-#[utoipa::path(
-    get,
-    path = "/collections/{collection_id}",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("collection_id" = Uuid, Path, description = "The id of the collection to fetch"),
-    ),
-    responses(
-        (status = 200, description = "Successfully retrieved the collections containing this schematic", body = FullCollection, content_type = "application/json"),
-        (status = 404, description = "A schematic with that id was not found"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security((), ("session_cookie" = []))
-)]
-async fn get_collection_by_id(
-    State(ctx): State<ApiContext>,
-    Path(collection_id): Path<Uuid>,
-    session: Option<Session>
-) -> ApiResult<Json<FullCollection>> {
-    let user_id = session.map(|s| s.user_id);
-
-    sqlx::query_as!(
-        FullCollection,
-        r#"
-        select
-            collection_id, is_private,
-            collection_name, user_id,
-            avatar, username,
-            coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
-        from
-            collections
-            inner join users using (user_id)
-            inner join collection_entries using (collection_id)
-        where
-            $1 = schematic_id
-            and (is_private = false or user_id = $2)
-        group by
-            collection_id,
-            avatar,
-            username
-        "#,
-        collection_id,
-        user_id
-    )
-    .fetch_optional(&ctx.pool)
-    .await?
-    .ok_or(ApiError::NotFound)
-    .map(Json)
-}
-
-#[utoipa::path(
-    get,
-    path = "/users/{user_id}/collections",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("user_id" = Uuid, Path, description = "The id of the user to fetch collections from"),
-        ("query" = PaginationQuery, Query, description = "How many collecitons to fetch")
-    ),
-    responses(
-        (status = 200, description = "Successfully retrieved the collections", body = [UserCollection], content_type = "application/json"),
-        (status = 400, description = "The query was invalid"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(())
-)]
-async fn get_users_collections(
-    State(ctx): State<ApiContext>,
-    Path(user_id): Path<Uuid>,
-    Query(query): Query<PaginationQuery>
-) -> ApiResult<Json<Vec<UserCollection>>> {
-    let schematics = sqlx::query_as!(
-        UserCollection,
-        r#"
-        select
-            collection_id, is_private,
-            collection_name,
-            coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
-        from
-            collections
-            inner join collection_entries using (collection_id)
-        where
-            $1 = user_id
-            and is_private = false
-        group by
-            collection_id
-        limit $2 offset $3
-        "#,
-        user_id,
-        query.limit,
-        query.offset
-    )
-    .fetch_all(&ctx.pool)
-    .await?;
-
-    Ok(Json(schematics))
-}
-
-#[utoipa::path(
-    get,
-    path = "/collections",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("query" = PaginationQuery, Query, description = "How many collections to fetch")
-    ),
-    responses(
-        (status = 200, description = "Successfully retrieved the collections", body = [UserCollection], content_type = "application/json"),
-        (status = 400, description = "The query was invalid"),
-        (status = 401, description = "You must be logged in to view your own collections"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn get_current_users_collections(
-    State(ctx): State<ApiContext>,
-    Query(query): Query<PaginationQuery>,
-    session: Session
-) -> ApiResult<Json<Vec<UserCollection>>> {
-    let schematics = sqlx::query_as!(
-        UserCollection,
-        r#"
-        select
-            collection_id, is_private,
-            collection_name,
-            coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
-        from
-            collections
-            inner join collection_entries using (collection_id)
-        where
-            $1 = user_id
-            and is_private = false
-        group by
-            collection_id
-        limit $2 offset $3
-        "#,
-        session.user_id,
-        query.limit,
-        query.offset
-    )
-    .fetch_all(&ctx.pool)
-    .await?;
-
-    Ok(Json(schematics))
-}
-
-#[utoipa::path(
-    post,
-    path = "/collections",
-    context_path = "/api/v1",
-    tag = "v1",
-    request_body(
-        content = CollectionBuilder, description = "Information about the new collection", content_type = "multipart/form-data"
-    ),
-    responses(
-        (status = 200, description = "Successfully uploaded new colleciton", body = Collection, content_type = "application/json"),
-        (status = 401, description = "You need to be logged in to create a collection"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn create_new_collection(
-    State(ctx): State<ApiContext>,
-    session: Session,
-    TypedMultipart(form): TypedMultipart<CollectionBuilder>
-) -> ApiResult<Json<Collection>> {
-    let mut transaction = ctx.pool.begin().await?;
-
-    let collection = sqlx::query_as!(
-        Collection,
-        r#"
-        insert into collections (
-            collection_name, is_private, user_id
-        )
-        values (
-            $1, $2, $3
-        )
-        returning 
-            collection_id,
-            collection_name,
-            user_id,
-            is_private
-        "#,
-        form.collection_name,
-        form.is_private,
-        session.user_id,
-    )
-    .fetch_one(&mut *transaction)
-    .await?;
-
-    transaction.commit().await?;
-
-    Ok(Json(collection))
-}
-
-#[utoipa::path(
-    post,
-    path = "/collections/{collection_id}/schematics",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("collection_id" = Uuid, Path, description = "The id of the collection to add a schematic to"),
-    ),
-    request_body(
-        content = CollectionEntry, description = "Information about the new collection entry", content_type = "multipart/form-data"
-    ),
-    responses(
-        (status = 200, description = "Successfully added schematic to a collection"),
-        (status = 401, description = "You need to be logged in to update a collection"),
-        (status = 403, description = "You can only update your own collections"),
-        (status = 404, description = "A collection with that id was not found"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn add_schematic_to_collection(
-    State(ctx): State<ApiContext>,
-    Path(collection_id): Path<Uuid>,
-    session: Session,
-    TypedMultipart(form): TypedMultipart<CollectionEntry>,
-) -> ApiResult<()> {
-    let mut transaction = ctx.pool.begin().await?;
-    
-    let collection_meta = sqlx::query!(
-        r#"select user_id from collections where collection_id = $1"#,
-        collection_id
-    )
-    .fetch_optional(&mut *transaction)
-    .await?
-    .ok_or(ApiError::NotFound)?;
-    
-    if collection_meta.user_id != session.user_id {
-        return Err(ApiError::Forbidden);
-    }
-
-    sqlx::query!(
-        r#"
-        insert into collection_entries (
-            schematic_id, collection_id
-        ) 
-        values (
-            $1, $2
-        )
-        "#,
-        collection_id,
-        form.schematic_id,
-    )
-    .execute(&mut *transaction)
-    .await
-    .on_constraint("collection_entries_pkey", |_| ApiError::Conflict)?;
-
-    transaction.commit().await?;
-
-    Ok(())
-}
-
-#[utoipa::path(
-    patch,
-    path = "/collections/{collection_id}",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("collection_id" = Uuid, Path, description = "The id of the collection to update"),
-    ),
-    request_body(
-        content = UpdateCollection, description = "Updated information about the collection", content_type = "multipart/form-data"
-    ),
-    responses(
-        (status = 200, description = "Successfully updated the collection"),
-        (status = 401, description = "You need to be logged in to update a collection"),
-        (status = 403, description = "You can only update your own collections"),
-        (status = 404, description = "A collection with that id was not found"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn update_collection_by_id(
-    State(ctx): State<ApiContext>,
-    Path(collection_id): Path<Uuid>,
-    user: User,
-    TypedMultipart(form): TypedMultipart<UpdateCollection>,
-) -> ApiResult<()> {
-    let mut transaction = ctx.pool.begin().await?;
-
-    let collection_meta = sqlx::query!(
-        r#"select user_id from collections where collection_id = $1"#,
-        collection_id
-    )
-    .fetch_optional(&mut *transaction)
-    .await?
-    .ok_or(ApiError::NotFound)?;
-    
-    if !user.permissions.contains(Permissions::MODERATE_POSTS) 
-            && collection_meta.user_id != user.user_id {
-        return Err(ApiError::Forbidden);
-    }
-
-    sqlx::query!(
-        r#"
-        update collections
-            set
-                collection_name = coalesce($1, collection_name),
-                is_private = coalesce($2, is_private)
+    /// Fetches a number of collections that contain a given schematic including
+    /// the schematic ids of there entries and basic information about their
+    /// author such as their username and avatar to avoid subsequent requests.
+    /// 
+    /// Note that private collections even if the user requesting them is the
+    /// owner will not be returned from this endpoint.
+    /// 
+    #[oai(path = "/schematics/:schematic_id/collections", method = "get")]
+    async fn collections_containing_schematic(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Path(schematic_id): Path<Uuid>,
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>
+    ) -> ApiResult<Json<Vec<FullCollection>>> {
+        let collections = sqlx::query_as!(
+            FullCollection,
+            r#"
+            select
+                collection_id, is_private,
+                collection_name, user_id,
+                avatar, username,
+                coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
+            from
+                collections
+                inner join users using (user_id)
+                inner join collection_entries using (collection_id)
             where
-                collection_id = $3
-        "#,
-        form.collection_name,
-        form.is_private,
-        collection_id,
-    )
-    .execute(&mut *transaction)
-    .await?;
-
-    transaction.commit().await?;
-
-    Ok(())
-}
-
-#[utoipa::path(
-    get,
-    path = "/collections/{collection_id}/schematics",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("collection_id" = Uuid, Path, description = "The id of the collection to fetch"),
-    ),
-    responses(
-        (status = 200, description = "Successfully updated the collection", body = [CollectionEntry], content_type = "application/json"),
-        (status = 404, description = "A collection with that id was not found"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security((), ("session_cookie" = []))
-)]
-async fn fetch_collection_entries(
-    State(ctx): State<ApiContext>,
-    session: Option<Session>,
-    Path(collection_id): Path<Uuid>,
-) -> ApiResult<Json<Vec<CollectionEntry>>> {
-    let user_id = session.map(|s| s.user_id);
-
-    // Needs testing but it should be quicker to perform an initial query
-    // checking permission here rather than joining the collections table
-    // and validating permissions in the fetch query.
-    let collection_meta = sqlx::query!(
-        r#"select user_id, is_private from collections where collection_id = $1"#,
-        collection_id
-    )
-    .fetch_optional(&ctx.pool)
-    .await?
-    .ok_or(ApiError::NotFound)?;
-
-    if collection_meta.is_private && user_id != Some(collection_meta.user_id) {
-        // Mask the existance of the collection
-        return Err(ApiError::NotFound);
-    }
-
-    let entries = sqlx::query_as!(
-        CollectionEntry,
-        r#"
-        select schematic_id 
-        from collection_entries 
-        where collection_id = $1
-        "#,
-        collection_id,
-    )
-    .fetch_all(&ctx.pool)
-    .await?;
-
-    Ok(Json(entries))
-}
-
-#[utoipa::path(
-    delete,
-    path = "/collections/{collection_id}/schematics",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("collection_id" = Uuid, Path, description = "The id of the collection to remove a schematic from"),
-    ),
-    request_body(
-        content = CollectionEntry, description = "The id of the schematic to remove", content_type = "multipart/form-data"
-    ),
-    responses(
-        (status = 200, description = "Successfully updated the collection", body = [CollectionEntry], content_type = "application/json"),
-        (status = 401, description = "You need to be logged in to update a collection"),
-        (status = 403, description = "You can only update your own collections"),
-        (status = 404, description = "A collection with that id was not found"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn remove_schematic_from_collection(
-    State(ctx): State<ApiContext>,
-    Path(collection_id): Path<Uuid>,
-    session: Session,
-    TypedMultipart(form): TypedMultipart<CollectionEntry>,
-) -> ApiResult<()> {
-    let mut transaction = ctx.pool.begin().await?;
-
-    let collection_meta = sqlx::query!(
-        r#"select user_id from collections where collection_id = $1"#,
-        collection_id
-    )
-    .fetch_optional(&mut *transaction)
-    .await?
-    .ok_or(ApiError::NotFound)?;
-
-    if collection_meta.user_id != session.user_id {
-        return Err(ApiError::Forbidden);
-    }
-
-    sqlx::query!(
-        r#"
-        delete from collection_entries
-        where collection_id = $1
-        and schematic_id = $2
-        "#,
-        collection_id,
-        form.schematic_id,
-    )
-    .execute(&mut *transaction)
-    .await?;
-
-    transaction.commit().await?;
-
-    Ok(())
-}
-
-#[utoipa::path(
-    delete,
-    path = "/collections/{collection_id}",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("collection_id" = Uuid, Path, description = "The id of the collection to remove"),
-    ),
-    responses(
-        (status = 200, description = "Successfully updated the collection"),
-        (status = 401, description = "You need to be logged in to remove a collection"),
-        (status = 403, description = "You can only remove your own collections"),
-        (status = 404, description = "A collection with that id was not found"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn remove_collection_by_id(
-    State(ctx): State<ApiContext>,
-    Path(collection_id): Path<Uuid>,
-    user: User,
-) -> ApiResult<()> {
-    let mut transaction = ctx.pool.begin().await?;
-
-    let collection_meta = sqlx::query!(
-        r#"select user_id from collections where collection_id = $1"#,
-        collection_id
-    )
-    .fetch_optional(&mut *transaction)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+                $1 = schematic_id
+                and is_private = false
+            group by
+                collection_id,
+                avatar,
+                username
+            limit $2 offset $3
+            "#,
+            schematic_id,
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
+        )
+        .fetch_all(&ctx.pool)
+        .await?;
     
-    if !user.permissions.contains(Permissions::MODERATE_POSTS) 
-            && collection_meta.user_id != user.user_id {
-        return Err(ApiError::Forbidden);
+        Ok(Json(collections))
+    }
+    
+    /// Fetches a collection by it's id asell as the ids of all the schematics
+    /// it contains and some information about the author such as their username
+    /// and avatar url.
+    /// 
+    /// If the requested collection is private and the user is not it's owner
+    /// then `404 Not Found` will be returned even if the collection does exist
+    /// for privacy
+    /// 
+    #[oai(path = "/collections/:collection_id", method = "get")]
+    async fn get_collection_by_id(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Path(collection_id): Path<Uuid>,
+        OptionalSession(user_id): OptionalSession
+    ) -> ApiResult<Json<FullCollection>> {
+        sqlx::query_as!(
+            FullCollection,
+            r#"
+            select
+                collection_id, is_private,
+                collection_name, user_id,
+                avatar, username,
+                coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
+            from
+                collections
+                inner join users using (user_id)
+                inner join collection_entries using (collection_id)
+            where
+                $1 = schematic_id
+                and (is_private = false or user_id = $2)
+            group by
+                collection_id,
+                avatar,
+                username
+            "#,
+            collection_id,
+            user_id
+        )
+        .fetch_optional(&ctx.pool)
+        .await?
+        .ok_or(ApiError::NotFound)
+        .map(Json)
     }
 
-    sqlx::query!(
-        r#"delete from collections where collection_id = $1"#,
-        collection_id
-    )
-    .execute(&mut *transaction)
-    .await?;
+    /// Fetches all public collections owned by a given user, this will include
+    /// additional information about each collection such as it's entries but
+    /// will not include information about the author 
+    /// 
+    /// If you need to get all collections including private ones from a user
+    /// refer to `/api/v1/collections` which fetches collections owned by the 
+    /// current user
+    /// 
+    #[oai(path = "/users/:user_id/collections", method = "get")]
+    async fn get_users_collections(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Path(user_id): Path<Uuid>,
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>
+    ) -> ApiResult<Json<Vec<UserCollection>>> {
+        let schematics = sqlx::query_as!(
+            UserCollection,
+            r#"
+            select
+                collection_id, is_private,
+                collection_name,
+                coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
+            from
+                collections
+                inner join collection_entries using (collection_id)
+            where
+                $1 = user_id
+                and is_private = false
+            group by
+                collection_id
+            limit $2 offset $3
+            "#,
+            user_id,
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
+        )
+        .fetch_all(&ctx.pool)
+        .await?;
+    
+        Ok(Json(schematics))
+    }
 
-    transaction.commit().await?;
+    /// Fetches all collections, including private ones owned by the current
+    /// user, this will include all of a collections entries but will not 
+    /// include information about the owner of the user as it is assumed this
+    /// information is already known. 
+    /// 
+    /// If you need to get collections from another user refer to 
+    /// `GET /api/v1/users/{id}/collections`, this returns all the collections
+    /// that are public and owned by a given user
+    /// 
+    #[oai(path = "/collections", method = "get")]
+    async fn get_current_users_collections(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Session(user_id): Session,
+        Query(limit): Query<Option<i64>>,
+        Query(offset): Query<Option<i64>>
+    ) -> ApiResult<Json<Vec<UserCollection>>> {
+        let schematics = sqlx::query_as!(
+            UserCollection,
+            r#"
+            select
+                collection_id, is_private,
+                collection_name,
+                coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
+            from
+                collections
+                inner join collection_entries using (collection_id)
+            where
+                $1 = user_id
+                and is_private = false
+            group by
+                collection_id
+            limit $2 offset $3
+            "#,
+            user_id,
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
+        )
+        .fetch_all(&ctx.pool)
+        .await?;
 
-    Ok(())
+        Ok(Json(schematics))
+    }
+
+    /// Creates a new collection for the current user with a given name and
+    /// privacy level, new collections will always be empty, aswell as this
+    /// it is assumed information about the current user is already known and
+    /// so will not be returned by the api.
+    /// 
+    #[oai(path = "/collections", method = "post")]
+    async fn create_new_collection(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Session(user_id): Session,
+        form: CollectionBuilder
+    ) -> ApiResult<Json<Collection>> {
+        let mut transaction = ctx.pool.begin().await?;
+    
+        let collection = sqlx::query_as!(
+            Collection,
+            r#"
+            insert into collections (
+                collection_name, is_private, user_id
+            )
+            values (
+                $1, $2, $3
+            )
+            returning 
+                collection_id,
+                collection_name,
+                user_id,
+                is_private
+            "#,
+            form.collection_name,
+            form.is_private,
+            user_id,
+        )
+        .fetch_one(&mut *transaction)
+        .await?;
+    
+        transaction.commit().await?;
+    
+        Ok(Json(collection))
+    }
+
+    /// Updatess a given collection, all fields are optional but at least one is
+    /// required as well as this the current user must either own the collection
+    /// or have permissions to mdoerate posts to edit the collection. 
+    /// 
+    /// If you are looking to add a schematic to add a schematic to the collection
+    /// see `POST /api/v1/collections/{id}/schematics`
+    /// 
+    #[oai(path = "/collections/:collection_id", method = "patch")]
+    async fn update_collection_by_id(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Path(collection_id): Path<Uuid>,
+        Session(user_id): Session,
+        form: UpdateCollection
+    ) -> ApiResult<()> {
+        let mut transaction = ctx.pool.begin().await?;
+
+        let collection_meta = sqlx::query!(
+            r#"select user_id from collections where collection_id = $1"#,
+            collection_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+        
+        if collection_meta.user_id != user_id {
+            return Err(ApiError::Forbidden);
+        }
+
+        sqlx::query!(
+            r#"
+            update collections
+                set
+                    collection_name = coalesce($1, collection_name),
+                    is_private = coalesce($2, is_private)
+                where
+                    collection_id = $3
+            "#,
+            form.collection_name,
+            form.is_private,
+            collection_id,
+        )
+        .execute(&mut *transaction)
+        .await?;
+
+        transaction.commit().await?;
+
+        Ok(())
+    }
+
+    /// Fetches the ids of all the schematics in a collection. If the given
+    /// collection is private then the current user must be it's owner. If the 
+    /// user is now the owner of the collection they will recieve a 
+    /// `404 Not Found`, even if the given collection was found, for privacy.
+    /// 
+    /// If you are looking to fetch information about the collection itself
+    /// see `GET /collections/:id`
+    /// 
+    #[oai(path = "/collections/:collection_id/schematics", method = "get")]
+    async fn fetch_collection_entries(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        OptionalSession(user_id): OptionalSession,
+        Path(collection_id): Path<Uuid>,
+    ) -> ApiResult<Json<Vec<CollectionEntry>>> {
+
+        // Needs testing but it should be quicker to perform an initial query
+        // checking permission here rather than joining the collections table
+        // and validating permissions in the fetch query.
+        let collection_meta = sqlx::query!(
+            r#"select user_id, is_private from collections where collection_id = $1"#,
+            collection_id
+        )
+        .fetch_optional(&ctx.pool)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+        if collection_meta.is_private && user_id != Some(collection_meta.user_id) {
+            // Mask the existance of the collection
+            return Err(ApiError::NotFound);
+        }
+
+        let entries = sqlx::query_as!(
+            CollectionEntry,
+            r#"
+            select schematic_id 
+            from collection_entries 
+            where collection_id = $1
+            "#,
+            collection_id,
+        )
+        .fetch_all(&ctx.pool)
+        .await?;
+
+        Ok(Json(entries))
+    }
+
+    /// Adds a schematic to a collection, the current user must own the given
+    /// collection in order to add to it. The same schematic cannot be added to
+    /// a given colleciton twice, if the collection already contains the new
+    /// schematic then a `409 Conflict` will be returned.
+    /// 
+    #[oai(path = "/collections/:collection_id/schematics", method = "post")]
+    async fn add_schematic_to_collection(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Path(collection_id): Path<Uuid>,
+        Session(user_id): Session,
+        form: CollectionEntry
+    ) -> ApiResult<()> {
+        let mut transaction = ctx.pool.begin().await?;
+        
+        let collection_meta = sqlx::query!(
+            r#"select user_id from collections where collection_id = $1"#,
+            collection_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+        
+        if collection_meta.user_id != user_id {
+            return Err(ApiError::Forbidden);
+        }
+
+        sqlx::query!(
+            r#"
+            insert into collection_entries (
+                schematic_id, collection_id
+            ) 
+            values (
+                $1, $2
+            )
+            "#,
+            collection_id,
+            form.schematic_id,
+        )
+        .execute(&mut *transaction)
+        .await?;
+
+        transaction.commit().await?;
+
+        Ok(())
+    }
+
+    /// Removes a given schematic from a colleciton, this requires the current
+    /// user to be the collections owner. 
+    /// 
+    /// If you are looking to entirely remove a collection not just specific 
+    /// schematics within it see `DELETE /api/v1/collections/:id`
+    /// 
+    #[oai(path = "/collections/:collection_id/schematics", method = "delete")]
+    async fn remove_schematic_from_collection(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Path(collection_id): Path<Uuid>,
+        Session(user_id): Session,
+        form: CollectionEntry
+    ) -> ApiResult<()> {
+        let mut transaction = ctx.pool.begin().await?;
+    
+        let collection_meta = sqlx::query!(
+            r#"select user_id from collections where collection_id = $1"#,
+            collection_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    
+        if collection_meta.user_id != user_id {
+            return Err(ApiError::Forbidden);
+        }
+    
+        sqlx::query!(
+            r#"
+            delete from collection_entries
+            where collection_id = $1
+            and schematic_id = $2
+            "#,
+            collection_id,
+            form.schematic_id,
+        )
+        .execute(&mut *transaction)
+        .await?;
+    
+        transaction.commit().await?;
+    
+        Ok(())
+    }
+
+    /// Removes a collection entirely aswell as all attached entries. This 
+    /// requires for the current user to either own the collection or have 
+    /// permissions to moderate posts.
+    /// 
+    /// If you are looking to remove a specific schematic from a collection
+    /// see `DELETE /api/v1/collections/:id/schematics`
+    /// 
+    #[oai(path = "/collections/:collection_id", method = "delete")]
+    async fn remove_collection_by_id(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        Path(collection_id): Path<Uuid>,
+        session: Session,
+    ) -> ApiResult<()> {
+        let mut transaction = ctx.pool.begin().await?;
+
+        let collection_meta = sqlx::query!(
+            r#"select user_id from collections where collection_id = $1"#,
+            collection_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+        
+        if collection_meta.user_id != session.user_id() &&
+                !session.is_moderator(&mut *transaction).await? {
+            return Err(ApiError::Unauthorized);
+        }
+    
+        sqlx::query!(
+            r#"delete from collections where collection_id = $1"#,
+            collection_id
+        )
+        .execute(&mut *transaction)
+        .await?;
+    
+        transaction.commit().await?;
+    
+        Ok(())
+    }
 }

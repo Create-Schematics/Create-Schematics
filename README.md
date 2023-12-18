@@ -75,7 +75,7 @@ Have any questions, want to request a feature or founda bug? You can either subm
 ## Tech Stack
 
 - Front End: Sveltekit, Svelte, Tailwind
-- Back End: Rust, Axum, Sqlx
+- Back End: Rust, Poem, Sqlx
 - Database: Postgres
 
 ## Licenses

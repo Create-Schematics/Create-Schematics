@@ -1,207 +1,203 @@
 use std::path::PathBuf;
 
-use axum::{Router, Json};
-use axum::body::Bytes;
-use axum::extract::{State, Path};
-use axum::routing::get;
-use axum_typed_multipart::{TryFromMultipart, FieldData, TypedMultipart};
-use utoipa::ToSchema;
+use poem::web::Data;
+use poem_openapi::param::Path;
+use poem_openapi::payload::Json;
+use poem_openapi_derive::{Object, Multipart, OpenApi};
 use uuid::Uuid;
 
+use crate::authentication::session::Session;
+use crate::middleware::files::FileUpload;
 use crate::storage::{UPLOAD_PATH, IMAGE_PATH};
 use crate::api::ApiContext;
 use crate::response::ApiResult;
 use crate::error::ApiError;
-use crate::models::schematic::Schematic;
-use crate::models::user::{Permissions, User};
 
-pub (in crate::api::v1) fn configure() -> Router<ApiContext> {
-    Router::new()
-        .route(
-            "/schematics/:id/images",
-            get(get_images_from_schematic)
-            .post(upload_image_to_schematic)
-            .delete(remove_image_from_schematic)
-        )
-}
+const MAX_IMAGE_SIZE: usize = 1024 * 1024 * 2; // 2mb
 
-#[derive(Serialize, Debug, ToSchema)]
-pub (in crate::api) struct Images {
-    #[schema(min_items=1)]
+pub struct ImageApi;
+
+#[derive(Serialize, Debug, Object)]
+pub struct Images {
     pub images: Vec<String>
 }
 
-#[derive(TryFromMultipart, Debug, ToSchema)]
-pub (in crate::api) struct UploadImage {
-    #[form_data(limit = "2MiB")]
-    #[schema(value_type=String, format=Binary)]
-    pub image: FieldData<Bytes>
+#[derive(Multipart, Debug)]
+pub struct UploadImage {
+    pub image: FileUpload
 }
 
-#[derive(TryFromMultipart, Debug, ToSchema)]
-pub (in crate::api) struct DeleteImage {
-    #[schema(example="my_image.webp")]
+#[derive(Multipart, Debug)]
+pub struct DeleteImage {
     pub file_name: String
 }
 
-#[utoipa::path(
-    get,
-    path = "/schematics/{schematic_id}/images",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("schematic_id" = Uuid, Path, description = "The id of the schematic to fetch images from"),
-    ),
-    responses(
-        (status = 200, description = "Successfully retrieved the images", body = Images, content_type = "application/json"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(())
-)]
-async fn get_images_from_schematic(
-    Path(schematic_id): Path<Uuid>,
-    State(ctx): State<ApiContext>
-) -> ApiResult<Json<Images>> {
-    sqlx::query_as!(
-        Images,
-        r#"
-        select images
-        from schematics
-        where schematic_id = $1
-        "#,
-        schematic_id
-    )
-    .fetch_optional(&ctx.pool)
-    .await?
-    .ok_or(ApiError::NotFound)
-    .map(Json)
-}
+#[OpenApi(prefix_path="/v1")]
+impl ImageApi {
 
-#[utoipa::path(
-    post,
-    path = "/schematics/{schematic_id}/images",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("schematic_id" = Uuid, Path, description = "The id of the schematic to upload an image to")
-    ),
-    request_body(
-        content = UploadImage, description = "The new image", content_type = "multipart/form-data"
-    ),
-    responses(
-        (status = 200, description = "Successfully uploaded image to schematic"),
-        (status = 401, description = "You need to be logged in to upload an image to a schematic"),
-        (status = 403, description = "You do not have permission to add an image to this schematic"),
-        (status = 404, description = "A schematic with that id was not found"),
-        (status = 409, description = "This schematic already has an image with that name"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn upload_image_to_schematic(
-    Path(schematic_id): Path<Uuid>,
-    State(ctx): State<ApiContext>,
-    user: User,
-    TypedMultipart(form): TypedMultipart<UploadImage>
-) -> ApiResult<()> {
-    let file_name = form.image.metadata.file_name.ok_or(ApiError::BadRequest)?;
-    let mut transaction = ctx.pool.begin().await?;
-    
-    Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
-    let sanitized = sanitize_filename::sanitize(file_name);
-
-    sqlx::query!(
-        r#"
-        update schematics
-            set 
-                images = array_append(images, $1)
-            where 
-                schematic_id = $2
-        "#,
-        sanitized,
-        schematic_id
-    )
-    .execute(&mut *transaction)
-    .await?;
-
-    let mut path = PathBuf::from(UPLOAD_PATH);
-    path.push(schematic_id.to_string());
-    path.push(IMAGE_PATH);
-
-    let file = path.join(sanitized);
-    
-    if file.exists() {
-        return Err(ApiError::Conflict);
+    /// Fetches the file names of all images associated with a given schematic
+    /// 
+    /// Note this does not return the image files themselves they can be
+    /// retrieved from the static file endpoint here
+    /// `GET /upload/schematics/{schematic_id}/images/{image_name}.{extension}`
+    /// 
+    #[oai(path="/schematics/:schematic_id/images", method="get")]
+    async fn get_images_from_schematic(
+        &self,
+        Data(ctx): Data<&ApiContext>,    
+        Path(schematic_id): Path<Uuid>
+    ) -> ApiResult<Json<Images>> {
+        sqlx::query_as!(
+            Images,
+            r#"
+            select images
+            from schematics
+            where schematic_id = $1
+            "#,
+            schematic_id
+        )
+        .fetch_optional(&ctx.pool)
+        .await?
+        .ok_or(ApiError::NotFound)
+        .map(Json)
     }
 
-    image::load_from_memory(&form.image.contents)
-        .map_err(|_| ApiError::BadRequest)?
-        .save(path)
-        .map_err(anyhow::Error::new)?;
-
-    transaction.commit().await?;
-
-    Ok(())
-}
-
-#[utoipa::path(
-    delete,
-    path = "/schematics/{schematic_id}/images",
-    context_path = "/api/v1",
-    tag = "v1",
-    params(
-        ("schematic_id" = Uuid, Path, description = "The id of the schematic to remove an image from")
-    ),
-    request_body(
-        content = DeleteImage, description = "The name of the image to remove", content_type = "multipart/form-data"
-    ),
-    responses(
-        (status = 200, description = "Successfully deleted image from the schematic", body = Images, content_type = "application/json"),
-        (status = 401, description = "You need to be logged in to remove an image from a schematic"),
-        (status = 403, description = "You do not have permission to remove an image from this schematic"),
-        (status = 404, description = "A schematic with that id or an image with that name was not found"),
-        (status = 500, description = "An internal server error occurred")
-    ),
-    security(("session_cookie" = []))
-)]
-async fn remove_image_from_schematic(
-    Path(schematic_id): Path<Uuid>,
-    State(ctx): State<ApiContext>,
-    user: User,
-    TypedMultipart(form): TypedMultipart<DeleteImage>
-) -> ApiResult<Json<Images>> {
-    let mut transaction = ctx.pool.begin().await?;
+    /// Uploads a new image to an existing schematic, for supported image formats
+    /// see the image crate as this is used to ensure that images are valid.
+    /// 
+    /// https://github.com/image-rs/image?tab=readme-ov-file#supported-image-formats
+    /// 
+    /// File names cannot overlap, if an image with a given name is already added
+    /// to the schematic then the request will be rejected with a `409 Conflict`
+    /// response.
+    /// 
+    /// Aswell as this file names cannot contain profanity if the file name is deemed
+    /// to be profane the request will be rejected 
+    /// 
+    #[oai(path="/schematics/:schematic_id/images", method="post")]
+    async fn upload_image_to_schematic(
+        &self,
+        Data(ctx): Data<&ApiContext>,  
+        Path(schematic_id): Path<Uuid>,
+        Session(user_id): Session,
+        form: UploadImage
+    ) -> ApiResult<()> {
+        let file_name = form.image.file_name.ok_or(ApiError::BadRequest)?;
+        let mut transaction = ctx.pool.begin().await?;
+        
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
     
-    Schematic::check_user_permissions(user, &schematic_id, Permissions::MODERATE_POSTS, &mut *transaction).await?;
-    let file_name = sanitize_filename::sanitize(form.file_name);
+        if schematic_meta.author != user_id {
+            return Err(ApiError::Unauthorized);
+        }
+        
+        let sanitized = sanitize_filename::sanitize(file_name);
+    
+        sqlx::query!(
+            r#"
+            update schematics
+                set 
+                    images = array_append(images, $1)
+                where 
+                    schematic_id = $2
+            "#,
+            sanitized,
+            schematic_id
+        )
+        .execute(&mut *transaction)
+        .await?;
+    
+        let mut path = PathBuf::from(UPLOAD_PATH);
+        path.push(schematic_id.to_string());
+        path.push(IMAGE_PATH);
+    
+        let file = path.join(sanitized);
+        
+        if file.exists() {
+            return Err(ApiError::unprocessable_entity([("image", "a file with this name already exists")]));
+        }
 
-    let images = sqlx::query_as!(
-        Images,
-        r#"
-        update schematics
-            set 
-                images = array_remove(images, $1)
-            where 
-                schematic_id = $2
-                and array_length(images, 1) > 2
-        returning images
-        "#,
-        file_name,
-        schematic_id
-    )
-    .fetch_optional(&mut *transaction)
-    .await?
-    .ok_or(ApiError::NotFound)?;
+        if form.image.contents.len() > MAX_IMAGE_SIZE {
+            return Err(ApiError::unprocessable_entity([("image", "file size too large")]));
+        }
+    
+        image::load_from_memory(&form.image.contents)
+            .map_err(|_| ApiError::BadRequest)?
+            .save(path)
+            .map_err(anyhow::Error::new)?;
+    
+        transaction.commit().await?;
+    
+        Ok(())
+    }
 
-    let mut path = PathBuf::from(UPLOAD_PATH);
-    path.push(schematic_id.to_string());
-    path.push(IMAGE_PATH);
+    /// Removes an image from a schematic
+    /// 
+    /// Each schematic must have at least one image so requests to remove the
+    /// final one will be rejected with a `400 Bad Request` response.
+    /// 
+    /// This endpoint requires the user to either own the schematic or have
+    /// permissions to moderate schematics.
+    /// 
+    #[oai(path="/schematics/:schematic_id/images", method="delete")]
+    async fn remove_image_from_schematic(
+        &self,
+        Data(ctx): Data<&ApiContext>,   
+        Path(schematic_id): Path<Uuid>,
+        session: Session,
+        form: DeleteImage
+    ) -> ApiResult<Json<Images>> {
+        let mut transaction = ctx.pool.begin().await?;
+        
+        let schematic_meta = sqlx::query!(
+            r#"select author from schematics where schematic_id = $1"#,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
-    tokio::fs::remove_file(path.join(file_name))
-        .await
-        .map_err(anyhow::Error::new)?;
+        if schematic_meta.author != session.user_id() &&
+                !session.is_moderator(&mut *transaction).await? {
+            return Err(ApiError::Unauthorized);
+        }
 
-    transaction.commit().await?;
-
-    Ok(Json(images))
+        let file_name = sanitize_filename::sanitize(form.file_name);
+    
+        let images = sqlx::query_as!(
+            Images,
+            r#"
+            update schematics
+                set 
+                    images = array_remove(images, $1)
+                where 
+                    schematic_id = $2
+                    and array_length(images, 1) > 2
+            returning images
+            "#,
+            file_name,
+            schematic_id
+        )
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    
+        let mut path = PathBuf::from(UPLOAD_PATH);
+        path.push(schematic_id.to_string());
+        path.push(IMAGE_PATH);
+    
+        tokio::fs::remove_file(path.join(file_name))
+            .await
+            .map_err(anyhow::Error::new)?;
+    
+        transaction.commit().await?;
+    
+        Ok(Json(images))
+    }
 }

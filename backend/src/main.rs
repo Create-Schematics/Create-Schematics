@@ -17,6 +17,7 @@ pub mod error;
 pub mod authentication;
 pub mod response;
 pub mod storage;
+pub mod helpers;
 
 #[tokio::main]
 async fn main() -> ExitCode {
