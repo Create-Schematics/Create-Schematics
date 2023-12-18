@@ -95,7 +95,7 @@ impl Session {
 }
 
 impl UserSession {
-    const NAMESPACE: &str = "session";
+    const NAMESPACE: &'static str = "session";
 
     pub (crate) fn new_for_user(user_id: Uuid) -> UserSession {
         let session_id = nanoid::nanoid!(SESSION_ID_LENGTH);

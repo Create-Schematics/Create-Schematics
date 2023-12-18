@@ -41,13 +41,13 @@ fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>
             return Err(ApiError::BadRequest);
         }
 
-        let image_buffer = image::load_from_memory(&image.contents)
-            .map_err(|_| ApiError::BadRequest)?;
-
         let path = location.join(&sanitized);
         files.push(sanitized);
 
-        image_buffer.save(path).map_err(anyhow::Error::new)?;
+        image::load_from_memory(&image.contents)
+            .map_err(|_| ApiError::BadRequest)?
+            .save(path)
+            .map_err(anyhow::Error::new)?;
     }
 
     Ok(files)

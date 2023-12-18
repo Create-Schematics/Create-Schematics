@@ -57,6 +57,7 @@ pub fn build_openapi_service() -> OpenApiService<impl OpenApi, ()> {
         .url("https://github.com/Create-Schematics");
 
     OpenApiService::new(apis, "Create Schematics REST API", "0.1")
+        .server("/api")
         .license(license)
         .contact(contact)
         .external_document("https://github.com/Create-Schematics/Create-Schematics")
@@ -81,13 +82,11 @@ pub async fn init(
     let yaml_spec = api_service.spec_endpoint_yaml();
 
     let app = Route::new()
-        .nest("/api", Route::new()
-            .nest("/", api_service)
-            .nest("/swagger-ui", swagger)
-            .at("/openapi.json", json_spec)
-            .at("/openapi.yaml", yaml_spec)
-        )
-        .nest("/upload", StaticFilesEndpoint::new("/static/upload").show_files_listing())
+        .nest("/api", api_service)
+        .nest("/swagger-ui", swagger)
+        .at("/openapi.json", json_spec)
+        .at("/openapi.yaml", yaml_spec)
+        .nest("/upload", StaticFilesEndpoint::new("./static/upload"))
         .with(Cors::new()
             .allow_headers([
                 header::AUTHORIZATION,

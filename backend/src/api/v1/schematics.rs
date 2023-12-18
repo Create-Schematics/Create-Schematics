@@ -176,7 +176,7 @@ impl SchematicsApi {
     /// This endpoint requires for the current user to either own the schematic
     /// or to have permission to moderate posts 
     /// 
-    #[oai(path = "/schematics/:schematic_id", method = "post")]
+    #[oai(path = "/schematics/:schematic_id", method = "patch")]
     async fn update_schematic_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
@@ -416,7 +416,7 @@ impl SchematicsApi {
         .on_constraint("schematics_game_version_id_fkey", |_| {
             ApiError::unprocessable_entity([("game_version", "that version does not exist")])
         })?;
-        
+
         transaction.commit().await?;
         let _persist = upload_dir.into_path();
 
