@@ -14,10 +14,10 @@ pub struct FileUpload {
 impl Debug for FileUpload {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut d = f.debug_struct("Upload");
-        if let Some(file_name) = self.file_name() {
+        if let Some(file_name) = &self.file_name {
             d.field("filename", &file_name);
         }
-        if let Some(content_type) = self.content_type() {
+        if let Some(content_type) = &self.content_type {
             d.field("content_type", &content_type);
         }
         d.finish()
