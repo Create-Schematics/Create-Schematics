@@ -9,7 +9,6 @@ pub fn build_upload_directory(
 ) -> Result<TempDir, anyhow::Error> {
     Builder::new()
         .prefix(&schematic_id.to_string())
-        .rand_bytes(4)
         .tempdir_in(super::UPLOAD_PATH)
         .map_err(anyhow::Error::new)
 }
@@ -34,7 +33,7 @@ fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>
     std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
 
     for image in images {
-        let file_name = image.metadata.file_name.ok_or(ApiError::BadRequest)?;
+        let file_name = image.file_name.ok_or(ApiError::BadRequest)?;
         let sanitized = sanitize_filename::sanitize(&file_name);
 
         if files.contains(&sanitized) {
@@ -60,7 +59,7 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
     std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
     
     for file in files {
-        let file_name = file.metadata.file_name.ok_or(ApiError::BadRequest)?;
+        let file_name = file.file_name.ok_or(ApiError::BadRequest)?;
         
         if !file_name.ends_with(".nbt") {
             return Err(ApiError::BadRequest)
