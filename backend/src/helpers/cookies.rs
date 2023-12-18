@@ -67,7 +67,7 @@ impl CookieBuilder {
         }
     }
 
-    pub fn build(&self) -> Cookie {
+    pub fn build(self) -> Cookie {
         let mut cookie = Cookie::new_with_str(&self.name, self.value);
 
         cookie.set_secure(self.secure);
