@@ -2,7 +2,7 @@
 use std::fmt::Display;
 
 use clap::Args;
-use redis::{FromRedisValue, ToRedisArgs, aio::ConnectionManager, Client};
+use redis::{FromRedisValue, ToRedisArgs, Client, aio::ConnectionManager};
 
 use crate::response::ApiResult;
 
@@ -17,17 +17,20 @@ pub struct StartCommandRedisArguments {
 }
 
 #[derive(Clone)]
-pub struct RedisPool(pub ConnectionManager);
+pub struct RedisPool {
+    manager: ConnectionManager
+}
 
-pub fn connect(
+pub async fn connect(
     StartCommandRedisArguments {
         redis_url,
         ..
     }: StartCommandRedisArguments,
 ) -> Result<RedisPool, anyhow::Error> {
     let client = Client::open(redis_url)?;
+    let manager = ConnectionManager::new(client).await?;
 
-    Ok(RedisPool(ConnectionManager::new(client)))
+    Ok(RedisPool { manager })
 }
 
 impl RedisPool {
@@ -40,11 +43,9 @@ impl RedisPool {
         K: Display,
         T: FromRedisValue
     {
-        let mut conn = self.0.get().await?;
-
         let res = redis::cmd("GET")
             .arg(Self::format_key(namespace, key))
-            .query_async::<_, Option<T>>(&mut conn)
+            .query_async::<_, Option<T>>(&mut self.manager.clone())
             .await?;
 
         Ok(res)
@@ -55,20 +56,18 @@ impl RedisPool {
         namespace: &str,
         key: K,
         value: T,
-        expiry: i64
+        expiry: u64
     ) -> ApiResult<()>
     where
         K: Display,
         T: ToRedisArgs
     {
-        let mut conn = self.0.get().await?;
-
         redis::cmd("SET")
             .arg(Self::format_key(namespace, key))
             .arg(value)
             .arg("EX")
             .arg(expiry)
-            .query_async::<_, ()>(&mut conn)
+            .query_async::<_, ()>(&mut self.manager.clone())
             .await?;
 
         Ok(())
@@ -82,11 +81,9 @@ impl RedisPool {
     where
         K: Display
     {
-        let mut conn = self.0.get().await?;
-
         redis::cmd("DEL")
             .arg(Self::format_key(namespace, key))
-            .query_async::<_, ()>(&mut conn)
+            .query_async::<_, ()>(&mut self.manager.clone())
             .await?;
 
         Ok(())
