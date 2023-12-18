@@ -18,6 +18,7 @@ use crate::api::auth::google::GoogleUser;
 use crate::api::auth::microsoft::MicrosoftUser;
 
 #[derive(Deserialize, Serialize, Display, Debug, Enum)]
+#[oai(rename_all="lowercase")]
 #[serde(rename_all="lowercase")]
 #[strum(serialize_all="lowercase")]
 pub enum OauthProvider {
@@ -34,7 +35,7 @@ pub enum OauthProvider {
     Discord
 }
 
-pub (crate) struct OauthUser {
+pub struct OauthUser {
     pub oauth_id: String,
     pub username: String,
     pub display_name: Option<String>,
@@ -43,7 +44,7 @@ pub (crate) struct OauthUser {
 }
 
 #[derive(Clone)]
-pub (crate) struct ScopedClient {
+pub struct ScopedClient {
     pub inner: BasicClient,
     pub scopes: Vec<Scope>,
     pub data_uri: String,
@@ -141,13 +142,16 @@ impl<'a> TryFrom<ClientConfig<'a>> for ScopedClient {
     type Error = anyhow::Error;
 
     fn try_from(cfg: ClientConfig<'a>) -> Result<Self, Self::Error> {
+        let self_address = env::var("SELF_ADDRESS")?;
+
         let client_id = ClientId::new(env::var(cfg.client_id_env)?);
         let client_secret = ClientSecret::new(env::var(cfg.client_secret_env)?);
         
         let auth_url = AuthUrl::new(cfg.auth_url.to_string())?;
         let token_url = TokenUrl::new(cfg.token_url.to_string())?;
 
-        let redirect_url = RedirectUrl::new(cfg.redirect_uri.to_string())?;
+        let callback = cfg.redirect_uri.to_string();
+        let redirect_url = RedirectUrl::new(format!("{self_address}{callback}"))?;
 
         let inner = BasicClient::new(
             client_id, 

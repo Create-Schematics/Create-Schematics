@@ -126,8 +126,8 @@ impl UserSession {
             .max_age(Duration::from_secs(DEFAULT_SESSION_LENGTH))
             .build()
     }
-
-    pub (crate) fn take_from_jar(jar: &CookieJar) {
+    
+    pub (crate) fn _take_from_jar(jar: &CookieJar) {
         jar.remove(Self::NAMESPACE);
     }
 
@@ -142,7 +142,7 @@ impl UserSession {
         Ok(())
     }
 
-    pub (crate) async fn clear(
+    pub (crate) async fn _clear(
         self,
         redis_pool: &RedisPool
     ) -> ApiResult<()> {
