@@ -1,651 +1,2169 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
   title: Create Schematics REST API
-  description: ''
+  version: '0.1'
   contact:
-    name: Rabbitminers
-    email: rabbitminers2.0@gmail.com
+    name: Create-Schematics
+    url: https://github.com/Create-Schematics
   license:
     name: MIT
     url: https://github.com/Create-Schematics/Create-Schematics/blob/master/LICENSE
-  version: 0.0.1
+servers:
+- url: /api
+tags: []
 paths:
-  /api/auth/{provider}:
+  /auth/{provider}:
     get:
-      tags:
-      - authentication
-      operationId: oauth_authorization
       parameters:
-      - name: schematic_id
-        in: path
-        description: The oauth provider to authenticate with
-        required: true
+      - name: provider
         schema:
-          $ref: '#/components/schemas/OauthProviders'
+          $ref: '#/components/schemas/OauthProvider'
+        in: path
+        required: true
+        deprecated: false
+        explode: true
       responses:
-        '303':
-          description: Redirecting to oauth provider
+        '302':
+          description: ''
           headers:
-            Location:
+            LOCATION:
+              required: true
+              deprecated: false
               schema:
                 type: string
         '400':
-          description: Invalid oauth provider
-      security:
-      - session_cookie: []
-  /api/auth/{provider}/callback:
-    get:
-      tags:
-      - authentication
-      operationId: oauth_callback
-      parameters:
-      - name: schematic_id
-        in: path
-        description: The oauth provider to authenticate with
-        required: true
-        schema:
-          $ref: '#/components/schemas/OauthProviders'
-      - name: query
-        in: query
-        description: Current oauth state
-        required: true
-        schema:
-          $ref: '#/components/schemas/AuthRequest'
-      responses:
-        '303':
-          description: Redirecting to home page
-          headers:
-            Location:
-              schema:
-                type: string
-        '400':
-          description: Invalid oauth provider
-        '500':
-          description: Internal server error while authorizing user
-      security:
-      - session_cookie: []
-  /api/v1/comments/{id}:
-    get:
-      tags:
-      - v1
-      operationId: get_comment_by_id
-      parameters:
-      - name: id
-        in: path
-        description: The id of the comment to fetch
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Successfully retrieved the comment
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FullComment'
-        '404':
-          description: A comment with that id was not found
-        '500':
-          description: An internal server error occurred
-      security:
-      - {}
-    delete:
-      tags:
-      - v1
-      operationId: delete_comment_by_id
-      parameters:
-      - name: id
-        in: path
-        description: The id of the comment to remove
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Successfully deleted the comment
+          description: ''
         '401':
-          description: You need to be logged in to delete a comment
+          description: ''
         '403':
-          description: You do not have permission to delete this comment
+          description: ''
         '404':
-          description: A comment with that id was not found
-        '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-    patch:
-      tags:
-      - v1
-      operationId: update_comment_by_id
-      parameters:
-      - name: id
-        in: path
-        description: The id of the comment to update
-        required: true
-        schema:
-          type: string
-          format: uuid
-      requestBody:
-        description: The new body of the comment
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateComment'
-        required: true
-      responses:
-        '200':
-          description: Successfully updated the comment
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Schematic'
-        '401':
-          description: You need to be logged in to update a comment
-        '403':
-          description: You do not have permission to update this comment
-        '404':
-          description: A comment with that id was not found
-        '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-  /api/v1/schematics:
-    get:
-      tags:
-      - v1
-      operationId: search_schematics
-      parameters:
-      - name: query
-        in: query
-        description: The number and offset of schematics to fetch
-        required: true
-        schema:
-          $ref: '#/components/schemas/SearchQuery'
-      responses:
-        '200':
-          description: Successfully retrieved the schematics
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/FullSchematic'
-        '500':
-          description: An internal server error occurred
-      security:
-      - {}
-    post:
-      tags:
-      - v1
-      operationId: upload_schematic
-      requestBody:
-        description: Information about the new schematic
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/SchematicBuilder'
-        required: true
-      responses:
-        '200':
-          description: Successfully uploaded the schematic
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Schematic'
-        '401':
-          description: You must be logged in to upload a schematic
-        '403':
-          description: You do not have permission to upload a schematic
-        '500':
-          description: An error occurred while uploading the schematic
-      security:
-      - session_cookie: []
-  /api/v1/schematics/favorites:
-    get:
-      tags:
-      - v1
-      operationId: get_favorites
-      responses:
-        '200':
-          description: Successfully retrieved the schematics
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Schematic'
-        '401':
-          description: You need to be logged in to view your favourite schematics
-        '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-  /api/v1/schematics/{id}:
-    get:
-      tags:
-      - v1
-      operationId: get_schematic_by_id
-      parameters:
-      - name: id
-        in: path
-        description: The id of the schematic to fetch
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Successfully retrieved the schematic
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Schematic'
-        '404':
-          description: A schematic with that id was not found
-        '500':
-          description: An internal server error occurred
-      security:
-      - {}
-    delete:
-      tags:
-      - v1
-      operationId: delete_schematic_by_id
-      parameters:
-      - name: schematic_id
-        in: path
-        description: The id of the schematic to remove
-        required: true
-        schema:
-          type: string
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Successfully deleted the schematic
-        '401':
-          description: You need to be logged in to delete a schematic
-        '403':
-          description: You do not have permission to delete this schematic
-        '404':
-          description: A schematic with that id was not found
-        '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-    patch:
-      tags:
-      - v1
-      operationId: update_schematic_by_id
-      parameters:
-      - name: schematic_id
-        in: path
-        description: The id of the schematic to update
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      requestBody:
-        description: The values to update
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateSchematic'
-        required: true
-      responses:
-        '200':
-          description: Successfully updated the schematic
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Schematic'
-        '401':
-          description: You need to be logged in to update a schematic
-        '403':
-          description: You do not have permission to update this schematic
-        '404':
-          description: A schematic with that id was not found
+          description: ''
         '422':
-          description: A schematic with the new name already exists
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
         '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-  /api/v1/schematics/{id}/comments:
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /auth/{provider}/callback:
     get:
-      tags:
-      - v1
-      operationId: get_comments_by_schematic
       parameters:
-      - name: query
-        in: query
-        description: Options to search with
-        required: true
+      - name: provider
         schema:
-          $ref: '#/components/schemas/SearchQuery'
-      - name: id
+          $ref: '#/components/schemas/OauthProvider'
         in: path
         required: true
+        deprecated: false
+        explode: true
+      - name: code
+        schema:
+          type: string
+        in: query
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '302':
+          description: ''
+          headers:
+            LOCATION:
+              required: true
+              deprecated: false
+              schema:
+                type: string
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/schematics/{schematic_id}/comments:
+    get:
+      summary: |-
+        Fetches a number of the comments on a schematic as well as some basic
+        additional information about their author such as their avatar url
+        and usesrname to prevent the need for subsequent requests. By default
+        if no limit for comments is set then up to 20 will be returned at a
+        time.
+      description: |
+        Note that comment bodies can contain markdown which will need to be
+        handled accordingly
+      parameters:
+      - name: schematic_id
         schema:
           type: string
           format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
       responses:
         '200':
-          description: Successfully retrieved the comments
+          description: ''
           content:
-            application/json:
+            application/json; charset=utf-8:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/FullComment'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
         '500':
-          description: An internal server error occurred
-      security:
-      - {}
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
     post:
-      tags:
-      - v1
-      operationId: post_comment
+      summary: |-
+        Uploads a comment to a given schematic for the current user returning
+        information about the new comment including its id.
+      description: |
+        The comments body can contain markdown which will be sanitized
+        accordingly, however it cannot contain profanity wich will result in
+        a `422 Conflict` being returned.
+
+        If you believe something is being falsely flagged as profanity please
+        contact us either on github or through other chanels provided in the
+        openapi spec.
       parameters:
-      - name: id
-        in: path
-        required: true
+      - name: schematic_id
         schema:
           type: string
           format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
       requestBody:
-        description: The text of the comment
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CommentBuilder'
+              type: object
+              required:
+              - comment_body
+              properties:
+                comment_body:
+                  type: string
         required: true
       responses:
         '200':
-          description: Successfully added comment to schematic
+          description: ''
           content:
-            application/json:
+            application/json; charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Comment'
+        '400':
+          description: ''
         '401':
-          description: You must be logged in to comment
+          description: ''
         '403':
-          description: You do not have permission to comment
-        '500':
-          description: An error occurred while uploading the comment
-      security:
-      - session_cookie: []
-  /api/v1/schematics/{id}/favorite:
-    post:
-      tags:
-      - v1
-      operationId: favorite_schematic
-      parameters:
-      - name: id
-        in: path
-        description: The id of the schematic to favorite
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Successfully favorited the schematic
-        '401':
-          description: You need to be logged in to favorite a schematic
-        '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-    delete:
-      tags:
-      - v1
-      operationId: unfavorite_schematic
-      parameters:
-      - name: id
-        in: path
-        description: The id of the schematic to unfavorite
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Successfully unfavorited the schematic
-        '401':
-          description: You need to be logged in to unfavorite a schematic
-        '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-  /api/v1/schematics/{id}/like:
-    delete:
-      tags:
-      - v1
-      operationId: remove_like_from_schematic
-      parameters:
-      - name: id
-        in: path
-        description: The id of the comment to remove the vote from
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Successfully removed the vote
-        '401':
-          description: You need to be logged in to remove al ike
+          description: ''
         '404':
-          description: You have not liked this schematic
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
         '500':
-          description: An internal server error occurred
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
       security:
-      - session_cookie: []
-  /api/v1/schematics/{id}/tags:
+      - Session: []
+  /v1/comments/{comment_id}:
     get:
-      tags:
-      - v1
-      operationId: get_schematic_tags
+      summary: |-
+        Fetches a specific comment by it's id aswell as some additional
+        information about it's author such as their username and avatar url
+        to avoid subsequent requests.
+      description: |
+        Note the comemnts body can contain markdown which will need to be
+        displayed accordingly to the user
+
+        If you are looking to fetch comments from a schematic see
+        `GET /schematics/:id/comments`
       parameters:
-      - name: id
-        in: path
-        description: The id of the schematic to fetch tags from
-        required: true
+      - name: comment_id
         schema:
           type: string
           format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
       responses:
         '200':
-          description: Successfully retrieved the schematic's tags
+          description: ''
           content:
-            application/json:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/FullComment'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    patch:
+      summary: |-
+        Updates a given comment by its id, all fields are optional but at least
+        one is required to be present.
+      description: |
+        The new body can contain markdown but not profanity, if it is detected
+        to be innapropriate then the reqeust will be denied with `422 Unprocessable
+        Entity`
+
+        The current user must also own the comment even if they have permission to
+        moderate comments
+      parameters:
+      - name: comment_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                comment_body:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |
+        Removes a comment from a schematic by it's id, this requires for the
+        current user to either own the comment or have permission to moderate
+        comments
+      parameters:
+      - name: comment_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics/{schematic_id}:
+    get:
+      summary: |-
+        Fetches a given schematic by it's id including some additional information
+        about it and it's author including like and dislike count, applied tags and
+        the authors username and avatar in order to reduce the need for subsequent
+        requests
+      description: |
+        If you are looking to search for schematics not for a specific one see
+        `GET /api/v1/schematics`
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/FullSchematic'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    patch:
+      summary: |-
+        Updates a given schematic by it's id. All fields are optional but at
+        least one is required
+      description: |
+        If you are looking to add or remove images from a schematic see the
+        `/api/v1/schematics/:id/images` endpoint and for schematic files see
+        the `/api/v1/schematics/:id/files` endpoint
+
+        This endpoint requires for the current user to either own the schematic
+        or to have permission to moderate posts
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                schematic_name:
+                  type: string
+                  maxLength: 50
+                  minLength: 3
+                game_version:
+                  type: integer
+                  format: int32
+                  minimum: 1.0
+                create_version:
+                  type: integer
+                  format: int32
+                  minimum: 1.0
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Schematic'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |-
+        Removes an existing schematic by it's id as well as all attached data
+        such as it's files, applied tags, likes and dislikes and entries within
+        collections
+      description: |
+        This endpoint requires for the current user to either own the schematic
+        or to have permissiosn to moderate posts
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics:
+    get:
+      summary: |-
+        Searches schematics returning a given number based on requested filters
+        with some additional information such as the like and dislike count, tags
+        present on a schematic and the authors username and avatar in order to
+        reduce the need for subsequent requests
+      description: |
+        If tags are included in the query then only schematics with one or more of
+        the selected tags will be searched for.
+
+        If no limit is specified for the number of schematics to return it will
+        default to 20
+      parameters:
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: tag_ids
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: term
+        schema:
+          type: string
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: sort
+        schema:
+          $ref: '#/components/schemas/SortBy'
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullSchematic'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    post:
+      summary: Uploads a new schematic for the current user
+      description: |
+        Schematics must have at least one image and file if not the request will
+        be rejected with `400 Bad Request`. The file names will be preserved but
+        will be sanitized
+
+        If an invalid game version or create version is specfied a `422 Unprocessable
+        Entity` error will be returned with a message describing the issue.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - schematic_name
+              - schematic_body
+              - game_version
+              - create_version
+              - files
+              - images
+              properties:
+                schematic_name:
+                  type: string
+                  maxLength: 50
+                  minLength: 3
+                schematic_body:
+                  type: string
+                  maxLength: 2048
+                game_version:
+                  type: integer
+                  format: int32
+                  minimum: 1.0
+                create_version:
+                  type: integer
+                  format: int32
+                  minimum: 1.0
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Schematic'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics/{schematic_id}/like:
+    get:
+      summary: |-
+        Adds either a like or dislike reaction to a schematic by the current user.
+        If this user has already liked or disliked this schematic, their reaction
+        will be updated instead.
+      description: |
+        If you are looking to remove a like see the `DELETE /api/v1/schematics/:id/like`
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      - name: query
+        schema:
+          $ref: '#/components/schemas/LikeAction'
+        in: query
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: Removes a like or dislike reaction from a schematic by the current user.
+      description: |
+        If the user hasnt already liked the schematic or a schematic with the given
+        id doesnt exist then a `404 Not Found` error will be returned
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/users:
+    get:
+      summary: |
+        Fetches information about the current user including their email
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    patch:
+      summary: |-
+        Updates information about the current user. All fields are optional but
+        at least one is required.
+      description: |
+        All usernames must be unique, if the requested new username is already
+        used a `422 Unprocessable Entity` error will be returned
+      requestBody:
+        content:
+          application/json; charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |
+        Removes the current users account and invalidates any active sessions
+        aswell as removing the current session from their cookies.
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/users/{user_id}:
+    get:
+      summary: |
+        Fetches a user by their id, for privacy their email will not be included
+      parameters:
+      - name: user_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/users/{user_id}/schematics:
+    get:
+      summary: |-
+        Fetches a number of schematics created by the specified user. User
+        information will not be included with the schematic as it is assumed
+        that this information is already known.
+      description: |
+        If a limit is not specified 20 will be fetched by default.
+      parameters:
+      - name: user_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Schematic'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/schematics/{schematic_id}/tags:
+    get:
+      summary: Fetch all the tags applied to a given schematic
+      description: |
+        This also includes the name of each tag aswell as their underlying id
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/FullTag'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
         '404':
-          description: A schematic with that id was not found
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
         '500':
-          description: An internal server error occurred
-      security:
-      - {}
-    post:
-      tags:
-      - v1
-      operationId: tag_schematic_by_id
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/tags:
+    get:
+      summary: |-
+        Fetch a number of the valid tags available within the api aswell as their
+        given names. If no limit is specified 20 will be returned by default.
+      description: |
+        If you are looking to get all of the tags on a specific schematic see
+        `GET /api/v1/schematics/{id}/tags`
       parameters:
-      - name: id
-        in: path
-        description: The id of the schematic to remove
-        required: true
+      - name: limit
         schema:
-          type: string
-          format: uuid
-      requestBody:
-        description: The new tags to apply by name
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TagBody'
-        required: true
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
       responses:
         '200':
-          description: Successfully added tags to schematic
+          description: ''
           content:
-            application/json:
+            application/json; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Schematic'
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullTag'
+        '400':
+          description: ''
         '401':
-          description: You must be logged in to tag a schematic
+          description: ''
         '403':
-          description: You do not have permission to tag this schematic
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
         '500':
-          description: An error occurred while tagging the schematic
-      security:
-      - session_cookie: []
-    delete:
-      tags:
-      - v1
-      operationId: untag_schematic_by_id
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/schematis/{schematic_id}/tags:
+    post:
+      summary: |-
+        Applies tags to a given schematic given their identifiers see
+        `GET /api/v1/tags` for a full list of valid tags
+      description: |
+        This requires for the current user to be the schematics author
       parameters:
-      - name: id
-        in: path
-        description: The id of the schematic to remove tags from
-        required: true
+      - name: schematic_id
         schema:
           type: string
           format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
       requestBody:
-        description: The tags to remove from the schematic
         content:
-          application/json:
+          application/json; charset=utf-8:
             schema:
               $ref: '#/components/schemas/Tags'
         required: true
       responses:
         '200':
-          description: Successfully removed the tags from the schematic
+          description: ''
+        '400':
+          description: ''
         '401':
-          description: You need to be logged in to delete tags from a schematic
+          description: ''
         '403':
-          description: You do not have permission to delete tags from this schematic
+          description: ''
         '404':
-          description: A schematic with that id was not found
-        '500':
-          description: An internal server error occurred
-      security:
-      - session_cookie: []
-  /api/v1/tags:
-    get:
-      tags:
-      - v1
-      operationId: get_valid_tags
-      parameters:
-      - name: query
-        in: query
-        description: How many tags to fetch
-        required: true
-        schema:
-          $ref: '#/components/schemas/PaginationQuery'
-      responses:
-        '200':
-          description: Successfully retrieved the tags
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
           content:
-            application/json:
+            application/json; charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/FullTag'
+                $ref: '#/components/schemas/EntityErrors'
         '500':
-          description: An internal server error occurred
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
       security:
-      - {}
-  /api/v1/users:
-    get:
-      tags:
-      - v1
-      operationId: current_user
-      responses:
-        '200':
-          description: Successfully found current users
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          description: You must be logged in
-        '500':
-          description: An error occurred while authenticating the user
-      security:
-      - session_cookie: []
-    post:
-      tags:
-      - v1
-      operationId: remove_current_user
-      responses:
-        '200':
-          description: Successfully deleted current user
-        '401':
-          description: You must be logged in to remove your account
-        '500':
-          description: An error occurred removing your account
-      security:
-      - session_cookie: []
-  /api/v1/users/{id}/schematics:
-    get:
-      tags:
-      - v1
-      operationId: get_uploaded_schematics
+      - Session: []
+    delete:
+      summary: Removes tags from a given schematic given their identifiers
+      description: |
+        This requires for the current user to be the schematics author
       parameters:
-      - name: id
-        in: path
-        description: The id of the user to get the schematics from
-        required: true
+      - name: schematic_id
         schema:
           type: string
           format: uuid
-      - name: query
-        in: query
-        description: How many schematics to fetch
+        in: path
         required: true
-        schema:
-          $ref: '#/components/schemas/PaginationQuery'
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          application/json; charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/Tags'
+        required: true
       responses:
         '200':
-          description: Successfully retrieved the schematics
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
           content:
-            application/json:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics/{schematic_id}/collections:
+    get:
+      summary: |-
+        Fetches a number of collections that contain a given schematic including
+        the schematic ids of there entries and basic information about their
+        author such as their username and avatar to avoid subsequent requests.
+      description: |
+        Note that private collections even if the user requesting them is the
+        owner will not be returned from this endpoint.
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Schematic'
+                  $ref: '#/components/schemas/FullCollection'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
         '404':
-          description: A schematic with that id was not found
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
         '500':
-          description: An internal server error occurred
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/collections/{collection_id}:
+    get:
+      summary: |-
+        Fetches a collection by it's id asell as the ids of all the schematics
+        it contains and some information about the author such as their username
+        and avatar url.
+      description: |
+        If the requested collection is private and the user is not it's owner
+        then `404 Not Found` will be returned even if the collection does exist
+        for privacy
+      parameters:
+      - name: collection_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/FullCollection'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
       security:
-      - {}
+      - OptionalSession: []
+    patch:
+      summary: |-
+        Updatess a given collection, all fields are optional but at least one is
+        required as well as this the current user must either own the collection
+        or have permissions to mdoerate posts to edit the collection.
+      description: |
+        If you are looking to add a schematic to add a schematic to the collection
+        see `POST /api/v1/collections/{id}/schematics`
+      parameters:
+      - name: collection_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                collection_name:
+                  type: string
+                  maxLength: 50
+                  minLength: 3
+                is_private:
+                  type: boolean
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |-
+        Removes a collection entirely aswell as all attached entries. This
+        requires for the current user to either own the collection or have
+        permissions to moderate posts.
+      description: |
+        If you are looking to remove a specific schematic from a collection
+        see `DELETE /api/v1/collections/:id/schematics`
+      parameters:
+      - name: collection_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/users/{user_id}/collections:
+    get:
+      summary: |-
+        Fetches all public collections owned by a given user, this will include
+        additional information about each collection such as it's entries but
+        will not include information about the author
+      description: |
+        If you need to get all collections including private ones from a user
+        refer to `/api/v1/collections` which fetches collections owned by the
+        current user
+      parameters:
+      - name: user_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserCollection'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/collections:
+    get:
+      summary: |-
+        Fetches all collections, including private ones owned by the current
+        user, this will include all of a collections entries but will not
+        include information about the owner of the user as it is assumed this
+        information is already known.
+      description: |
+        If you need to get collections from another user refer to
+        `GET /api/v1/users/{id}/collections`, this returns all the collections
+        that are public and owned by a given user
+      parameters:
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserCollection'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    post:
+      summary: |
+        Creates a new collection for the current user with a given name and
+        privacy level, new collections will always be empty, aswell as this
+        it is assumed information about the current user is already known and
+        so will not be returned by the api.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - collection_name
+              - is_private
+              properties:
+                collection_name:
+                  type: string
+                  maxLength: 50
+                  minLength: 3
+                is_private:
+                  type: boolean
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/collections/{collection_id}/schematics:
+    get:
+      summary: |-
+        Fetches the ids of all the schematics in a collection. If the given
+        collection is private then the current user must be it's owner. If the
+        user is now the owner of the collection they will recieve a
+        `404 Not Found`, even if the given collection was found, for privacy.
+      description: |
+        If you are looking to fetch information about the collection itself
+        see `GET /collections/:id`
+      parameters:
+      - name: collection_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CollectionEntry'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - OptionalSession: []
+    post:
+      summary: |
+        Adds a schematic to a collection, the current user must own the given
+        collection in order to add to it. The same schematic cannot be added to
+        a given colleciton twice, if the collection already contains the new
+        schematic then a `409 Conflict` will be returned.
+      parameters:
+      - name: collection_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - schematic_id
+              properties:
+                schematic_id:
+                  type: string
+                  format: uuid
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |-
+        Removes a given schematic from a colleciton, this requires the current
+        user to be the collections owner.
+      description: |
+        If you are looking to entirely remove a collection not just specific
+        schematics within it see `DELETE /api/v1/collections/:id`
+      parameters:
+      - name: collection_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - schematic_id
+              properties:
+                schematic_id:
+                  type: string
+                  format: uuid
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics/{schematic_id}/images:
+    get:
+      summary: Fetches the file names of all images associated with a given schematic
+      description: |
+        Note this does not return the image files themselves they can be
+        retrieved from the static file endpoint here
+        `GET /upload/schematics/{schematic_id}/images/{image_name}.{extension}`
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Images'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    post:
+      summary: |-
+        Uploads a new image to an existing schematic, for supported image formats
+        see the image crate as this is used to ensure that images are valid.
+      description: |
+        https://github.com/image-rs/image?tab=readme-ov-file#supported-image-formats
+
+        File names cannot overlap, if an image with a given name is already added
+        to the schematic then the request will be rejected with a `409 Conflict`
+        response.
+
+        Aswell as this file names cannot contain profanity if the file name is deemed
+        to be profane the request will be rejected
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: Removes an image from a schematic
+      description: |
+        Each schematic must have at least one image so requests to remove the
+        final one will be rejected with a `400 Bad Request` response.
+
+        This endpoint requires the user to either own the schematic or have
+        permissions to moderate schematics.
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file_name
+              properties:
+                file_name:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Images'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics/{schematic_id}/files:
+    get:
+      summary: Fetches the name of all uploaded schematic files on a given schematic
+      description: |
+        Note this does not return the schematic files themselves, they can be
+        retrieved from the static file endpoint like so filling in the schematic
+        id for the given schematic and file_name for one of the values returned
+        here `GET /upload/schematics/{schematic_id}/files/{file_name}.nbt`
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Files'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    post:
+      summary: |-
+        Uploads a new schematic file to a schematic, use this for schematics
+        with multiple variations or parts not for many entirely different
+        schematics.
+      description: |
+        This requires for the current user to be the owner of the given schematic
+        and for this file name (after sanitization) to not be used already. If
+        there are conflicting file names `422 Unprocessable Entity` will be returned
+        with a message explaining this
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |-
+        Removes a schematic file from a schematic, at least one file must be
+        present at all times. Requests to remove the last file will result in
+        a `400 Bad Request` error
+      description: |
+        This requires the current to user to either own the schematic or have
+        permissions to moderate schematics
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file_name
+              properties:
+                file_name:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Files'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
 components:
   schemas:
-    AuthRequest:
+    Collection:
       type: object
       required:
-      - code
+      - collection_id
+      - collection_name
+      - user_id
+      - is_private
       properties:
-        code:
+        collection_id:
           type: string
+          format: uuid
+        collection_name:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        is_private:
+          type: boolean
+    CollectionEntry:
+      type: object
+      required:
+      - schematic_id
+      properties:
+        schematic_id:
+          type: string
+          format: uuid
     Comment:
       type: object
       required:
@@ -654,23 +2172,95 @@ components:
       - comment_body
       - schematic_id
       properties:
+        comment_id:
+          type: string
+          format: uuid
         comment_author:
           type: string
           format: uuid
         comment_body:
           type: string
-        comment_id:
-          type: string
-          format: uuid
         schematic_id:
           type: string
-    CommentBuilder:
+    CurrentUser:
       type: object
       required:
-      - comment_body
+      - user_id
+      - username
+      - role
       properties:
-        comment_body:
+        user_id:
           type: string
+          format: uuid
+        username:
+          type: string
+          maxLength: 30
+          minLength: 3
+        avatar:
+          type: string
+        about:
+          type: string
+          maxLength: 256
+        role:
+          $ref: '#/components/schemas/Role'
+        email:
+          type: string
+    EntityErrors:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          type: object
+          description: |
+            Structure to return unprocessable data in with the erroneous field
+            as the key and the reason it cannot be handled in the value.
+
+            Ideally we would use a Cow<'static, str> here to avoid unnessasery
+            cloning of the strings but does not implement ParseFromJSON
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    Files:
+      type: object
+      required:
+      - files
+      properties:
+        files:
+          type: array
+          items:
+            type: string
+          minItems: 1
+    FullCollection:
+      type: object
+      required:
+      - collection_id
+      - collection_name
+      - is_private
+      - user_id
+      - username
+      - entries
+      properties:
+        collection_id:
+          type: string
+          format: uuid
+        collection_name:
+          type: string
+        is_private:
+          type: boolean
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        avatar:
+          type: string
+        entries:
+          type: array
+          items:
+            type: string
+            format: uuid
     FullComment:
       type: object
       required:
@@ -680,17 +2270,81 @@ components:
       - schematic_id
       - author_username
       properties:
-        author_username:
+        comment_id:
           type: string
+          format: uuid
         comment_author:
           type: string
           format: uuid
         comment_body:
           type: string
-        comment_id:
+        schematic_id:
+          type: string
+        author_username:
+          type: string
+    FullSchematic:
+      type: object
+      required:
+      - schematic_id
+      - schematic_name
+      - body
+      - author
+      - author_name
+      - like_count
+      - dislike_count
+      - downloads
+      - tags
+      - images
+      - files
+      - game_version_id
+      - game_version_name
+      - create_version_id
+      - create_version_name
+      properties:
+        schematic_id:
+          type: string
+        schematic_name:
+          type: string
+        body:
+          type: string
+        author:
           type: string
           format: uuid
-        schematic_id:
+        author_name:
+          type: string
+        author_avatar:
+          type: string
+        like_count:
+          type: integer
+          format: int64
+        dislike_count:
+          type: integer
+          format: int64
+        downloads:
+          type: integer
+          format: int64
+        tags:
+          type: array
+          items:
+            type: integer
+            format: int64
+        images:
+          type: array
+          items:
+            type: string
+        files:
+          type: array
+          items:
+            type: string
+        game_version_id:
+          type: integer
+          format: int64
+        game_version_name:
+          type: string
+        create_version_id:
+          type: integer
+          format: int64
+        create_version_name:
           type: string
     FullTag:
       type: object
@@ -703,156 +2357,79 @@ components:
           format: int64
         tag_name:
           type: string
+    Images:
+      type: object
+      required:
+      - images
+      properties:
+        images:
+          type: array
+          items:
+            type: string
     LikeAction:
       type: string
       enum:
-      - like
-      - dislike
-    LikeQuery:
-      type: object
-      properties:
-        action:
-          allOf:
-          - $ref: '#/components/schemas/LikeAction'
-          nullable: true
-    OauthProviders:
+      - Like
+      - Dislike
+    OauthProvider:
       type: string
       enum:
       - github
       - microsoft
       - google
       - discord
-    PaginationQuery:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int64
-          nullable: true
-        offset:
-          type: integer
-          format: int64
-          nullable: true
+    Role:
+      type: string
+      enum:
+      - User
+      - Moderator
+      - Administrator
     Schematic:
       type: object
       required:
       - schematic_id
+      - body
       - schematic_name
       - game_version_id
       - create_version_id
       - author
+      - images
+      - files
       - downloads
       properties:
-        author:
-          type: string
-          format: uuid
-        create_version_id:
-          type: integer
-          format: int32
-        downloads:
-          type: integer
-          format: int64
-        game_version_id:
-          type: integer
-          format: int32
         schematic_id:
           type: string
           format: uuid
+        body:
+          type: string
         schematic_name:
           type: string
-    SchematicBuilder:
-      type: object
-      required:
-      - schematic_name
-      - schematic_body
-      - game_version
-      - create_version
-      - files
-      - images
-      properties:
-        create_version:
+        game_version_id:
           type: integer
           format: int32
-          description: |
-            The id of the create version of the new schematic
-          example: 8
-          minimum: 1
-        files:
-          type: array
-          items:
-            type: string
-            format: binary
-          description: |
-            The schematic file to upload
-        game_version:
+        create_version_id:
           type: integer
           format: int32
-          description: |
-            The id of the game version of the new schematic
-          example: 4
-          minimum: 1
+        author:
+          type: string
+          format: uuid
         images:
           type: array
           items:
             type: string
-            format: binary
-          description: |
-            The images of the schematic to upload
-        schematic_body:
-          type: string
-          description: |
-            The body (description) of the schematic
-          maxLength: 2048
-          minLength: 128
-        schematic_name:
-          type: string
-          description: |
-            The name of the new schematic
-          maxLength: 50
-          minLength: 3
-    SearchQuery:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int64
-          description: |
-            The maximum number of schematics to fetch. If this is not
-            provided it will default to 20. No more than 50 schematics
-            can be fetched at once.
-          example: 20
-          nullable: true
-          maximum: 50
-          minimum: 0
-        offset:
-          type: integer
-          format: int64
-          description: |
-            The page of schematics to fetch from. If this is not provided
-            it will default to page 0 (no offset).
-          example: 0
-          nullable: true
-          minimum: 0
-        sort:
-          allOf:
-          - $ref: '#/components/schemas/SortBy'
-          nullable: true
-        tag_ids:
+        files:
           type: array
           items:
-            type: integer
-            format: int64
-          description: |
-            The tags to fetch from, only schematics with all of these tags
-            will fetched.
-          nullable: true
-        term:
-          type: string
-          description: |
-            The term to search schematics for. Both schematic names and
-            descriptions will be matched agaisnt the this term.
-          example: test
-          nullable: true
+            type: string
+        downloads:
+          type: integer
+          format: int64
+    SortBy:
+      type: string
+      enum:
+      - Downloads
+      - Likes
+      - CreatedAt
     Tags:
       type: object
       required:
@@ -863,73 +2440,64 @@ components:
           items:
             type: integer
             format: int64
-    UpdateComment:
-      type: object
-      properties:
-        comment_body:
-          type: string
-          nullable: true
-    UpdateSchematic:
-      type: object
-      properties:
-        create_version:
-          type: integer
-          format: int32
-          description: |
-            The id of the new create version of the schematic
-          example: 8
-          nullable: true
-          minimum: 1
-        game_version:
-          type: integer
-          format: int32
-          description: |
-            The id of the new game version of the schematic
-          example: 4
-          nullable: true
-          minimum: 1
-        schematic_name:
-          type: string
-          description: |
-            The new name for the schematic
-          nullable: true
-          maxLength: 50
-          minLength: 3
     UpdateUser:
       type: object
       properties:
         username:
           type: string
-          example: My new username
-          nullable: true
-          maxLength: 20
+          maxLength: 30
           minLength: 3
+        about:
+          type: string
+          maxLength: 256
+        avatar_url:
+          type: string
     User:
       type: object
       required:
       - user_id
       - username
-      - permissions
-      - email
+      - role
       properties:
-        email:
-          type: string
-          example: email@email.com
-        permissions:
-          type: integer
-          format: int64
-          example: 7
-          minimum: 0
         user_id:
           type: string
           format: uuid
         username:
           type: string
-          example: My username
-          maxLength: 20
-          minLength: 3
+        avatar:
+          type: string
+        about:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+    UserCollection:
+      type: object
+      required:
+      - collection_id
+      - collection_name
+      - is_private
+      - entries
+      properties:
+        collection_id:
+          type: string
+          format: uuid
+        collection_name:
+          type: string
+        is_private:
+          type: boolean
+        entries:
+          type: array
+          items:
+            type: string
+            format: uuid
   securitySchemes:
-    session_cookie:
+    OptionalSession:
       type: apiKey
-      in: cookie
       name: session
+      in: cookie
+    Session:
+      type: apiKey
+      name: session
+      in: cookie
+externalDocs:
+  url: https://github.com/Create-Schematics/Create-Schematics
