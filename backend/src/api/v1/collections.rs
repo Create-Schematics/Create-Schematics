@@ -86,7 +86,7 @@ impl CollectionsApi {
             from
                 collections
                 inner join users using (user_id)
-                inner join collection_entries using (collection_id)
+                left join collection_entries using (collection_id)
             where
                 $1 = schematic_id
                 and is_private = false
@@ -132,9 +132,9 @@ impl CollectionsApi {
             from
                 collections
                 inner join users using (user_id)
-                inner join collection_entries using (collection_id)
+                left join collection_entries using (collection_id)
             where
-                $1 = schematic_id
+                $1 = collection_id
                 and (is_private = false or user_id = $2)
             group by
                 collection_id,
@@ -175,7 +175,7 @@ impl CollectionsApi {
                 coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
             from
                 collections
-                inner join collection_entries using (collection_id)
+                left join collection_entries using (collection_id)
             where
                 $1 = user_id
                 and is_private = false
@@ -219,7 +219,7 @@ impl CollectionsApi {
                 coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
             from
                 collections
-                inner join collection_entries using (collection_id)
+                left join collection_entries using (collection_id)
             where
                 $1 = user_id
                 and is_private = false
@@ -411,8 +411,8 @@ impl CollectionsApi {
                 $1, $2
             )
             "#,
-            collection_id,
             form.schematic_id,
+            collection_id,
         )
         .execute(&mut *transaction)
         .await?;
