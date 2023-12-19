@@ -93,7 +93,7 @@ impl OauthProvider {
                 redirect_uri: "/api/auth/microsoft/callback",
                 client_id_env: "MICROSOFT_CLIENT_ID",
                 client_secret_env: "MICROSOFT_CLIENT_SECRET",
-                auth_url: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code",
+                auth_url: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
                 token_url: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
                 scopes: &[
                     "user.read"
