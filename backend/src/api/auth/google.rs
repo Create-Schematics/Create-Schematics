@@ -2,7 +2,7 @@ use crate::authentication::oauth::OauthUser;
 
 #[derive(Deserialize, Debug)]
 pub struct GoogleUser {
-    pub id: String,
+    pub sub: String,
     pub email: String,
     pub name: Option<String>,
     pub picture: Option<String>,
@@ -11,7 +11,7 @@ pub struct GoogleUser {
 impl From<GoogleUser> for OauthUser {
     fn from(google_user: GoogleUser) -> Self {
         Self {
-            oauth_id: google_user.id,
+            oauth_id: google_user.sub,
             username: username_from_email(&google_user.email),
             display_name: google_user.name,
             email: Some(google_user.email),
