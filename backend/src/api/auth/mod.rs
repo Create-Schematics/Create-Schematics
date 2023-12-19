@@ -13,6 +13,7 @@ use uuid::Uuid;
 
 use crate::authentication::oauth::{OauthUser, OauthProvider};
 use crate::authentication::session::UserSession;
+use crate::error::{ResultExt, ApiError};
 use crate::response::ApiResult;
 
 use super::ApiContext;
@@ -149,7 +150,10 @@ impl OauthProvider {
             user.oauth_id,
         )
         .fetch_one(&mut **transaction)
-        .await?
+        .await
+        .on_constraint("users_email_key", |_| {
+            ApiError::unprocessable_entity([("email", "a user with this email already exists")])
+        })?
         .user_id;
 
         Ok(user_id)
