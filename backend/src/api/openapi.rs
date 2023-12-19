@@ -1,3 +1,6 @@
+use std::fs::File;
+use std::io::Write;
+
 use clap::Args;
 
 #[derive(Args, Debug)]
@@ -15,8 +18,25 @@ pub struct OpenApiSchemaCommandArguements {
 
 pub fn save_schema(
     OpenApiSchemaCommandArguements {
-        ..
+        yaml,
+        json
     }: OpenApiSchemaCommandArguements
 ) -> Result<(), anyhow::Error>{
-    todo!()
+    let service = super::build_openapi_service();
+
+    if json {
+        let mut output = File::create("openapi.json")?;
+        let schema = service.spec();
+
+        output.write_all(schema.as_bytes())?;
+    }
+
+    if yaml {
+        let mut output = File::create("openapi.yaml")?;
+        let schema = service.spec_yaml();
+
+        output.write_all(schema.as_bytes())?;
+    }
+
+    Ok(())
 }
