@@ -83,11 +83,13 @@ pub async fn init(
     let yaml_spec = api_service.spec_endpoint_yaml();
 
     let app = Route::new()
-        .nest("/api", api_service)
-        .nest("/swagger-ui", swagger)
+        .nest("/api", Route::new()
+            .nest("/", api_service)
+            .nest("/swagger-ui", swagger)
+            .at("/openapi.json", json_spec)
+            .at("/openapi.yaml", yaml_spec)
+        )
         .nest("/upload", StaticFilesEndpoint::new("./static/upload"))
-        .at("/openapi.json", json_spec)
-        .at("/openapi.yaml", yaml_spec)
         .with(Cors::new()
             .allow_headers([
                 header::AUTHORIZATION,
