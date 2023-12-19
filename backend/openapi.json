@@ -778,7 +778,7 @@
       "post": {
         "summary": "Uploads a new schematic for the current user",
         "description": "Schematics must have at least one image and file if not the request will\nbe rejected with `400 Bad Request`. The file names will be preserved but\nwill be sanitized\n\nIf an invalid game version or create version is specfied a `422 Unprocessable\nEntity` error will be returned with a message describing the issue.\n",
-        "requestBody": {
+        "requestBody": {  
           "content": {
             "multipart/form-data": {
               "schema": {

@@ -14,6 +14,7 @@ use crate::database::postgres;
 use crate::database::postgres::StartCommandDatabaseArguments;
 use crate::database::redis;
 use crate::database::redis::{RedisPool, StartCommandRedisArguments};
+use crate::middleware::logging::middleware_log;
 
 pub mod auth;
 pub mod v1;
@@ -107,6 +108,7 @@ pub async fn init(
             .max_age(86400)
         )
         .with(CookieJarManager::new())
+        .around(middleware_log)
         .data(ApiContext { pool, redis_pool });
 
     Server::new(TcpListener::bind(listen_address))
