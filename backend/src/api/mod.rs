@@ -1,14 +1,14 @@
 use std::net::SocketAddr;
 
 use clap::Args;
+use reqwest::Method;
+use sqlx::PgPool;
 use poem::endpoint::StaticFilesEndpoint;
 use poem::http::header;
 use poem::listener::TcpListener;
 use poem::{Route, Server, EndpointExt};
 use poem::middleware::{Cors, CookieJarManager};
 use poem_openapi::{LicenseObject, ContactObject, OpenApiService, OpenApi};
-use reqwest::Method;
-use sqlx::PgPool;
 
 use crate::database::postgres;
 use crate::database::postgres::StartCommandDatabaseArguments;

@@ -37,7 +37,6 @@ validator = { version = "0.16.0", features = ["derive"] }
 dotenv = "0.15.0"
 uuid = { version = "1.5.0", features = ["serde", "v4"] }
 time = "0.3.23"
-argon2 = "0.5.2"
 rand = "0.8.5"
 nanoid = "0.4.0"
 oauth2 = "4.4.2"
