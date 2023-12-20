@@ -1,4 +1,5 @@
 use core::fmt;
+use std::path::PathBuf;
 
 use poem::web::Data;
 use poem_openapi::OpenApi;
@@ -273,7 +274,12 @@ impl SchematicsApi {
         .execute(&mut *transaction)
         .await?;
 
-        // TODO: Remove schematic files
+        let mut path = PathBuf::from(crate::storage::UPLOAD_PATH);
+        path.push(schematic_id.to_string());
+
+        tokio::fs::remove_dir_all(path)
+            .await
+            .map_err(anyhow::Error::new)?; 
 
         transaction.commit().await?;
 
