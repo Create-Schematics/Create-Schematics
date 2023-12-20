@@ -11,7 +11,7 @@
   const { user } = data;
 </script>
 <ModeWatcher />
-<slot />
+
 <body
   class=" bg-create-blue/40 dark:bg-gray-800 dark:text-white h-screen absolute w-full flex flex-col gap-3 overflow-x-hidden font-pixel"
 >
