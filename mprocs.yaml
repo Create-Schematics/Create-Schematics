@@ -1,0 +1,8 @@
+procs:
+  database:
+    shell: docker compose up
+  backend: 
+    shell: cd backend && cargo run server
+  frontend:
+    shell: cd frontend && pnpm run dev
+  
