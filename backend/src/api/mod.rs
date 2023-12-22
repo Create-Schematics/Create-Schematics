@@ -107,6 +107,7 @@ pub async fn init(
                 Method::PATCH,
                 Method::OPTIONS
             ])
+            .allow_credentials(true)
             .max_age(86400)
         )
         .with(CookieJarManager::new())
