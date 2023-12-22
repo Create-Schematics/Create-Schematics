@@ -1,0 +1,53 @@
+<script lang="ts">
+    import type { components } from "$lib/openapiSchema";
+
+    export let user: components["schemas"]["User"] | undefined;
+</script>
+
+<header class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 w-full">
+    <section class="w-full flex grid-cols-3 md:grid gap-8">
+        <div class="flex items-center gap-4">
+            <a href="/">
+                <img src="/favicon.png" class="w-10" alt="logo" />
+            </a>
+
+            <span class="text-xl font-bold hidden text-[#faffff] sm:block">Create Schematics</span>
+        </div>
+
+        <search title="schematics" class="flex-grow max-w-6xl">
+            <form action="browse" autocomplete="off">
+            <input
+                type="search"
+                name="term"
+                placeholder="Search Schematics..."
+                class="accent-create-blue h-10 outline-none w-full px-3 dark:bg-black/30 pixel-corners"
+            />
+            </form>
+        </search>
+
+        <div class="flex justify-end gap-3">
+
+        {#if user}
+            <a
+                href="/upload"
+                class="bg-create-blue/80 no-default-link flex h-10 w-10 text-center hover:bg-create-blue/80 cursor-pointer text-white items-center justify-center text-4xl font-mono font-black pixel-corners"
+            >
+                +
+            </a>
+            <a
+                href={`/user/${user.username}`}
+                class="w-10 h-10 bg-white/50 overflow-hidden pixel-corners"
+            >
+                <img src={user.avatar} alt="avatar" />
+            </a>
+        {:else}
+            <a
+            href="/auth"
+            class="h-10 bg-create-blue/50 overflow-hidden pixel-corners flex items-center p-3 no-default-link"
+            >
+            Sign in
+            </a>
+        {/if}
+        </div>
+    </section>
+</header>
