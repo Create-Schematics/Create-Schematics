@@ -17,6 +17,8 @@ pub struct UsersApi;
 pub struct UpdateUser {
     #[oai(validator(min_length=3, max_length=30))]
     username: Option<String>,
+    #[oai(validator(min_length=3, max_length=30))]
+    displayname: Option<String>,
     #[oai(validator(max_length=256))]
     about: Option<String>,
     avatar_url: Option<String>,
@@ -27,6 +29,8 @@ pub struct CurrentUser {
     pub user_id: Uuid,
     #[oai(validator(min_length=3, max_length=30))]
     pub username: String,
+    #[oai(validator(min_length=3, max_length=30))]
+    pub displayname: String,
     pub avatar: Option<String>,
     #[oai(validator(max_length=256))]
     pub about: Option<String>,
@@ -49,8 +53,8 @@ impl UsersApi {
             CurrentUser,
             r#"
             select user_id, username,
-                   email, about, role,
-                   avatar
+                   displayname,email, 
+                   about, role, avatar
             from users
             where user_id = $1
             "#,
@@ -74,7 +78,8 @@ impl UsersApi {
             User,
             r#"
             select user_id, username, 
-                   avatar, role, about
+                   displayname, role,
+                   avatar, about
             from users
             where user_id = $1
             "#,
@@ -142,19 +147,22 @@ impl UsersApi {
             update users
                 set 
                     username = coalesce($1, username),
-                    about = coalesce($2, about),
-                    avatar = coalesce($3, avatar)
+                    displayname = coalesce($2, displayname),
+                    about = coalesce($3, about),
+                    avatar = coalesce($4, avatar)
                 where 
-                    user_id = $4
+                    user_id = $5
                 returning
                     user_id,
                     username,
+                    displayname,
                     about,
                     email,
                     role,
                     avatar
             "#,
             form.username,
+            form.displayname,
             form.about,
             form.avatar_url,
             user_id
