@@ -9,7 +9,7 @@
   <title>Auth - Create Schematics</title>
 </svelte:head>
 
-<main class="flex items-center justify-center w-screen pt-2 pb-28">
+<main class="flex items-center justify-center pt-2 pb-28">
   <div
     class="items-center justify-center bg-checker pixel-corners py-16 w-[calc(100vw-2rem)] max-w-6xl"
   >
