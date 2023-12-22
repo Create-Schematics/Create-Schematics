@@ -1,6 +1,6 @@
 <script lang="ts">
   import { abbreviateNumber } from "$lib/utils";
-  import type { components } from "./openapiSchema";
+  import type { components } from "../../openapiSchema";
   export let schematic: components["schemas"]["FullSchematic"];
 
   let isUserPage = false;
