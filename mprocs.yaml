@@ -4,5 +4,5 @@ procs:
   backend: 
     shell: cd backend && cargo run server
   frontend:
-    shell: cd frontend && pnpm run dev
+    shell: cd frontend && pnpm run dev --host
   
