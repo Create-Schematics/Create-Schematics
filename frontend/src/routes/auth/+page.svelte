@@ -20,28 +20,28 @@
       <h2 class="text-xl font-bold text-center">Authenticate with</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-3 py-4">
         <a
-          href={`${apiBaseUrl}/api/auth/google`}
+          href={`${apiBaseUrl}/auth/google`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
         >
           <GoogleIcon />
           Google
         </a>
         <a
-          href={`${apiBaseUrl}/api/auth/microsoft`}
+          href={`${apiBaseUrl}/auth/microsoft`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
         >
           <MicrosoftIcon />
           Microsoft
         </a>
         <a
-          href={`${apiBaseUrl}/api/auth/github`}
+          href={`${apiBaseUrl}/auth/github`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
         >
           <GithubIcon />
           GitHub
         </a>
         <a
-          href={`${apiBaseUrl}/api/auth/discord`}
+          href={`${apiBaseUrl}/auth/discord`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
         >
           <DiscordIcon />
