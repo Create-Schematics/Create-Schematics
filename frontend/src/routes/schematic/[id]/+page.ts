@@ -10,19 +10,19 @@ export const load = async ({ params }) => {
                 }
             }
         }),
+        GET("/v1/schematics/{schematic_id}/tags", {
+            params: {
+                path: {
+                    schematic_id: params.id
+                }
+            }
+        }),
         GET("/v1/schematics/{schematic_id}/comments", {
             params: {
                 path: {
                     schematic_id: params.id
                 },
                 query: {}
-            }
-        }),
-        GET("/v1/schematics/{schematic_id}/tags", {
-            params: {
-                path: {
-                    schematic_id: params.id
-                }
             }
         })
     ])
