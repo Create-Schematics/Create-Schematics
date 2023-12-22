@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SchematicCard from "$lib/SchematicCard.svelte";
+  import SchematicCard from "$lib/components/schematics/SchematicCard.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
   const { schematics } = data;

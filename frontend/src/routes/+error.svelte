@@ -6,11 +6,11 @@
   <title>{$page.error?.message} - Create Schematics</title>
 </svelte:head>
 <main
-  class="flex items-center justify-center w-screen"
+  class="flex items-center justify-center"
   style="height: 90vh; padding-bottom: 15vh;"
 >
   <div
-    class="text-center text-create-blue/800 bg-checker pixel-corners pt-20 pb-12 w-[calc(100vw-2rem)] max-w-6xl"
+    class="text-center text-create-blue/800 bg-checker pixel-corners pt-20 pb-12 w-[calc(100vw-2rem)]"
     style="text-shadow: 1px 1px 2px #101015, 0 0 1em #B3BDD8, 0 0 0.2em #B3BDD8;"
   >
     <h2 style="font-size: 4rem; line-height: 1;">ERROR</h2>

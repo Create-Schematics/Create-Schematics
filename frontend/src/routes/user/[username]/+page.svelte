@@ -1,8 +1,8 @@
 <script lang="ts">
   import { intlFormatDistance } from "date-fns";
   import type { Schematic, User, Collection } from "$lib/types";
-  import SchematicCard from "$lib/SchematicCard.svelte";
-  import CollectionCard from "$lib/CollectionCard.svelte";
+  import SchematicCard from "$lib/components/schematics/SchematicCard.svelte";
+  import CollectionCard from "$lib/components/collections/CollectionCard.svelte";
   import { abbreviateNumber } from "$lib/utils";
   import { onMount } from 'svelte';
 

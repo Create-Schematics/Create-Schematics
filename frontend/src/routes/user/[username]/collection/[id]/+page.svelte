@@ -2,7 +2,7 @@
   import { intlFormatDistance } from "date-fns";
   import type { Schematic, Collection } from "$lib/types";
   import { getCollection, getSchematic } from "$lib/requests";
-  import SchematicCard from "$lib/SchematicCard.svelte";
+  import SchematicCard from "$lib/components/schematics/SchematicCard.svelte";
   import SortAndFilter from "$lib/SortAndFilter.svelte";
   import { abbreviateNumber } from "$lib/utils";
 

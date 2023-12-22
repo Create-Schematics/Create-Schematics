@@ -1,8 +1,8 @@
 <script lang="ts">
-  import GoogleIcon from "$lib/icons/google.svelte";
-  import MicrosoftIcon from "$lib/icons/microsoft.svelte";
-  import GithubIcon from "$lib/icons/github.svelte";
-  import DiscordIcon from "$lib/icons/discord.svelte";
+  import GoogleIcon from "$lib/components/icons/google.svelte";
+  import MicrosoftIcon from "$lib/components/icons/microsoft.svelte";
+  import GithubIcon from "$lib/components/icons/github.svelte";
+  import DiscordIcon from "$lib/components/icons/discord.svelte";
 </script>
 
 <svelte:head>
@@ -20,7 +20,7 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-3 py-4">
         <a
           href=""
-          class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners items-center"
+          class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
         >
           <GoogleIcon />
           Google

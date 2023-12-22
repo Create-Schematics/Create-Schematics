@@ -1,9 +1,8 @@
 <script lang="ts">
   import { intlFormatDistance } from "date-fns";
-  import type { Schematic, User } from "$lib/types";
-  import SchematicCard from "$lib/SchematicCard.svelte";
+  import { components } from "$lib/openapiSchema";
+  import SchematicCard from "$lib/components/schematics/SchematicCard.svelte";
   import { abbreviateNumber } from "../../../utils";
-
 
   let userData: string
   let userSchematics: string
@@ -36,9 +35,8 @@
 	}
 
 
-  const user: User = {
+  const user: components["schemas"]["User"] = {
     username: "Username123",
-    dateJoined: new Date(1601111471000),
     totalDownloads: 24000,
     avatar: "https://picsum.photos/500",
     id: "1",
@@ -55,7 +53,7 @@
     ],
   };
 
-  const schematics: Schematic[] = [
+  const schematics: components["schemas"]["FullSchematic"] = [
     {
       tags: [
         "farm",
