@@ -1,7 +1,7 @@
 <script lang="ts">
   import { abbreviateNumber } from "$lib/utils";
   import type { components } from "../../openapiSchema";
-  export let schematic: components["schemas"]["FullSchematic"];
+  export let schematic: components["schemas"]["Schematic"];
 
   let isUserPage = false;
   if (typeof window !== "undefined") {
@@ -17,8 +17,8 @@
   <div class="text-xs text-opacity-50 w-full">
     {#if !isUserPage}
       <p class="inline">
-        by <a href={`/user/${schematic.author_name}`} class="underline"
-          >{schematic.author_name}</a
+        by <a href={`/user/${schematic.author}`} class="underline"
+          >{schematic.author}</a
         >
       </p>
       <p class="inline px-2">|</p>
@@ -33,12 +33,12 @@
     />
   </div>
   <ul class="flex flex-wrap gap-2">
-    {#each schematic.tags as tag}
+    <!-- {#each schematic.tags as tag}
       <li
         class="text-xs bg-create-blue/50 hover:bg-create-blue/80 px-1 text-opacity-50"
       >
         {tag}
       </li>
-    {/each}
+    {/each} -->
   </ul>
 </a>
