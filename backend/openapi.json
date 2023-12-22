@@ -778,7 +778,7 @@
       "post": {
         "summary": "Uploads a new schematic for the current user",
         "description": "Schematics must have at least one image and file if not the request will\nbe rejected with `400 Bad Request`. The file names will be preserved but\nwill be sanitized\n\nIf an invalid game version or create version is specfied a `422 Unprocessable\nEntity` error will be returned with a message describing the issue.\n",
-        "requestBody": {  
+        "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
@@ -2697,6 +2697,7 @@
         "required": [
           "user_id",
           "username",
+          "displayname",
           "role"
         ],
         "properties": {
@@ -2705,6 +2706,11 @@
             "format": "uuid"
           },
           "username": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 3
+          },
+          "displayname": {
             "type": "string",
             "maxLength": 30,
             "minLength": 3
@@ -2833,7 +2839,8 @@
           "schematic_name",
           "body",
           "author",
-          "author_name",
+          "author_displayname",
+          "author_username",
           "like_count",
           "dislike_count",
           "downloads",
@@ -2859,7 +2866,10 @@
             "type": "string",
             "format": "uuid"
           },
-          "author_name": {
+          "author_displayname": {
+            "type": "string"
+          },
+          "author_username": {
             "type": "string"
           },
           "author_avatar": {
@@ -3051,6 +3061,11 @@
             "maxLength": 30,
             "minLength": 3
           },
+          "displayname": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 3
+          },
           "about": {
             "type": "string",
             "maxLength": 256
@@ -3065,6 +3080,7 @@
         "required": [
           "user_id",
           "username",
+          "displayname",
           "role"
         ],
         "properties": {
@@ -3073,6 +3089,9 @@
             "format": "uuid"
           },
           "username": {
+            "type": "string"
+          },
+          "displayname": {
             "type": "string"
           },
           "avatar": {
