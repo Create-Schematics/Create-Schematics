@@ -66,24 +66,24 @@ impl UsersApi {
         .map(Json)
     }
 
-    /// Fetches a user by their id, for privacy their email will not be included
+    /// Fetches a user by their username, for privacy their email will not be included
     /// 
-    #[oai(path="/users/:user_id", method = "get")]
+    #[oai(path="/users/:username", method = "get")]
     async fn fetch_user_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Path(user_id): Path<Uuid>
+        Path(username): Path<String>
     ) -> ApiResult<Json<User>> {
         sqlx::query_as!(
             User,
             r#"
-            select user_id, username, 
+            select user_id, username,
                    displayname, role,
                    avatar, about
             from users
-            where user_id = $1
+            where username = $1
             "#,
-            user_id
+            username
         )
         .fetch_optional(&ctx.pool)
         .await?
@@ -97,11 +97,11 @@ impl UsersApi {
     /// 
     /// If a limit is not specified 20 will be fetched by default.
     /// 
-    #[oai(path="/users/:user_id/schematics", method = "get")]
+    #[oai(path="/users/:username/schematics", method = "get")]
     async fn get_uploaded_schematics(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Path(user_id): Path<Uuid>,
+        Path(username): Path<String>,
         Query(limit): Query<Option<i64>>,
         Query(offset): Query<Option<i64>>,
     ) -> ApiResult<Json<Vec<Schematic>>> {
@@ -113,10 +113,10 @@ impl UsersApi {
                    create_version_id, downloads,
                    game_version_id
             from schematics
-            where author = $1
+            where author = (select user_id from users where username = $1)
             limit $2 offset $3
             "#,
-            user_id,
+            username,
             limit.unwrap_or(20),
             offset.unwrap_or(0)
         )
