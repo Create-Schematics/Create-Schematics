@@ -3,6 +3,7 @@
   import MicrosoftIcon from "$lib/components/icons/microsoft.svelte";
   import GithubIcon from "$lib/components/icons/github.svelte";
   import DiscordIcon from "$lib/components/icons/discord.svelte";
+  import { apiBaseUrl } from "$lib/requests";
 </script>
 
 <svelte:head>
@@ -19,28 +20,28 @@
       <h2 class="text-xl font-bold text-center">Authenticate with</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-3 py-4">
         <a
-          href=""
+          href={`${apiBaseUrl}/api/auth/google`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
         >
           <GoogleIcon />
           Google
         </a>
         <a
-          href=""
+          href={`${apiBaseUrl}/api/auth/microsoft`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners items-center"
         >
           <MicrosoftIcon />
           Microsoft
         </a>
         <a
-          href=""
+          href={`${apiBaseUrl}/api/auth/github`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners items-center"
         >
           <GithubIcon />
           GitHub
         </a>
         <a
-          href=""
+          href={`${apiBaseUrl}/api/auth/discord`}
           class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners items-center"
         >
           <DiscordIcon />
