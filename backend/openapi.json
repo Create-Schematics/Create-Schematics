@@ -1132,15 +1132,14 @@
         ]
       }
     },
-    "/v1/users/{user_id}": {
+    "/v1/users/{username}": {
       "get": {
-        "summary": "Fetches a user by their id, for privacy their email will not be included\n",
+        "summary": "Fetches a user by their username, for privacy their email will not be included\n",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             },
             "in": "path",
             "required": true,
@@ -1187,16 +1186,15 @@
         }
       }
     },
-    "/v1/users/{user_id}/schematics": {
+    "/v1/users/{username}/schematics": {
       "get": {
         "summary": "Fetches a number of schematics created by the specified user. User\ninformation will not be included with the schematic as it is assumed\nthat this information is already known.",
         "description": "If a limit is not specified 20 will be fetched by default.\n",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             },
             "in": "path",
             "required": true,
