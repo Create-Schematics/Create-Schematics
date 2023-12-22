@@ -10,7 +10,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "vitest",
 		"lint": "eslint .",
-		"updateSchema": "npx openapi-typescript http://127.0.0.1:3000/openapi.json --output src/lib/openapiSchema.d.ts"
+		"updateSchema": "npx openapi-typescript http://127.0.0.1:3000/api/openapi.json --output src/lib/openapiSchema.d.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
