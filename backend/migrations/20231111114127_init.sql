@@ -1,7 +1,7 @@
 create table users
 (
     user_id        uuid        primary key default uuid_generate_v1mc(),
-    username       text        not null,
+    username       text        not null    unique collate "case_insensitive",
     avatar         text,
     email          text                    unique collate "case_insensitive",
     oauth_provider text        not null,
