@@ -11,6 +11,7 @@ use uuid::Uuid;
 use crate::authentication::session::Session;
 use crate::error::{ApiError, ResultExt};
 use crate::middleware::files::FileUpload;
+use crate::middleware::validators::Profanity;
 use crate::response::ApiResult;
 use crate::models::schematic::Schematic;
 use crate::api::ApiContext;
@@ -42,9 +43,9 @@ pub (in crate::api::v1) struct FullSchematic {
 
 #[derive(Multipart, Debug)]
 pub (in crate::api::v1) struct SchematicBuilder {
-    #[oai(validator(min_length=3, max_length=50))]
+    #[oai(validator(min_length=3, max_length=50, custom="Profanity"))]
     pub schematic_name: String,
-    #[oai(validator(max_length=2048))]
+    #[oai(validator(max_length=2048, custom="Profanity"))]
     pub schematic_body: String,
     #[oai(validator(minimum(value = "1")))]
     pub game_version: i32,
@@ -56,8 +57,10 @@ pub (in crate::api::v1) struct SchematicBuilder {
 
 #[derive(Multipart, Debug)]
 pub (in crate::api::v1) struct UpdateSchematic {
-    #[oai(validator(min_length=3, max_length=50))]
+    #[oai(validator(min_length=3, max_length=50, custom="Profanity"))]
     pub schematic_name: Option<String>,
+    #[oai(validator(max_length=2048, custom="Profanity"))]
+    pub schematic_body: Option<String>,
     #[oai(validator(minimum(value = "1")))]
     pub game_version: Option<i32>,
     #[oai(validator(minimum(value = "1")))]
@@ -186,7 +189,7 @@ impl SchematicsApi {
         Data(ctx): Data<&ApiContext>,
         Path(schematic_id): Path<Uuid>,
         Session(user_id): Session,
-        schematic: UpdateSchematic
+        form: UpdateSchematic
     ) -> ApiResult<Json<Schematic>> {
         let mut transaction = ctx.pool.begin().await?;
 
@@ -208,9 +211,10 @@ impl SchematicsApi {
             update schematics
                 set
                     schematic_name = coalesce($1, schematic_name),
-                    game_version_id = coalesce($2, game_version_id),
-                    create_version_id = coalesce($3, create_version_id)
-                where schematic_id = $4
+                    body = coalesce($2, body),
+                    game_version_id = coalesce($3, game_version_id),
+                    create_version_id = coalesce($4, create_version_id)
+                where schematic_id = $5
                 returning
                     schematic_id,
                     schematic_name,
@@ -222,9 +226,10 @@ impl SchematicsApi {
                     author,
                     downloads
             "#,
-            schematic.schematic_name,
-            schematic.game_version,
-            schematic.create_version,
+            form.schematic_name,
+            form.schematic_body,
+            form.game_version,
+            form.create_version,
             schematic_id
         )
         .fetch_optional(&mut *transaction)
@@ -385,9 +390,8 @@ impl SchematicsApi {
         form: SchematicBuilder
     ) -> ApiResult<Json<Schematic>> {
         let mut transaction = ctx.pool.begin().await?;
-
         let schematic_id = Uuid::new_v4();
-        
+
         let upload_dir = upload::build_upload_directory(&schematic_id)?;
         let (files, images) = save_schematic_files(&upload_dir, form.files, form.images).await?;
 

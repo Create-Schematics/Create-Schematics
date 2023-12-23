@@ -1,10 +1,22 @@
-use validator::ValidationError;
+use std::fmt::Display;
+
+use poem_openapi::Validator;
 use rustrict::{CensorStr, Type};
 
-pub fn profanity(value: &str) -> Result<(), ValidationError> {
-    if !value.is(Type::INAPPROPRIATE) {
-        Ok(())
-    } else {
-        Err(ValidationError::new("Schematics cannot contain profanity"))
+pub struct Profanity;
+
+impl Display for Profanity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Profanity")
+    }
+}
+
+impl<T> Validator<T> for Profanity 
+where
+    T: AsRef<str>
+{
+    #[inline]
+    fn check(&self, value: &T) -> bool {
+        !value.as_ref().is(Type::INAPPROPRIATE)
     }
 }

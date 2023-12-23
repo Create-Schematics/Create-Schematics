@@ -6,6 +6,7 @@ use poem_openapi_derive::{Object, Multipart};
 use uuid::Uuid;
 
 use crate::api::ApiContext;
+use crate::middleware::validators::Profanity;
 use crate::response::ApiResult;
 use crate::models::comment::Comment;
 use crate::error::ApiError;
@@ -24,11 +25,13 @@ pub (in crate::api::v1) struct FullComment {
 
 #[derive(Multipart, Debug)]
 pub (in crate::api::v1) struct CommentBuilder {
+    #[oai(validator(max_length=1024, custom="Profanity"))]
     pub comment_body: String
 }
 
 #[derive(Multipart, Debug)]
 pub (in crate::api::v1) struct UpdateComment {
+    #[oai(validator(max_length=1024, custom="Profanity"))]
     pub comment_body: Option<String>
 }
 
@@ -94,7 +97,7 @@ impl CommentsApi {
         Data(ctx): Data<&ApiContext>,  
         Path(schematic_id): Path<Uuid>,
         Session(user_id): Session,
-        builder: CommentBuilder
+        form: CommentBuilder
     ) -> ApiResult<Json<Comment>> {
         let mut transaction = ctx.pool.begin().await?;
 
@@ -115,7 +118,7 @@ impl CommentsApi {
                 schematic_id
             "#,
             user_id,
-            builder.comment_body,
+            form.comment_body,
             schematic_id
         )
         .fetch_one(&mut *transaction)
@@ -179,7 +182,7 @@ impl CommentsApi {
         Data(ctx): Data<&ApiContext>, 
         Path(comment_id): Path<Uuid>,
         Session(user_id): Session,
-        update: UpdateComment
+        form: UpdateComment
     ) -> ApiResult<Json<Comment>> {
         let mut transaction = ctx.pool.begin().await?;
         
@@ -209,7 +212,7 @@ impl CommentsApi {
                     comment_body,
                     schematic_id
             "#,
-            update.comment_body,
+            form.comment_body,
             comment_id
         )
         .fetch_optional(&mut *transaction)

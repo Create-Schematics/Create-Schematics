@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::authentication::session::{Session, OptionalSession};
 use crate::error::ApiError;
+use crate::middleware::validators::Profanity;
 use crate::response::ApiResult;
 use crate::api::ApiContext;
 
@@ -40,16 +41,16 @@ pub (in crate::api::v1) struct FullCollection {
 
 #[derive(Multipart, Debug)]
 pub (in crate::api::v1) struct UpdateCollection {
-    #[oai(validator(min_length=3, max_length=50))]
-    pub collection_name: Option<String>,
     pub is_private: Option<bool>,
+    #[oai(validator(min_length=3, max_length=50, custom="Profanity"))]
+    pub collection_name: Option<String>,
 }
 
 #[derive(Multipart, Debug)]
 pub (in crate::api::v1) struct CollectionBuilder {
-    #[oai(validator(min_length=3, max_length=50))]
-    pub collection_name: String,
     pub is_private: bool,
+    #[oai(validator(min_length=3, max_length=50, custom="Profanity"))]
+    pub collection_name: String,
 }
 
 #[derive(Multipart, Object, Debug)]
