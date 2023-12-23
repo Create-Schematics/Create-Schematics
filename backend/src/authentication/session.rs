@@ -57,7 +57,8 @@ impl Session {
             User,
             r#"
             select user_id, username,
-                   about, role, avatar
+                   displayname, about,
+                   role, avatar
             from users
             where user_id = $1
             "#,

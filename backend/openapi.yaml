@@ -927,15 +927,14 @@ paths:
             error see implementation bellow
       security:
       - Session: []
-  /v1/users/{user_id}:
+  /v1/users/{username}:
     get:
       summary: |
-        Fetches a user by their id, for privacy their email will not be included
+        Fetches a user by their username, for privacy their email will not be included
       parameters:
-      - name: user_id
+      - name: username
         schema:
           type: string
-          format: uuid
         in: path
         required: true
         deprecated: false
@@ -970,7 +969,7 @@ paths:
 
             This should generally be called implicity by another
             error see implementation bellow
-  /v1/users/{user_id}/schematics:
+  /v1/users/{username}/schematics:
     get:
       summary: |-
         Fetches a number of schematics created by the specified user. User
@@ -979,10 +978,9 @@ paths:
       description: |
         If a limit is not specified 20 will be fetched by default.
       parameters:
-      - name: user_id
+      - name: username
         schema:
           type: string
-          format: uuid
         in: path
         required: true
         deprecated: false
@@ -2187,12 +2185,17 @@ components:
       required:
       - user_id
       - username
+      - displayname
       - role
       properties:
         user_id:
           type: string
           format: uuid
         username:
+          type: string
+          maxLength: 30
+          minLength: 3
+        displayname:
           type: string
           maxLength: 30
           minLength: 3
@@ -2289,7 +2292,8 @@ components:
       - schematic_name
       - body
       - author
-      - author_name
+      - author_displayname
+      - author_username
       - like_count
       - dislike_count
       - downloads
@@ -2310,7 +2314,9 @@ components:
         author:
           type: string
           format: uuid
-        author_name:
+        author_displayname:
+          type: string
+        author_username:
           type: string
         author_avatar:
           type: string
@@ -2447,6 +2453,10 @@ components:
           type: string
           maxLength: 30
           minLength: 3
+        displayname:
+          type: string
+          maxLength: 30
+          minLength: 3
         about:
           type: string
           maxLength: 256
@@ -2457,12 +2467,15 @@ components:
       required:
       - user_id
       - username
+      - displayname
       - role
       properties:
         user_id:
           type: string
           format: uuid
         username:
+          type: string
+        displayname:
           type: string
         avatar:
           type: string

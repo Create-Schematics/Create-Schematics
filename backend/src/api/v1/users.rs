@@ -17,6 +17,8 @@ pub struct UsersApi;
 pub struct UpdateUser {
     #[oai(validator(min_length=3, max_length=30))]
     username: Option<String>,
+    #[oai(validator(min_length=3, max_length=30))]
+    displayname: Option<String>,
     #[oai(validator(max_length=256))]
     about: Option<String>,
     avatar_url: Option<String>,
@@ -27,6 +29,8 @@ pub struct CurrentUser {
     pub user_id: Uuid,
     #[oai(validator(min_length=3, max_length=30))]
     pub username: String,
+    #[oai(validator(min_length=3, max_length=30))]
+    pub displayname: String,
     pub avatar: Option<String>,
     #[oai(validator(max_length=256))]
     pub about: Option<String>,
@@ -49,8 +53,8 @@ impl UsersApi {
             CurrentUser,
             r#"
             select user_id, username,
-                   email, about, role,
-                   avatar
+                   displayname,email, 
+                   about, role, avatar
             from users
             where user_id = $1
             "#,
@@ -62,23 +66,24 @@ impl UsersApi {
         .map(Json)
     }
 
-    /// Fetches a user by their id, for privacy their email will not be included
+    /// Fetches a user by their username, for privacy their email will not be included
     /// 
-    #[oai(path="/users/:user_id", method = "get")]
+    #[oai(path="/users/:username", method = "get")]
     async fn fetch_user_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Path(user_id): Path<Uuid>
+        Path(username): Path<String>
     ) -> ApiResult<Json<User>> {
         sqlx::query_as!(
             User,
             r#"
-            select user_id, username, 
-                   avatar, role, about
+            select user_id, username,
+                   displayname, role,
+                   avatar, about
             from users
-            where user_id = $1
+            where username = $1
             "#,
-            user_id
+            username
         )
         .fetch_optional(&ctx.pool)
         .await?
@@ -92,11 +97,11 @@ impl UsersApi {
     /// 
     /// If a limit is not specified 20 will be fetched by default.
     /// 
-    #[oai(path="/users/:user_id/schematics", method = "get")]
+    #[oai(path="/users/:username/schematics", method = "get")]
     async fn get_uploaded_schematics(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Path(user_id): Path<Uuid>,
+        Path(username): Path<String>,
         Query(limit): Query<Option<i64>>,
         Query(offset): Query<Option<i64>>,
     ) -> ApiResult<Json<Vec<Schematic>>> {
@@ -108,10 +113,10 @@ impl UsersApi {
                    create_version_id, downloads,
                    game_version_id
             from schematics
-            where author = $1
+            where author = (select user_id from users where username = $1)
             limit $2 offset $3
             "#,
-            user_id,
+            username,
             limit.unwrap_or(20),
             offset.unwrap_or(0)
         )
@@ -142,19 +147,22 @@ impl UsersApi {
             update users
                 set 
                     username = coalesce($1, username),
-                    about = coalesce($2, about),
-                    avatar = coalesce($3, avatar)
+                    displayname = coalesce($2, displayname),
+                    about = coalesce($3, about),
+                    avatar = coalesce($4, avatar)
                 where 
-                    user_id = $4
+                    user_id = $5
                 returning
                     user_id,
                     username,
+                    displayname,
                     about,
                     email,
                     role,
                     avatar
             "#,
             form.username,
+            form.displayname,
             form.about,
             form.avatar_url,
             user_id

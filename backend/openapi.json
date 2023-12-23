@@ -778,7 +778,7 @@
       "post": {
         "summary": "Uploads a new schematic for the current user",
         "description": "Schematics must have at least one image and file if not the request will\nbe rejected with `400 Bad Request`. The file names will be preserved but\nwill be sanitized\n\nIf an invalid game version or create version is specfied a `422 Unprocessable\nEntity` error will be returned with a message describing the issue.\n",
-        "requestBody": {  
+        "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
@@ -1132,15 +1132,14 @@
         ]
       }
     },
-    "/v1/users/{user_id}": {
+    "/v1/users/{username}": {
       "get": {
-        "summary": "Fetches a user by their id, for privacy their email will not be included\n",
+        "summary": "Fetches a user by their username, for privacy their email will not be included\n",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             },
             "in": "path",
             "required": true,
@@ -1187,16 +1186,15 @@
         }
       }
     },
-    "/v1/users/{user_id}/schematics": {
+    "/v1/users/{username}/schematics": {
       "get": {
         "summary": "Fetches a number of schematics created by the specified user. User\ninformation will not be included with the schematic as it is assumed\nthat this information is already known.",
         "description": "If a limit is not specified 20 will be fetched by default.\n",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             },
             "in": "path",
             "required": true,
@@ -2697,6 +2695,7 @@
         "required": [
           "user_id",
           "username",
+          "displayname",
           "role"
         ],
         "properties": {
@@ -2705,6 +2704,11 @@
             "format": "uuid"
           },
           "username": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 3
+          },
+          "displayname": {
             "type": "string",
             "maxLength": 30,
             "minLength": 3
@@ -2833,7 +2837,8 @@
           "schematic_name",
           "body",
           "author",
-          "author_name",
+          "author_displayname",
+          "author_username",
           "like_count",
           "dislike_count",
           "downloads",
@@ -2859,7 +2864,10 @@
             "type": "string",
             "format": "uuid"
           },
-          "author_name": {
+          "author_displayname": {
+            "type": "string"
+          },
+          "author_username": {
             "type": "string"
           },
           "author_avatar": {
@@ -3051,6 +3059,11 @@
             "maxLength": 30,
             "minLength": 3
           },
+          "displayname": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 3
+          },
           "about": {
             "type": "string",
             "maxLength": 256
@@ -3065,6 +3078,7 @@
         "required": [
           "user_id",
           "username",
+          "displayname",
           "role"
         ],
         "properties": {
@@ -3073,6 +3087,9 @@
             "format": "uuid"
           },
           "username": {
+            "type": "string"
+          },
+          "displayname": {
             "type": "string"
           },
           "avatar": {

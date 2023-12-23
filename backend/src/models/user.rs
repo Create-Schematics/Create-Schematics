@@ -5,6 +5,7 @@ use uuid::Uuid;
 pub struct User {
     pub user_id: Uuid,
     pub username: String,
+    pub displayname: String,
     pub avatar: Option<String>,
     pub about: Option<String>,
     pub role: Role,
