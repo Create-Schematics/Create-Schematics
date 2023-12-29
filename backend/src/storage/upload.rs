@@ -1,4 +1,4 @@
-use std::io::{Cursor, Read};
+use std::io::{self, Cursor, Read};
 use std::num::NonZeroU64;
 use std::path::PathBuf;
 
@@ -79,36 +79,35 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
         let path = location.join(&sanitized);
         output.push(sanitized);
 
-        let optimized_contents = optimise_file_contents(file);
+        let optimized_contents = optimise_file_contents(file.contents);
         std::fs::write(path, optimized_contents).map_err(anyhow::Error::new)?;
     }
 
     Ok(output)
 }
 
-fn optimise_file_contents(file: FileUpload) -> Vec<u8> {
-    let contents = decompress(file.contents);
-    let iter = if contents.len() > 20_000 {
-        100
-    } else {
-        500
+fn optimise_file_contents(input: Vec<u8>) -> Vec<u8> {
+    let contents = match decompress(input.clone()) {
+        Ok(c) => c,
+        Err(_) => return input
     };
 
-    compress(contents, iter)
+    let iter = if contents.len() > 20_000 { 100 } else { 500 };
+
+    compress(contents, iter).unwrap_or_else(|_| input)
 }
 
-fn decompress(stuff: Vec<u8>) -> Vec<u8> {
+fn decompress(stuff: Vec<u8>) -> io::Result<Vec<u8>> {
     let mut decoder = GzDecoder::new(Cursor::new(stuff.clone()));
     let mut result = Vec::new();
 
-    if decoder.read_to_end(&mut result).is_ok() {
-        result
-    } else {
-        stuff
+    match decoder.read_to_end(&mut result) {
+        Ok(_) => Ok(result),
+        Err(e) => Err(e)
     }
 }
 
-fn compress(stuff: Vec<u8>, iter: u64) -> Vec<u8> {
+fn compress(stuff: Vec<u8>, iter: u64) -> io::Result<Vec<u8>> {
     let options = zopfli::Options {
         iteration_count: NonZeroU64::new(iter).unwrap(),
         ..Default::default()
@@ -118,8 +117,8 @@ fn compress(stuff: Vec<u8>, iter: u64) -> Vec<u8> {
     match zopfli::compress(options, zopfli::Format::Zlib, &stuff[..], &mut output) {
         Ok(_) => {
             output.shrink_to_fit();
-            output
+            Ok(output)
         },
-        Err(_) => stuff
+        Err(e) => Err(e)
     }
 }
