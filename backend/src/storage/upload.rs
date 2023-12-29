@@ -1,8 +1,12 @@
+use std::io::{Cursor, Read};
+use std::num::NonZeroU64;
 use std::path::PathBuf;
 
 use tempfile::{Builder, TempDir};
 use uuid::Uuid;
 use crate::{error::ApiError, middleware::files::FileUpload};
+
+use flate2::write::GzDecoder;
 
 pub fn build_upload_directory(
     schematic_id: &Uuid
@@ -74,9 +78,48 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
 
         let path = location.join(&sanitized);
         output.push(sanitized);
-        
-        std::fs::write(path, file.contents).map_err(anyhow::Error::new)?;
+
+        let optimized_contents = optimise_file_contents(file);
+        std::fs::write(path, optimized_contents).map_err(anyhow::Error::new)?;
     }
 
     Ok(output)
+}
+
+fn optimise_file_contents(file: FileUpload) -> Vec<u8> {
+    let contents = decompress(file.contents);
+    let iter = if contents.len() > 20_000 {
+        100
+    } else {
+        500
+    };
+
+    compress(contents, iter)
+}
+
+fn decompress(stuff: Vec<u8>) -> Vec<u8> {
+    let mut decoder = GzDecoder::new(Cursor::new(stuff.clone()));
+    let mut result = Vec::new();
+
+    if decoder.read_to_end(&mut result).is_ok() {
+        result
+    } else {
+        stuff
+    }
+}
+
+fn compress(stuff: Vec<u8>, iter: u64) -> Vec<u8> {
+    let options = zopfli::Options {
+        iteration_count: NonZeroU64::new(iter).unwrap(),
+        ..Default::default()
+    };
+
+    let mut output = Vec::with_capacity(stuff.len());
+    match zopfli::compress(options, zopfli::Format::Zlib, &stuff[..], &mut output) {
+        Ok(_) => {
+            output.shrink_to_fit();
+            output
+        },
+        Err(_) => stuff
+    }
 }
