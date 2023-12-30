@@ -114,7 +114,7 @@ fn compress(stuff: Vec<u8>, iter: u64) -> io::Result<Vec<u8>> {
     };
 
     let mut output = Vec::with_capacity(stuff.len());
-    match zopfli::compress(options, zopfli::Format::Zlib, &stuff[..], &mut output) {
+    match zopfli::compress(options, zopfli::Format::Gzip, &stuff[..], &mut output) {
         Ok(_) => {
             output.shrink_to_fit();
             Ok(output)
