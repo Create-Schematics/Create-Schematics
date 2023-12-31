@@ -98,7 +98,7 @@ fn optimise_file_contents(input: Vec<u8>) -> Vec<u8> {
 }
 
 fn decompress(stuff: Vec<u8>) -> io::Result<Vec<u8>> {
-    let mut decoder = GzDecoder::new(&stuff.clone()[..]);
+    let mut decoder = GzDecoder::new(&stuff[..]);
 
     match decoder.decode_gzip() {
         Ok(result) => Ok(result),
