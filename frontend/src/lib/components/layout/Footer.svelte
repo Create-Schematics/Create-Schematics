@@ -1,4 +1,4 @@
-<footer class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 justify-between items-center">
+<footer class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 justify-between items-center flex-grow">
     <div class="text-center md:text-left p-4 opacity-100">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
         <div class="mb-4 md:mb-0 items-center">

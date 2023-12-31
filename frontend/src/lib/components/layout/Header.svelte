@@ -4,16 +4,16 @@
   export let user: components["schemas"]["User"] | undefined;
 </script>
 
-<header class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 w-full">
+<header class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 w-full sticky">
   <section class="w-full flex grid-cols-3 md:grid gap-8">
     <div class="flex items-center gap-4">
       <a href="/">
         <img src="/favicon.png" class="w-10" alt="logo" />
       </a>
 
-      <span class="text-xl font-bold hidden text-[#faffff] sm:block"
-        >Create Schematics</span
-      >
+      <span class="text-xl font-bold hidden text-[#faffff] md:block">
+        Create Schematics
+      </span>
     </div>
 
     <search title="schematics" class="flex-grow max-w-6xl">
