@@ -194,7 +194,6 @@ dependencies = [
  "anyhow",
  "clap",
  "dotenv",
- "flate2",
  "image",
  "nanoid",
  "oauth2",
@@ -221,6 +220,7 @@ dependencies = [
  "validator",
  "webp",
  "zopfli",
+ "zune-inflate",
 ]
 
 [[package]]

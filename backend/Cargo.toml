@@ -48,5 +48,5 @@ webp = "0.2.6"
 rustrict = "0.7.19"
 strum = { version = "0.25.0", features = ["derive"] }
 
-flate2 = "1.0.28"
+zune-inflate = { version = "0.2.0", features = ["gzip"] }
 zopfli = "0.8.0"

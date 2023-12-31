@@ -1,4 +1,4 @@
-use std::io::{self, Cursor, Read};
+use std::io::{self, Error};
 use std::num::NonZeroU64;
 use std::path::PathBuf;
 
@@ -6,7 +6,7 @@ use tempfile::{Builder, TempDir};
 use uuid::Uuid;
 use crate::{error::ApiError, middleware::files::FileUpload};
 
-use flate2::write::GzDecoder;
+use zune_inflate::DeflateDecoder as GzDecoder;
 
 pub fn build_upload_directory(
     schematic_id: &Uuid
@@ -98,12 +98,11 @@ fn optimise_file_contents(input: Vec<u8>) -> Vec<u8> {
 }
 
 fn decompress(stuff: Vec<u8>) -> io::Result<Vec<u8>> {
-    let mut decoder = GzDecoder::new(Cursor::new(stuff.clone()));
-    let mut result = Vec::new();
+    let mut decoder = GzDecoder::new(&stuff.clone()[..]);
 
-    match decoder.read_to_end(&mut result) {
-        Ok(_) => Ok(result),
-        Err(e) => Err(e)
+    match decoder.decode_gzip() {
+        Ok(result) => Ok(result),
+        Err(_) => Err(Error::new(io::ErrorKind::InvalidData, "Invalid gzip data"))
     }
 }
 
