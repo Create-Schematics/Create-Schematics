@@ -1,6 +1,6 @@
 use std::io::{self, Error};
-use std::num::NonZeroU64;
 use std::path::PathBuf;
+use libdeflater::{CompressionLvl, Compressor};
 
 use tempfile::{Builder, TempDir};
 use uuid::Uuid;
@@ -92,9 +92,7 @@ pub fn optimise_file_contents(input: Vec<u8>) -> Vec<u8> {
         Err(_) => return input
     };
 
-    let iter = if contents.len() > 20_000 { 100 } else { 500 };
-
-    compress(contents, iter).unwrap_or_else(|_| input)
+    compress(contents).unwrap_or_else(|_| input)
 }
 
 fn decompress(stuff: Vec<u8>) -> io::Result<Vec<u8>> {
@@ -106,18 +104,15 @@ fn decompress(stuff: Vec<u8>) -> io::Result<Vec<u8>> {
     }
 }
 
-fn compress(stuff: Vec<u8>, iter: u64) -> io::Result<Vec<u8>> {
-    let options = zopfli::Options {
-        iteration_count: NonZeroU64::new(iter).unwrap(),
-        ..Default::default()
-    };
-
-    let mut output = Vec::with_capacity(stuff.len());
-    match zopfli::compress(options, zopfli::Format::Gzip, &stuff[..], &mut output) {
-        Ok(_) => {
-            output.shrink_to_fit();
-            Ok(output)
-        },
-        Err(e) => Err(e)
+fn compress(data: Vec<u8>) -> io::Result<Vec<u8>> {
+    let mut compressor = Compressor::new(CompressionLvl::new(9).unwrap());
+    let capacity = compressor.gzip_compress_bound(data.len());
+    let mut dest = vec![0; capacity];
+    match compressor.gzip_compress(&*data, &mut dest) {
+        Ok(len) => {
+            dest.truncate(len);
+            Ok(dest)
+        }
+        Err(e) => Err(Error::new(io::ErrorKind::InvalidData, e))
     }
 }
