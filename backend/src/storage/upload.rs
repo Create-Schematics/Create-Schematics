@@ -1,6 +1,9 @@
 use std::io::{self, Error};
 use std::path::PathBuf;
+use image::DynamicImage;
 use libdeflater::{CompressionLvl, Compressor};
+
+use webp::Encoder as WebpEncoder;
 
 use tempfile::{Builder, TempDir};
 use uuid::Uuid;
@@ -45,13 +48,18 @@ fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>
             return Err(ApiError::BadRequest);
         }
 
-        let path = location.join(&sanitized);
+        let path = location.join(&sanitized).with_extension("webp");
         files.push(sanitized);
 
-        image::load_from_memory(&image.contents)
-            .map_err(|_| ApiError::BadRequest)?
-            .save(path)
-            .map_err(anyhow::Error::new)?;
+        let img = image::load_from_memory(&image.contents)
+            .map_err(|_| ApiError::BadRequest)?;
+
+        let img = DynamicImage::ImageRgb8(img.into_rgb8());
+
+        let encoder = WebpEncoder::from_image(&img).unwrap();
+        let webp = encoder.encode(100f32);
+
+        std::fs::write(&path, &*webp).map_err(anyhow::Error::new)?;
     }
 
     Ok(files)
@@ -105,7 +113,7 @@ fn decompress(stuff: Vec<u8>) -> io::Result<Vec<u8>> {
 }
 
 fn compress(data: Vec<u8>) -> io::Result<Vec<u8>> {
-    let mut compressor = Compressor::new(CompressionLvl::new(9).unwrap());
+    let mut compressor = Compressor::new(CompressionLvl::new(12).unwrap());
     let capacity = compressor.gzip_compress_bound(data.len());
     let mut dest = vec![0; capacity];
     match compressor.gzip_compress(&*data, &mut dest) {
