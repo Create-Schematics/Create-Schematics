@@ -50,3 +50,10 @@ strum = { version = "0.25.0", features = ["derive"] }
 
 zune-inflate = { version = "0.2.54", default-features = false, features = ["gzip"] }
 zopfli = "0.8.0"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "file_optimisation"
+harness = false

@@ -86,7 +86,7 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
     Ok(output)
 }
 
-fn optimise_file_contents(input: Vec<u8>) -> Vec<u8> {
+pub fn optimise_file_contents(input: Vec<u8>) -> Vec<u8> {
     let contents = match decompress(input.clone()) {
         Ok(c) => c,
         Err(_) => return input
