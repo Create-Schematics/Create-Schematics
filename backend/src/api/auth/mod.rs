@@ -1,6 +1,3 @@
-
-use std::fmt::Debug;
-
 use oauth2::{AuthorizationCode, TokenResponse};
 use oauth2::reqwest::async_http_client;
 use poem::web::cookie::CookieJar;
@@ -14,7 +11,7 @@ use uuid::Uuid;
 
 use crate::authentication::oauth::{OauthUser, OauthProvider};
 use crate::authentication::session::UserSession;
-use crate::error::{ResultExt, ApiError};
+use crate::error::{ApiError, ResultExt};
 use crate::response::ApiResult;
 
 use super::ApiContext;
