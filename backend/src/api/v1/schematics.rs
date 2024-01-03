@@ -51,6 +51,8 @@ pub (in crate::api::v1) struct SchematicBuilder {
     pub game_version: i32,
     #[oai(validator(minimum(value = "1")))]
     pub create_version: i32,
+    #[oai(validator(max_length=10))]
+    pub tags: Vec<String>,
     pub files: Vec<FileUpload>,
     pub images: Vec<FileUpload>,
 }
@@ -432,6 +434,30 @@ impl SchematicsApi {
             ApiError::unprocessable_entity([("game_version", "that version does not exist")])
         })?;
 
+        sqlx::query!(
+            // Unfortunately sqlx does not inserting multiple records 
+            // directly without using a query builder which would mean 
+            // loosing out on compiler checking. None of this is ideal
+            // if you have a better solution please let us know.
+            // 
+            // see: https://github.com/launchbadge/sqlx/issues/294
+            r#"
+            insert into applied_tags (
+                schematic_id, tag_id
+            )
+            select 
+                $1, tag_id
+            from 
+                unnest($2::text[]) as tag_name
+                inner join tags using (tag_name)
+            on conflict do nothing
+            "#,
+            schematic.schematic_id,
+            &form.tags[..],
+        )
+        .execute(&mut *transaction)
+        .await?;
+        
         transaction.commit().await?;
         let _persist = upload_dir.into_path();
 

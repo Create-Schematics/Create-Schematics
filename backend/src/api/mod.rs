@@ -64,7 +64,7 @@ pub fn build_openapi_service() -> OpenApiService<impl OpenApi, ()> {
         .external_document("https://github.com/Create-Schematics/Create-Schematics")
 }
 
-pub async fn init(
+pub async fn serve(
     StartCommandServerArguments {
         listen_address,
         postgres,

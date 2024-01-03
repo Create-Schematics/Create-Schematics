@@ -15,7 +15,12 @@ pub (in crate::api::v1) struct TagsApi;
 
 #[derive(Debug, Deserialize, Object)]
 pub (in crate::api::v1) struct Tags {
-    pub tag_names: Vec<i64>,
+    pub tag_names: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Object)]
+pub (in crate::api::v1) struct Tag {
+    pub tag_name: String
 }
 
 #[derive(Debug, Serialize, Object)]
@@ -119,7 +124,8 @@ impl TagsApi {
                 schematic_id, tag_id
             )
             select $1, tag_id
-            from unnest($2::bigint[]) as tag_id
+            from unnest($2::text[]) as tag_name
+            inner join tags using (tag_name)
             on conflict do nothing
             "#,
             schematic_id,
@@ -141,7 +147,7 @@ impl TagsApi {
         Data(ctx): Data<&ApiContext>,
         Session(user_id): Session,
         Path(schematic_id): Path<Uuid>,
-        Json(query): Json<Tags>
+        Json(body): Json<Tag>
     ) -> ApiResult<()> {
         let schematic_meta = sqlx::query!(
             r#"select author from schematics where schematic_id = $1"#,
@@ -159,10 +165,10 @@ impl TagsApi {
             r#"
             delete from applied_tags 
             where schematic_id = $1 
-            and tag_id = ANY($2)
+            and tag_id = (select tag_id from tags where tag_name = $2)
             "#,
             schematic_id,
-            &query.tag_names
+            body.tag_name
         )
         .execute(&ctx.pool)
         .await?;

@@ -27,7 +27,7 @@ pub async fn init() -> ExitCode {
     let cli = Cli::parse();
 
     let result = match cli.command {
-        Commands::Start(args) => api::init(args).await,
+        Commands::Start(args) => api::serve(args).await,
         Commands::Openapi(args) => api::openapi::save_schema(args),
     };
         
