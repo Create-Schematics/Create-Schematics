@@ -15,8 +15,9 @@ fn bench(path: &str, name: &str, c: &mut Criterion) {
     let file = std::path::Path::new(path);
     let contents = std::fs::read(file).unwrap();
     let mut smallest = contents.len();
-    c.bench_function(&*format!("optimise {}", name), |b| b.iter(|| {
-        let o = optimise_file_contents(black_box(contents.clone()));
+
+    c.bench_function(&*format!("\"optimise {}\"", name), |b| b.iter(|| {
+        let o = optimise_file_contents(black_box(&contents)).unwrap_or_else(|| contents.clone());
         smallest = smallest.min(o.len())
     }));
 

@@ -1,4 +1,3 @@
-use std::io::{self, Error};
 use std::path::PathBuf;
 use image::DynamicImage;
 use libdeflater::{CompressionLvl, Compressor};
@@ -57,7 +56,7 @@ fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>
         let img = DynamicImage::ImageRgb8(img.into_rgb8());
 
         let encoder = WebpEncoder::from_image(&img).unwrap();
-        let webp = encoder.encode(100f32);
+        let webp = encoder.encode(90f32);
 
         std::fs::write(&path, &*webp).map_err(anyhow::Error::new)?;
     }
@@ -71,9 +70,9 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
     std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
     
     for file in files {
-        let file_name = file.file_name.ok_or(ApiError::BadRequest)?;
+        let file_name = file.file_name.as_ref().ok_or(ApiError::BadRequest)?;
         
-        if !file_name.ends_with(".nbt") {
+        if !is_nbt(&file) {
             return Err(ApiError::BadRequest)
         }
 
@@ -87,40 +86,60 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
         let path = location.join(&sanitized);
         output.push(sanitized);
 
-        let optimized_contents = optimise_file_contents(file.contents);
+        let optimized_contents = optimise_file_contents(&file.contents)
+            .unwrap_or_else(|| file.contents);
         std::fs::write(path, optimized_contents).map_err(anyhow::Error::new)?;
     }
 
     Ok(output)
 }
 
-pub fn optimise_file_contents(input: Vec<u8>) -> Vec<u8> {
-    let contents = match decompress(input.clone()) {
+fn is_nbt(file: &FileUpload) -> bool {
+    if file.file_name.as_ref()
+        .map(|name| name.ends_with(".nbt"))
+        .unwrap_or(false) {
+        return true;
+    }
+
+    let gzip_magic = [0x1f, 0x8b];
+    if file.contents.len() > 2 {
+        let mut magic = [0; 2];
+        magic.copy_from_slice(&file.contents[..2]);
+        if magic == gzip_magic {
+            return true;
+        }
+    }
+
+    false
+}
+
+pub fn optimise_file_contents(input: &Vec<u8>) -> Option<Vec<u8>> {
+    let contents = match decompress(&input) {
         Ok(c) => c,
-        Err(_) => return input
+        Err(_) => return None
     };
 
-    compress(contents).unwrap_or_else(|_| input)
+    compress(&contents).ok()
 }
 
-fn decompress(stuff: Vec<u8>) -> io::Result<Vec<u8>> {
-    let mut decoder = GzDecoder::new(&stuff[..]);
+fn decompress(data: &Vec<u8>) -> Result<Vec<u8>, anyhow::Error> {
+    let mut decoder = GzDecoder::new(&data[..]);
 
     match decoder.decode_gzip() {
-        Ok(result) => Ok(result),
-        Err(_) => Err(Error::new(io::ErrorKind::InvalidData, "Invalid gzip data"))
+        Ok(c) => Ok(c),
+        Err(e) => {
+            Err(anyhow::Error::msg(e.to_string()))
+        }
     }
 }
 
-fn compress(data: Vec<u8>) -> io::Result<Vec<u8>> {
-    let mut compressor = Compressor::new(CompressionLvl::new(12).unwrap());
+fn compress(data: &Vec<u8>) -> Result<Vec<u8>, anyhow::Error> {
+    let mut compressor = Compressor::new(CompressionLvl::best());
     let capacity = compressor.gzip_compress_bound(data.len());
     let mut dest = vec![0; capacity];
-    match compressor.gzip_compress(&*data, &mut dest) {
-        Ok(len) => {
-            dest.truncate(len);
-            Ok(dest)
-        }
-        Err(e) => Err(Error::new(io::ErrorKind::InvalidData, e))
-    }
+
+    let len = compressor.gzip_compress(&*data, &mut dest).map_err(anyhow::Error::new)?;
+
+    dest.truncate(len);
+    Ok(dest)
 }
