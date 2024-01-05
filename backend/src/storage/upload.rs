@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 use image::DynamicImage;
-use libdeflater::{CompressionLvl, Compressor};
 
 use webp::Encoder as WebpEncoder;
 
@@ -8,7 +7,11 @@ use tempfile::{Builder, TempDir};
 use uuid::Uuid;
 use crate::{error::ApiError, middleware::files::FileUpload};
 
-use zune_inflate::DeflateDecoder as GzDecoder;
+#[cfg(feature="compression")]
+use crate::storage::compression;
+
+// https://gist.github.com/leommoore/f9e57ba2aa4bf197ebc5#archive-files
+const GZIP_SIGNATURE: [u8; 2] = [0x1f, 0x8b];
 
 pub fn build_upload_directory(
     schematic_id: &Uuid
@@ -86,9 +89,12 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
         let path = location.join(&sanitized);
         output.push(sanitized);
 
-        let optimized_contents = optimise_file_contents(&file.contents)
-            .unwrap_or_else(|| file.contents);
-        std::fs::write(path, optimized_contents).map_err(anyhow::Error::new)?;
+        let contents = &file.contents;
+        
+        #[cfg(feature="compression")]
+        let contents = compression::optimise_file_contents(contents)?;
+
+        std::fs::write(path, contents).map_err(anyhow::Error::new)?;
     }
 
     Ok(output)
@@ -97,49 +103,17 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
 fn is_nbt(file: &FileUpload) -> bool {
     if file.file_name.as_ref()
         .map(|name| name.ends_with(".nbt"))
-        .unwrap_or(false) {
+        .unwrap_or(false) 
+    {
         return true;
     }
 
-    let gzip_magic = [0x1f, 0x8b];
-    if file.contents.len() > 2 {
-        let mut magic = [0; 2];
-        magic.copy_from_slice(&file.contents[..2]);
-        if magic == gzip_magic {
-            return true;
-        }
+    if file.contents.len() < 2 {
+        return false;
     }
 
-    false
-}
-
-pub fn optimise_file_contents(input: &Vec<u8>) -> Option<Vec<u8>> {
-    let contents = match decompress(&input) {
-        Ok(c) => c,
-        Err(_) => return None
-    };
-
-    compress(&contents).ok()
-}
-
-fn decompress(data: &Vec<u8>) -> Result<Vec<u8>, anyhow::Error> {
-    let mut decoder = GzDecoder::new(&data[..]);
-
-    match decoder.decode_gzip() {
-        Ok(c) => Ok(c),
-        Err(e) => {
-            Err(anyhow::Error::msg(e.to_string()))
-        }
-    }
-}
-
-fn compress(data: &Vec<u8>) -> Result<Vec<u8>, anyhow::Error> {
-    let mut compressor = Compressor::new(CompressionLvl::best());
-    let capacity = compressor.gzip_compress_bound(data.len());
-    let mut dest = vec![0; capacity];
-
-    let len = compressor.gzip_compress(&*data, &mut dest).map_err(anyhow::Error::new)?;
-
-    dest.truncate(len);
-    Ok(dest)
+    let mut magic = [0; 2];
+    magic.copy_from_slice(&file.contents[..2]);
+    
+    magic == GZIP_SIGNATURE
 }
