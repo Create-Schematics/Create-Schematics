@@ -1,5 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use backend::storage::upload::optimise_file_contents;
+use tracing::info;
 
 pub fn airship(c: &mut Criterion) {
     // https://createmod.com/schematics/create-airship - 82,665 bytes
@@ -12,16 +13,21 @@ pub fn ponder(c: &mut Criterion) {
 }
 
 fn bench(path: &str, name: &str, c: &mut Criterion) {
+    let _ = tracing_subscriber::fmt::try_init();
+
     let file = std::path::Path::new(path);
     let contents = std::fs::read(file).unwrap();
     let mut smallest = contents.len();
 
     c.bench_function(&*format!("\"optimise {}\"", name), |b| b.iter(|| {
-        let o = optimise_file_contents(black_box(&contents)).unwrap_or_else(|| contents.clone());
+        let o = optimise_file_contents(black_box(&contents)).unwrap_or_else(|_| contents.clone());
         smallest = smallest.min(o.len())
     }));
 
-    println!("{}: {} -> {} (saved {})", name, contents.len(), smallest, contents.len() - smallest);
+    let original_length = contents.len();
+    let saved = contents.len() - smallest;    
+
+    info!(%name, %original_length, %smallest, %saved);
 }
 
 criterion_group!(benches, ponder, airship);
