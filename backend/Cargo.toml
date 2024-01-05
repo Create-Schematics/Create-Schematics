@@ -58,3 +58,4 @@ criterion = "0.5.1"
 [[bench]]
 name = "file_optimisation"
 harness = false
+required-features = ["compression"]

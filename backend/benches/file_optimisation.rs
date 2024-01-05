@@ -1,6 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use backend::storage::upload::optimise_file_contents;
 use tracing::info;
+
+use backend::storage::compression::optimise_file_contents;
 
 pub fn airship(c: &mut Criterion) {
     // https://createmod.com/schematics/create-airship - 82,665 bytes
@@ -12,6 +13,7 @@ pub fn ponder(c: &mut Criterion) {
     bench("benches/test_data/chunks.nbt", "ponder", c);
 }
 
+#[cfg(feature="compression")]
 fn bench(path: &str, name: &str, c: &mut Criterion) {
     let _ = tracing_subscriber::fmt::try_init();
 
@@ -31,4 +33,5 @@ fn bench(path: &str, name: &str, c: &mut Criterion) {
 }
 
 criterion_group!(benches, ponder, airship);
+
 criterion_main!(benches);
