@@ -159,11 +159,11 @@ impl CollectionsApi {
     /// refer to `/api/v1/collections` which fetches collections owned by the 
     /// current user
     /// 
-    #[oai(path = "/users/:user_id/collections", method = "get")]
+    #[oai(path = "/users/:username/collections", method = "get")]
     async fn get_users_collections(
         &self,
         Data(ctx): Data<&ApiContext>,
-        Path(user_id): Path<Uuid>,
+        Path(username): Path<String>,
         Query(limit): Query<Option<i64>>,
         Query(offset): Query<Option<i64>>
     ) -> ApiResult<Json<Vec<UserCollection>>> {
@@ -178,13 +178,13 @@ impl CollectionsApi {
                 collections
                 left join collection_entries using (collection_id)
             where
-                $1 = user_id
+                user_id = (select user_id from users where username = $1)
                 and is_private = false
             group by
                 collection_id
             limit $2 offset $3
             "#,
-            user_id,
+            username,
             limit.unwrap_or(20),
             offset.unwrap_or(0)
         )

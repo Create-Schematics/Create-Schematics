@@ -245,7 +245,8 @@
                 ],
                 "properties": {
                   "comment_body": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 1024
                   }
                 }
               }
@@ -375,7 +376,8 @@
                 "type": "object",
                 "properties": {
                   "comment_body": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 1024
                   }
                 }
               }
@@ -559,6 +561,10 @@
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                  },
+                  "schematic_body": {
+                    "type": "string",
+                    "maxLength": 2048
                   },
                   "game_version": {
                     "type": "integer",
@@ -788,6 +794,7 @@
                   "schematic_body",
                   "game_version",
                   "create_version",
+                  "tags",
                   "files",
                   "images"
                 ],
@@ -810,6 +817,13 @@
                     "type": "integer",
                     "format": "int32",
                     "minimum": 1.0
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 10
+                    }
                   },
                   "files": {
                     "type": "array",
@@ -1478,7 +1492,7 @@
           "content": {
             "application/json; charset=utf-8": {
               "schema": {
-                "$ref": "#/components/schemas/Tags"
+                "$ref": "#/components/schemas/Tag"
               }
             }
           },
@@ -1684,13 +1698,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "is_private": {
+                    "type": "boolean"
+                  },
                   "collection_name": {
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
-                  },
-                  "is_private": {
-                    "type": "boolean"
                   }
                 }
               }
@@ -1787,16 +1801,15 @@
         ]
       }
     },
-    "/v1/users/{user_id}/collections": {
+    "/v1/users/{username}/collections": {
       "get": {
         "summary": "Fetches all public collections owned by a given user, this will include\nadditional information about each collection such as it's entries but\nwill not include information about the author",
         "description": "If you need to get all collections including private ones from a user\nrefer to `/api/v1/collections` which fetches collections owned by the\ncurrent user\n",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             },
             "in": "path",
             "required": true,
@@ -1950,17 +1963,17 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "collection_name",
-                  "is_private"
+                  "is_private",
+                  "collection_name"
                 ],
                 "properties": {
+                  "is_private": {
+                    "type": "boolean"
+                  },
                   "collection_name": {
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
-                  },
-                  "is_private": {
-                    "type": "boolean"
                   }
                 }
               }
@@ -3036,6 +3049,17 @@
           "CreatedAt"
         ]
       },
+      "Tag": {
+        "type": "object",
+        "required": [
+          "tag_name"
+        ],
+        "properties": {
+          "tag_name": {
+            "type": "string"
+          }
+        }
+      },
       "Tags": {
         "type": "object",
         "required": [
@@ -3045,8 +3069,7 @@
           "tag_names": {
             "type": "array",
             "items": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         }

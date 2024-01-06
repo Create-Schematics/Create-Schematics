@@ -202,6 +202,7 @@ paths:
               properties:
                 comment_body:
                   type: string
+                  maxLength: 1024
         required: true
       responses:
         '200':
@@ -314,6 +315,7 @@ paths:
               properties:
                 comment_body:
                   type: string
+                  maxLength: 1024
         required: true
       responses:
         '200':
@@ -468,6 +470,9 @@ paths:
                   type: string
                   maxLength: 50
                   minLength: 3
+                schematic_body:
+                  type: string
+                  maxLength: 2048
                 game_version:
                   type: integer
                   format: int32
@@ -659,6 +664,7 @@ paths:
               - schematic_body
               - game_version
               - create_version
+              - tags
               - files
               - images
               properties:
@@ -677,6 +683,11 @@ paths:
                   type: integer
                   format: int32
                   minimum: 1.0
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    maxLength: 10
                 files:
                   type: array
                   items:
@@ -1203,7 +1214,7 @@ paths:
         content:
           application/json; charset=utf-8:
             schema:
-              $ref: '#/components/schemas/Tags'
+              $ref: '#/components/schemas/Tag'
         required: true
       responses:
         '200':
@@ -1373,12 +1384,12 @@ paths:
             schema:
               type: object
               properties:
+                is_private:
+                  type: boolean
                 collection_name:
                   type: string
                   maxLength: 50
                   minLength: 3
-                is_private:
-                  type: boolean
         required: true
       responses:
         '200':
@@ -1453,7 +1464,7 @@ paths:
             error see implementation bellow
       security:
       - Session: []
-  /v1/users/{user_id}/collections:
+  /v1/users/{username}/collections:
     get:
       summary: |-
         Fetches all public collections owned by a given user, this will include
@@ -1464,10 +1475,9 @@ paths:
         refer to `/api/v1/collections` which fetches collections owned by the
         current user
       parameters:
-      - name: user_id
+      - name: username
         schema:
           type: string
-          format: uuid
         in: path
         required: true
         deprecated: false
@@ -1594,15 +1604,15 @@ paths:
             schema:
               type: object
               required:
-              - collection_name
               - is_private
+              - collection_name
               properties:
+                is_private:
+                  type: boolean
                 collection_name:
                   type: string
                   maxLength: 50
                   minLength: 3
-                is_private:
-                  type: boolean
         required: true
       responses:
         '200':
@@ -2436,6 +2446,13 @@ components:
       - Downloads
       - Likes
       - CreatedAt
+    Tag:
+      type: object
+      required:
+      - tag_name
+      properties:
+        tag_name:
+          type: string
     Tags:
       type: object
       required:
@@ -2444,8 +2461,7 @@ components:
         tag_names:
           type: array
           items:
-            type: integer
-            format: int64
+            type: string
     UpdateUser:
       type: object
       properties:
