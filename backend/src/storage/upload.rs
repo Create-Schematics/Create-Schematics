@@ -26,32 +26,29 @@ pub async fn save_schematic_files(
     dir: &TempDir,
     files: Vec<FileUpload>,
     images: Vec<FileUpload>
-) -> Result<(Vec<String>, Vec<String>), ApiError> {
+) -> Result<(), ApiError> {
     let schematic_dir = dir.path().join(super::SCHEMATIC_PATH);
-    let schematics = save_schematics(schematic_dir, files).await?;
+    save_schematics(schematic_dir, files).await?;
 
     let image_dir = dir.path().join(super::IMAGE_PATH);
-    let images = save_images(image_dir, images).await?;
+    save_images(image_dir, images).await?;
 
-    Ok((schematics, images))
+    Ok(())
 }   
 
-async fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
+async fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<(), ApiError> {
     let mut files: Vec<String> = vec![];
 
     std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
 
     for image in images {
-        let file_name = image.file_name.ok_or(ApiError::BadRequest)?;
-        let sanitized = sanitize_filename::sanitize(&file_name);
-
-        if files.contains(&sanitized) {
+        if files.contains(&image.file_name) {
             // Prevent duplicate requests
             return Err(ApiError::BadRequest);
         }
 
-        let path = location.join(&sanitized).with_extension("webp");
-        files.push(sanitized);
+        let path = location.join(&image.file_name).with_extension("webp");
+        files.push(image.file_name);
 
         let img = image::load_from_memory(&image.contents)
             .map_err(|_| ApiError::BadRequest)?;
@@ -68,32 +65,28 @@ async fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<S
         std::fs::write(&path, &*webp).map_err(anyhow::Error::new)?;
     }
     
-    Ok(files)
+    Ok(())
 }
 
-async fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
-    let mut output: Vec<String> = vec![];
+async fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<(), ApiError> {
+    let mut used_names: Vec<String> = vec![];
 
     tokio::fs::create_dir(&location)
         .await
         .map_err(anyhow::Error::new)?;
         
     for file in files {
-        let file_name = file.file_name.as_ref().ok_or(ApiError::BadRequest)?;
-        
         if !is_nbt(&file) {
             return Err(ApiError::BadRequest)
         }
 
-        let sanitized = sanitize_filename::sanitize(&file_name);
-
-        if output.contains(&sanitized) {
-            // Prevent duplicate requests
+        if used_names.contains(&file.file_name) {
+            // Prevent duplicate files being uploaded
             return Err(ApiError::BadRequest);
         }
 
-        let path = location.join(&sanitized);
-        output.push(sanitized);
+        let path = location.join(&file.file_name);
+        used_names.push(file.file_name);
 
         let contents = &file.contents;
         
@@ -103,14 +96,11 @@ async fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Ve
         tokio::fs::write(path, &contents).await.map_err(anyhow::Error::new)?;
     }
 
-    Ok(output)
+    Ok(())
 }
 
 fn is_nbt(file: &FileUpload) -> bool {
-    if file.file_name.as_ref()
-        .map(|name| name.ends_with(".nbt"))
-        .unwrap_or(false) 
-    {
+    if file.file_name().ends_with(".nbt") {
         return true;
     }
 

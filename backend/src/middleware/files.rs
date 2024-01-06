@@ -1,12 +1,13 @@
 use std::borrow::Cow;
 use std::fmt::{Formatter, Debug};
+use std::ops::Deref;
 
 use poem::web::Field;
 use poem_openapi::types::{ParseError, ParseFromMultipartField, ParseResult, Type};
 use poem_openapi::registry::{MetaSchema, MetaSchemaRef};
 
 pub struct FileUpload {
-    pub file_name: Option<String>,
+    pub file_name: String,
     pub content_type: Option<String>,
     pub contents: Vec<u8>,
 }
@@ -14,13 +15,29 @@ pub struct FileUpload {
 impl Debug for FileUpload {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut d = f.debug_struct("Upload");
-        if let Some(file_name) = &self.file_name {
-            d.field("filename", &file_name);
-        }
+        
+        d.field("filename", &self.file_name);
+        
         if let Some(content_type) = &self.content_type {
             d.field("content_type", &content_type);
         }
+        
         d.finish()
+    }
+}
+
+impl FileUpload {
+    pub fn file_name(&self) -> &str {
+        &self.file_name
+
+    }
+}
+
+impl Deref for FileUpload {
+    type Target = Vec<u8>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.contents
     }
 }
 
@@ -56,7 +73,11 @@ impl ParseFromMultipartField for FileUpload {
         match field {
             Some(field) => {
                 let content_type = field.content_type().map(ToString::to_string);
-                let file_name = field.file_name().map(ToString::to_string);
+                
+                let file_name = field.file_name()
+                    .map(sanitize_filename::sanitize)
+                    .ok_or(ParseError::custom("files must be named"))?;
+
                 Ok(Self {
                     content_type,
                     file_name,

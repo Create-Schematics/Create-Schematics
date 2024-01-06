@@ -82,7 +82,6 @@ impl ImageApi {
         Session(user_id): Session,
         form: UploadImage
     ) -> ApiResult<()> {
-        let file_name = form.image.file_name.ok_or(ApiError::BadRequest)?;
         let mut transaction = ctx.pool.begin().await?;
         
         let schematic_meta = sqlx::query!(
@@ -97,8 +96,6 @@ impl ImageApi {
             return Err(ApiError::Unauthorized);
         }
         
-        let sanitized = sanitize_filename::sanitize(file_name);
-    
         sqlx::query!(
             r#"
             update schematics
@@ -107,7 +104,7 @@ impl ImageApi {
                 where 
                     schematic_id = $2
             "#,
-            sanitized,
+            form.image.file_name,
             schematic_id
         )
         .execute(&mut *transaction)
@@ -117,7 +114,7 @@ impl ImageApi {
         path.push(schematic_id.to_string());
         path.push(IMAGE_PATH);
     
-        let file = path.join(sanitized);
+        let file = path.join(form.image.file_name);
         
         if file.exists() {
             return Err(ApiError::unprocessable_entity([("image", "a file with this name already exists")]));
@@ -168,8 +165,6 @@ impl ImageApi {
             return Err(ApiError::Unauthorized);
         }
 
-        let file_name = sanitize_filename::sanitize(form.file_name);
-    
         let images = sqlx::query_as!(
             Images,
             r#"
@@ -181,7 +176,7 @@ impl ImageApi {
                     and array_length(images, 1) > 2
             returning images
             "#,
-            file_name,
+            form.file_name,
             schematic_id
         )
         .fetch_optional(&mut *transaction)
@@ -192,7 +187,7 @@ impl ImageApi {
         path.push(schematic_id.to_string());
         path.push(IMAGE_PATH);
     
-        tokio::fs::remove_file(path.join(file_name))
+        tokio::fs::remove_file(path.join(form.file_name))
             .await
             .map_err(anyhow::Error::new)?;
     

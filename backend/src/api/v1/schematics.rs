@@ -392,21 +392,20 @@ impl SchematicsApi {
         form: SchematicBuilder
     ) -> ApiResult<Json<Schematic>> {
         let mut transaction = ctx.pool.begin().await?;
-        let schematic_id = Uuid::new_v4();
-
-        let upload_dir = upload::build_upload_directory(&schematic_id)?;
-        let (files, images) = save_schematic_files(&upload_dir, form.files, form.images).await?;
+        
+        let images = form.images.iter().map(|image| image.file_name().to_string()).collect::<Vec<_>>();
+        let files = form.images.iter().map(|file| file.file_name().to_string()).collect::<Vec<_>>();
 
         let schematic = sqlx::query_as!(
             Schematic,
             r#"
             insert into schematics (
-                schematic_id, schematic_name, 
-                body, author, images, files,
-                game_version_id, create_version_id
+                schematic_name, body, author, 
+                images, files, game_version_id, 
+                create_version_id
             )
             values (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7
             )
             returning
                 schematic_id,
@@ -419,7 +418,6 @@ impl SchematicsApi {
                 author,
                 downloads
             "#,
-            schematic_id,
             form.schematic_name,
             form.schematic_body,
             user_id,
@@ -457,6 +455,9 @@ impl SchematicsApi {
         )
         .execute(&mut *transaction)
         .await?;
+
+        let upload_dir = upload::build_upload_directory(&schematic.schematic_id)?;
+        save_schematic_files(&upload_dir, form.files, form.images).await?;
         
         transaction.commit().await?;
         let _persist = upload_dir.into_path();

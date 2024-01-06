@@ -82,10 +82,9 @@ impl FileApi {
         Session(user_id): Session,
         form: UploadFile
     ) -> ApiResult<()> {
-        let file_name = form.file.file_name.ok_or(ApiError::BadRequest)?;
-        let sanitized = sanitize_filename::sanitize(file_name);
-        
-        if form.file.contents.len() > MAX_FILE_SIZE || !sanitized.ends_with(".nbt") {
+        let file_name = form.file.file_name();
+
+        if form.file.contents.len() > MAX_FILE_SIZE || !file_name.ends_with(".nbt") {
             return Err(ApiError::BadRequest);
         }
 
@@ -93,7 +92,7 @@ impl FileApi {
         path.push(schematic_id.to_string());
         path.push(SCHEMATIC_PATH);
     
-        let file = path.join(&sanitized);
+        let file = path.join(&file_name);
         
         if file.exists() {
             return Err(ApiError::unprocessable_entity([("file", "a file with this name already exists")]));
@@ -121,7 +120,7 @@ impl FileApi {
                 where 
                     schematic_id = $2
             "#,
-            sanitized,
+            file_name,
             schematic_id
         )
         .execute(&mut *transaction)
