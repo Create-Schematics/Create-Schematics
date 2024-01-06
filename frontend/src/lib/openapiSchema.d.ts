@@ -518,6 +518,7 @@ export interface paths {
         content: {
           "multipart/form-data": {
             schematic_name?: string;
+            schematic_body?: string;
             /** Format: int32 */
             game_version?: number;
             /** Format: int32 */
@@ -645,6 +646,7 @@ export interface paths {
             game_version: number;
             /** Format: int32 */
             create_version: number;
+            tags: string[];
             files: string[];
             images: string[];
           };
@@ -928,12 +930,12 @@ export interface paths {
       };
     };
   };
-  "/v1/users/{user_id}": {
-    /** Fetches a user by their id, for privacy their email will not be included */
+  "/v1/users/{username}": {
+    /** Fetches a user by their username, for privacy their email will not be included */
     get: {
       parameters: {
         path: {
-          user_id: string;
+          username: string;
         };
       };
       responses: {
@@ -976,7 +978,7 @@ export interface paths {
       };
     };
   };
-  "/v1/users/{user_id}/schematics": {
+  "/v1/users/{username}/schematics": {
     /**
      * Fetches a number of schematics created by the specified user. User
      * information will not be included with the schematic as it is assumed
@@ -990,7 +992,7 @@ export interface paths {
           offset?: number;
         };
         path: {
-          user_id: string;
+          username: string;
         };
       };
       responses: {
@@ -1204,7 +1206,7 @@ export interface paths {
       };
       requestBody: {
         content: {
-          "application/json; charset=utf-8": components["schemas"]["Tags"];
+          "application/json; charset=utf-8": components["schemas"]["Tag"];
         };
       };
       responses: {
@@ -1423,8 +1425,8 @@ export interface paths {
       requestBody: {
         content: {
           "multipart/form-data": {
-            collection_name?: string;
             is_private?: boolean;
+            collection_name?: string;
           };
         };
       };
@@ -1591,8 +1593,8 @@ export interface paths {
       requestBody: {
         content: {
           "multipart/form-data": {
-            collection_name: string;
             is_private: boolean;
+            collection_name: string;
           };
         };
       };
@@ -2184,6 +2186,7 @@ export interface components {
       /** Format: uuid */
       user_id: string;
       username: string;
+      displayname: string;
       avatar?: string;
       about?: string;
       role: components["schemas"]["Role"];
@@ -2230,7 +2233,8 @@ export interface components {
       body: string;
       /** Format: uuid */
       author: string;
-      author_name: string;
+      author_displayname: string;
+      author_username: string;
       author_avatar?: string;
       /** Format: int64 */
       like_count: number;
@@ -2280,11 +2284,15 @@ export interface components {
     };
     /** @enum {string} */
     SortBy: "Downloads" | "Likes" | "CreatedAt";
+    Tag: {
+      tag_name: string;
+    };
     Tags: {
-      tag_names: number[];
+      tag_names: string[];
     };
     UpdateUser: {
       username?: string;
+      displayname?: string;
       about?: string;
       avatar_url?: string;
     };
@@ -2292,6 +2300,7 @@ export interface components {
       /** Format: uuid */
       user_id: string;
       username: string;
+      displayname: string;
       avatar?: string;
       about?: string;
       role: components["schemas"]["Role"];

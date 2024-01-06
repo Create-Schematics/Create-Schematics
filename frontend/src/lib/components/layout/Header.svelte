@@ -4,7 +4,9 @@
   export let user: components["schemas"]["User"] | undefined;
 </script>
 
-<header class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 w-full sticky">
+<header
+  class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 w-full sticky"
+>
   <section class="w-full flex grid-cols-3 md:grid gap-8">
     <div class="flex items-center gap-4">
       <a href="/">
@@ -36,7 +38,7 @@
           +
         </a>
         <a
-          href={`/user/${user.user_id}`}
+          href={`/user/${user.username}`}
           class="w-10 h-10 bg-white/50 overflow-hidden pixel-corners"
         >
           <img src={user.avatar} alt="avatar" />
