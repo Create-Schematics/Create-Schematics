@@ -28,15 +28,15 @@ pub async fn save_schematic_files(
     images: Vec<FileUpload>
 ) -> Result<(Vec<String>, Vec<String>), ApiError> {
     let schematic_dir = dir.path().join(super::SCHEMATIC_PATH);
-    let schematics = save_schematics(schematic_dir, files)?;
+    let schematics = save_schematics(schematic_dir, files).await?;
 
     let image_dir = dir.path().join(super::IMAGE_PATH);
-    let images = save_images(image_dir, images)?;
+    let images = save_images(image_dir, images).await?;
 
     Ok((schematics, images))
 }   
 
-fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
+async fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
     let mut files: Vec<String> = vec![];
 
     std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
@@ -55,23 +55,29 @@ fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<Vec<String>
 
         let img = image::load_from_memory(&image.contents)
             .map_err(|_| ApiError::BadRequest)?;
-
+        
+        // The Webp Encoder doesnt support all image colour formats so standardize to rgb8
         let img = DynamicImage::ImageRgb8(img.into_rgb8());
 
-        let encoder = WebpEncoder::from_image(&img).unwrap();
+        let encoder = WebpEncoder::from_image(&img).map_err(|_| ApiError::BadRequest)?;
         let webp = encoder.encode(90f32);
 
+        // Webp memory derefrences to an arbritrarily lengthed byte array and thus can't be safely sent
+        // across threads, and therefor can't be directly awaited, if you know a way around this please
+        // contact us
         std::fs::write(&path, &*webp).map_err(anyhow::Error::new)?;
     }
-
+    
     Ok(files)
 }
 
-fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
+async fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
     let mut output: Vec<String> = vec![];
 
-    std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
-    
+    tokio::fs::create_dir(&location)
+        .await
+        .map_err(anyhow::Error::new)?;
+        
     for file in files {
         let file_name = file.file_name.as_ref().ok_or(ApiError::BadRequest)?;
         
@@ -94,7 +100,7 @@ fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<Vec<Stri
         #[cfg(feature="compression")]
         let contents = compression::optimise_file_contents(contents)?;
 
-        std::fs::write(path, contents).map_err(anyhow::Error::new)?;
+        tokio::fs::write(path, &contents).await.map_err(anyhow::Error::new)?;
     }
 
     Ok(output)
