@@ -16,12 +16,12 @@ pub struct UsersApi;
 #[derive(Debug, Deserialize, Object)]
 pub struct UpdateUser {
     #[oai(validator(min_length=3, max_length=30))]
-    username: Option<String>,
+    pub username: Option<String>,
     #[oai(validator(min_length=3, max_length=30))]
-    displayname: Option<String>,
+    pub displayname: Option<String>,
     #[oai(validator(max_length=256))]
-    about: Option<String>,
-    avatar_url: Option<String>,
+    pub about: Option<String>,
+    pub avatar_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Object)]
