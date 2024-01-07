@@ -3,6 +3,8 @@
 
 target/
 
+venv/
+
 .DS_Store
 node_modules
 /build
@@ -17,3 +19,4 @@ vite.config.ts.timestamp-*
 backend/static/upload
 
 .idea/
+.vscode/
