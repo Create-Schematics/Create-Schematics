@@ -14,6 +14,9 @@ use crate::storage::compression;
 // https://gist.github.com/leommoore/f9e57ba2aa4bf197ebc5#archive-files
 const GZIP_SIGNATURE: [u8; 2] = [0x1f, 0x8b];
 
+const MAX_FILE_SIZE: usize = 256 * 1024; // 256kb
+const MAX_IMAGE_SIZE: usize = 5 * 1024 * 1024; // 5mb
+
 pub fn build_upload_directory(
     schematic_id: &Uuid
 ) -> Result<TempDir, anyhow::Error> {
@@ -44,6 +47,10 @@ pub async fn save_images(location: &TempDir, images: Vec<FileUpload>) -> Result<
 }
 
 pub fn save_image(location: &PathBuf, file_name: &str, contents: &Vec<u8>) -> Result<(), ApiError> {
+    if contents.len() > MAX_IMAGE_SIZE {
+        return Err(ApiError::BadRequest)
+    }
+
     let path = location.join(&file_name).with_extension("webp");
 
     let img = image::load_from_memory(&contents)
@@ -79,7 +86,7 @@ pub async fn save_schematics(location: &TempDir, files: Vec<FileUpload>) -> Resu
 }
 
 pub fn save_schematic(location: &PathBuf, file_name: &str, contents: &Vec<u8>) -> Result<(), ApiError> {
-    if !is_nbt(&file_name, &contents) {
+    if contents.len() > MAX_FILE_SIZE || !is_nbt(&file_name, &contents) {
         return Err(ApiError::BadRequest)
     }
     
