@@ -14,11 +14,13 @@
 <ModeWatcher />
 
 <body
-  class=" bg-create-blue/40 dark:bg-gray-800 dark:text-white absolute w-full flex flex-col font-pixel min-h-screen"
+  class=" bg-create-blue/40 dark:bg-gray-800 dark:text-white absolute w-full flex flex-col font-pixel min-h-screen content-between"
 >
   <Header {user} />
 
-  <slot />
+  <div class="flex-grow">
+    <slot />
+  </div>
 
   <Footer />
 </body>
