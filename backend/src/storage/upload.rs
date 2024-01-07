@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use image::DynamicImage;
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use webp::Encoder as WebpEncoder;
 
 use tempfile::{Builder, TempDir};
@@ -22,94 +23,91 @@ pub fn build_upload_directory(
         .map_err(anyhow::Error::new)
 }
 
-pub async fn save_schematic_files(
-    dir: &TempDir,
-    files: Vec<FileUpload>,
-    images: Vec<FileUpload>
-) -> Result<(), ApiError> {
-    let schematic_dir = dir.path().join(super::SCHEMATIC_PATH);
-    save_schematics(schematic_dir, files).await?;
+pub async fn save_images(location: &TempDir, images: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
+    let path = location.path().join(super::IMAGE_PATH);
+    tokio::fs::create_dir(&path).await.map_err(anyhow::Error::new)?;
+    
+    // When uploading multiple images we'll want to parallize processing them since this can
+    // be quite slow especially for larger images. In testing within the limits of enforced
+    // higher up (10 images up to 5mb) this allows for all images to be processed within the
+    // timespan of most costly image signifigantly improving response times 
+    images.par_iter()
+        .map(|image| -> Result<String, ApiError> {
+            // Since this needs to be returned I don't think the clone is avoidable here,
+            // todo: look into alternate implementations so this isn't needed
+            let file_name = image.file_name.clone().ok_or(ApiError::BadRequest)?;
+            save_image(&path, &file_name, &image.contents)?;
 
-    let image_dir = dir.path().join(super::IMAGE_PATH);
-    save_images(image_dir, images).await?;
+            Ok(file_name)
+        })
+        .collect::<Result<Vec<String>, ApiError>>()
+}
+
+pub fn save_image(location: &PathBuf, file_name: &str, contents: &Vec<u8>) -> Result<(), ApiError> {
+    let path = location.join(&file_name).with_extension("webp");
+
+    let img = image::load_from_memory(&contents)
+        .map_err(|_| ApiError::BadRequest)?;
+    
+    // The Webp Encoder doesnt support all image colour formats so standardize to rgb8
+    let img = DynamicImage::ImageRgb8(img.into_rgb8());
+
+    let encoder = WebpEncoder::from_image(&img).map_err(|_| ApiError::BadRequest)?;
+    let webp = encoder.encode(90f32).to_vec();
+
+    std::fs::write(&path, &webp).map_err(anyhow::Error::new)?;
 
     Ok(())
-}   
+}
 
-async fn save_images(location: PathBuf, images: Vec<FileUpload>) -> Result<(), ApiError> {
-    let mut files: Vec<String> = vec![];
+pub async fn save_schematics(location: &TempDir, files: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
+    let path = location.path().join(super::SCHEMATIC_PATH);
+    tokio::fs::create_dir(&path).await.map_err(anyhow::Error::new)?;
+    
+    // Unlike image uploads processing nbt files is much cheaper, although if the feature is
+    // enabled they will be compressed so we still upload them in parralel
+    files.par_iter()
+        .map(|file| -> Result<String, ApiError> {
+            // Since this needs to be returned I don't think the clone is avoidable here,
+            // todo: look into alternate implementations so this isn't needed
+            let file_name = file.file_name.clone().ok_or(ApiError::BadRequest)?;
+            save_schematic(&path, &file_name, &file.contents)?;
 
-    std::fs::create_dir(&location).map_err(anyhow::Error::new)?;
+            Ok(file_name)
+        })
+        .collect::<Result<Vec<String>, ApiError>>()
+}
 
-    for image in images {
-        if files.contains(&image.file_name) {
-            // Prevent duplicate requests
-            return Err(ApiError::BadRequest);
-        }
-
-        let path = location.join(&image.file_name).with_extension("webp");
-        files.push(image.file_name);
-
-        let img = image::load_from_memory(&image.contents)
-            .map_err(|_| ApiError::BadRequest)?;
-        
-        // The Webp Encoder doesnt support all image colour formats so standardize to rgb8
-        let img = DynamicImage::ImageRgb8(img.into_rgb8());
-
-        let encoder = WebpEncoder::from_image(&img).map_err(|_| ApiError::BadRequest)?;
-        let webp = encoder.encode(90f32);
-
-        // Webp memory derefrences to an arbritrarily lengthed byte array and thus can't be safely sent
-        // across threads, and therefor can't be directly awaited, if you know a way around this please
-        // contact us
-        std::fs::write(&path, &*webp).map_err(anyhow::Error::new)?;
+pub fn save_schematic(location: &PathBuf, file_name: &str, contents: &Vec<u8>) -> Result<(), ApiError> {
+    if !is_nbt(&file_name, &contents) {
+        return Err(ApiError::BadRequest)
     }
     
-    Ok(())
-}
+    let path = location.join(&file_name);
 
-async fn save_schematics(location: PathBuf, files: Vec<FileUpload>) -> Result<(), ApiError> {
-    let mut used_names: Vec<String> = vec![];
-
-    tokio::fs::create_dir(&location)
-        .await
-        .map_err(anyhow::Error::new)?;
-        
-    for file in files {
-        if !is_nbt(&file) {
-            return Err(ApiError::BadRequest)
-        }
-
-        if used_names.contains(&file.file_name) {
-            // Prevent duplicate files being uploaded
-            return Err(ApiError::BadRequest);
-        }
-
-        let path = location.join(&file.file_name);
-        used_names.push(file.file_name);
-
-        let contents = &file.contents;
-        
-        #[cfg(feature="compression")]
-        let contents = compression::optimise_file_contents(contents)?;
-
-        tokio::fs::write(path, &contents).await.map_err(anyhow::Error::new)?;
+    if path.exists() {
+        return Err(ApiError::BadRequest);
     }
 
+    #[cfg(feature="compression")]
+    let contents = compression::optimise_file_contents(contents)?;
+
+    std::fs::write(path, &contents).map_err(anyhow::Error::new)?;
+
     Ok(())
 }
 
-fn is_nbt(file: &FileUpload) -> bool {
-    if file.file_name().ends_with(".nbt") {
+fn is_nbt(file_name: &str, contents: &Vec<u8>) -> bool {
+    if file_name.ends_with(".nbt") {
         return true;
     }
 
-    if file.contents.len() < 2 {
+    if contents.len() < 2 {
         return false;
     }
 
     let mut magic = [0; 2];
-    magic.copy_from_slice(&file.contents[..2]);
+    magic.copy_from_slice(&contents[..2]);
     
     magic == GZIP_SIGNATURE
 }

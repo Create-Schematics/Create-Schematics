@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use poem::web::Data;
 use poem_openapi::param::Path;
 use poem_openapi::payload::Json;
@@ -9,11 +7,9 @@ use uuid::Uuid;
 use crate::authentication::session::Session;
 use crate::error::ApiError;
 use crate::middleware::files::FileUpload;
-use crate::storage::{UPLOAD_PATH, SCHEMATIC_PATH};
+use crate::storage;
 use crate::response::ApiResult;
 use crate::api::ApiContext;
-
-const MAX_FILE_SIZE: usize = 256 * 1024; // 256kb
 
 pub struct FileApi;
 
@@ -82,22 +78,7 @@ impl FileApi {
         Session(user_id): Session,
         form: UploadFile
     ) -> ApiResult<()> {
-        let file_name = form.file.file_name();
-
-        if form.file.contents.len() > MAX_FILE_SIZE || !file_name.ends_with(".nbt") {
-            return Err(ApiError::BadRequest);
-        }
-
-        let mut path = PathBuf::from(UPLOAD_PATH);
-        path.push(schematic_id.to_string());
-        path.push(SCHEMATIC_PATH);
-    
-        let file = path.join(&file_name);
-        
-        if file.exists() {
-            return Err(ApiError::unprocessable_entity([("file", "a file with this name already exists")]));
-        }
-
+        let file_name = form.file.file_name.ok_or(ApiError::BadRequest)?;
         let mut transaction = ctx.pool.begin().await?;
 
         let schematic_meta = sqlx::query!(
@@ -107,29 +88,26 @@ impl FileApi {
         .fetch_optional(&mut *transaction)
         .await?
         .ok_or(ApiError::NotFound)?;
-    
+
         if schematic_meta.author != user_id {
-            return Err(ApiError::Unauthorized);
+            return Err(ApiError::Forbidden);
         }
-    
+
         sqlx::query!(
             r#"
             update schematics
-                set 
-                    files = array_append(files, $1)
-                where 
-                    schematic_id = $2
+            set files = array_append(files, $1)
+            where schematic_id = $2
             "#,
             file_name,
             schematic_id
         )
         .execute(&mut *transaction)
         .await?;
-        
-        tokio::fs::write(file, form.file.contents)
-            .await
-            .map_err(anyhow::Error::new)?;
 
+        let location = storage::schematic_file_path(&schematic_id);
+
+        storage::upload::save_schematic(&location, &file_name, &form.file.contents)?;
         transaction.commit().await?;
     
         Ok(())
@@ -165,8 +143,6 @@ impl FileApi {
             return Err(ApiError::Unauthorized);
         }
 
-        let file_name = sanitize_filename::sanitize(form.file_name);
-    
         let files = sqlx::query_as!(
             Files,
             r#"
@@ -178,18 +154,16 @@ impl FileApi {
                     and array_length(files, 1) > 2
             returning files
             "#,
-            file_name,
+            form.file_name,
             schematic_id
         )
         .fetch_optional(&mut *transaction)
         .await?
         .ok_or(ApiError::NotFound)?;
     
-        let mut path = PathBuf::from(UPLOAD_PATH);
-        path.push(schematic_id.to_string());
-        path.push(SCHEMATIC_PATH);
+        let path = storage::schematic_file_path(&schematic_id);
     
-        tokio::fs::remove_file(path.join(file_name))
+        tokio::fs::remove_file(path.join(form.file_name))
             .await
             .map_err(anyhow::Error::new)?;
     

@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use poem::web::Data;
 use poem_openapi::param::Path;
 use poem_openapi::payload::Json;
@@ -8,12 +6,10 @@ use uuid::Uuid;
 
 use crate::authentication::session::Session;
 use crate::middleware::files::FileUpload;
-use crate::storage::{UPLOAD_PATH, IMAGE_PATH};
+use crate::storage;
 use crate::api::ApiContext;
 use crate::response::ApiResult;
 use crate::error::ApiError;
-
-const MAX_IMAGE_SIZE: usize = 1024 * 1024 * 2; // 2mb
 
 pub struct ImageApi;
 
@@ -82,8 +78,9 @@ impl ImageApi {
         Session(user_id): Session,
         form: UploadImage
     ) -> ApiResult<()> {
+        let file_name = form.image.file_name.ok_or(ApiError::BadRequest)?;
         let mut transaction = ctx.pool.begin().await?;
-        
+
         let schematic_meta = sqlx::query!(
             r#"select author from schematics where schematic_id = $1"#,
             schematic_id
@@ -91,44 +88,26 @@ impl ImageApi {
         .fetch_optional(&mut *transaction)
         .await?
         .ok_or(ApiError::NotFound)?;
-    
+
         if schematic_meta.author != user_id {
-            return Err(ApiError::Unauthorized);
+            return Err(ApiError::Forbidden);
         }
-        
+
         sqlx::query!(
             r#"
             update schematics
-                set 
-                    images = array_append(images, $1)
-                where 
-                    schematic_id = $2
+            set images = array_append(images, $1)
+            where schematic_id = $2
             "#,
-            form.image.file_name,
+            file_name,
             schematic_id
         )
         .execute(&mut *transaction)
         .await?;
-    
-        let mut path = PathBuf::from(UPLOAD_PATH);
-        path.push(schematic_id.to_string());
-        path.push(IMAGE_PATH);
-    
-        let file = path.join(form.image.file_name);
-        
-        if file.exists() {
-            return Err(ApiError::unprocessable_entity([("image", "a file with this name already exists")]));
-        }
 
-        if form.image.contents.len() > MAX_IMAGE_SIZE {
-            return Err(ApiError::unprocessable_entity([("image", "file size too large")]));
-        }
-    
-        image::load_from_memory(&form.image.contents)
-            .map_err(|_| ApiError::BadRequest)?
-            .save(path)
-            .map_err(anyhow::Error::new)?;
-    
+        let location = storage::schematic_image_path(&schematic_id);
+
+        storage::upload::save_image(&location, &file_name, &form.image.contents)?;
         transaction.commit().await?;
     
         Ok(())
@@ -183,9 +162,7 @@ impl ImageApi {
         .await?
         .ok_or(ApiError::NotFound)?;
     
-        let mut path = PathBuf::from(UPLOAD_PATH);
-        path.push(schematic_id.to_string());
-        path.push(IMAGE_PATH);
+        let path = storage::schematic_image_path(&schematic_id);
     
         tokio::fs::remove_file(path.join(form.file_name))
             .await

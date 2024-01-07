@@ -7,7 +7,7 @@ use poem_openapi::types::{ParseError, ParseFromMultipartField, ParseResult, Type
 use poem_openapi::registry::{MetaSchema, MetaSchemaRef};
 
 pub struct FileUpload {
-    pub file_name: String,
+    pub file_name: Option<String>,
     pub content_type: Option<String>,
     pub contents: Vec<u8>,
 }
@@ -27,9 +27,8 @@ impl Debug for FileUpload {
 }
 
 impl FileUpload {
-    pub fn file_name(&self) -> &str {
+    pub fn file_name(&self) -> &Option<String> {
         &self.file_name
-
     }
 }
 
@@ -73,10 +72,7 @@ impl ParseFromMultipartField for FileUpload {
         match field {
             Some(field) => {
                 let content_type = field.content_type().map(ToString::to_string);
-                
-                let file_name = field.file_name()
-                    .map(sanitize_filename::sanitize)
-                    .ok_or(ParseError::custom("files must be named"))?;
+                let file_name = field.file_name().map(sanitize_filename::sanitize);
 
                 Ok(Self {
                     content_type,
