@@ -3,7 +3,7 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
 #[derive(Args, Debug)]
-pub struct StartCommandDatabaseArguments {
+pub struct DatabaseArguments {
     #[arg(help = "The location of your postgres database")]
     #[arg(env = "DATABASE_URL", short = 'd', long = "database_url")]
     #[arg(default_value = "postgresql://localhost")]
@@ -21,11 +21,11 @@ pub struct StartCommandDatabaseArguments {
 }
 
 pub async fn connect(
-    StartCommandDatabaseArguments {
+    DatabaseArguments {
         database_url,
         min_connections,
         max_connections,
-    }: StartCommandDatabaseArguments,
+    }: DatabaseArguments,
 ) -> Result<PgPool, sqlx::error::Error> {
     PgPoolOptions::new()
         .min_connections(min_connections)

@@ -11,9 +11,9 @@ use poem::middleware::{Cors, CookieJarManager};
 use poem_openapi::{LicenseObject, ContactObject, OpenApiService, OpenApi};
 
 use crate::database::postgres;
-use crate::database::postgres::StartCommandDatabaseArguments;
+use crate::database::postgres::DatabaseArguments;
 use crate::database::redis;
-use crate::database::redis::{RedisPool, StartCommandRedisArguments};
+use crate::database::redis::{RedisPool, RedisArguments};
 use crate::middleware::logging::middleware_log;
 
 pub mod auth;
@@ -28,13 +28,13 @@ pub struct StartCommandServerArguments {
     #[arg(default_value = "0.0.0.0:3000")]
     pub listen_address: SocketAddr,
 
-    #[command(next_help_heading = "Database")]
-    #[command(flatten)]
-    pub postgres: StartCommandDatabaseArguments,
-
     #[command(next_help_heading = "Redis")]
     #[command(flatten)]
-    pub redis: StartCommandRedisArguments,
+    pub redis: RedisArguments,
+
+    #[command(next_help_heading = "Database")]
+    #[command(flatten)]
+    pub postgres: DatabaseArguments,
 }
 
 #[derive(Clone)]
@@ -67,8 +67,8 @@ pub fn build_openapi_service() -> OpenApiService<impl OpenApi, ()> {
 pub async fn serve(
     StartCommandServerArguments {
         listen_address,
-        postgres,
         redis,
+        postgres,
         ..
     }: StartCommandServerArguments,
 ) -> Result<(), anyhow::Error> {

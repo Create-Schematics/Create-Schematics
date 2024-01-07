@@ -8,7 +8,7 @@ use crate::response::ApiResult;
 
 
 #[derive(Args, Debug)]
-pub struct StartCommandRedisArguments {
+pub struct RedisArguments {
     #[arg(help = "The location of your redis instance")]
     #[arg(env = "REDIS_URL", short = 'r', long = "redis_url")]
     #[arg(default_value = "redis://localhost")]
@@ -22,10 +22,10 @@ pub struct RedisPool {
 }
 
 pub async fn connect(
-    StartCommandRedisArguments {
+    RedisArguments {
         redis_url,
         ..
-    }: StartCommandRedisArguments,
+    }: RedisArguments,
 ) -> Result<RedisPool, anyhow::Error> {
     let client = Client::open(redis_url)?;
     let manager = ConnectionManager::new(client).await?;
