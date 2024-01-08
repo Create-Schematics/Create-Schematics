@@ -63,13 +63,15 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
               {user.about}
             </p>
           {/if}
-          <hr class="my-3" />
+          <hr
+            class="my-3 border-minecraft-ui-dark dark:border-minecraft-ui-light"
+          />
           <!-- <p class="w-full text-l max-w-[85%]">
             Joined <b>{intlFormatDistance(user.dateJoined, Date.now())}</b>
           </p> -->
           <p class="w-full text-l">
             <b>{schematics.length}</b>
-            Submission{#if schematics.length > 1}s{/if}
+            Submission{#if schematics.length != 1}s{/if}
           </p>
           <!-- <p class="w-full text-l">
             <b>{abbreviateNumber(user.totalDownloads)}</b> Downloads
@@ -83,7 +85,9 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
               <p class="px-1">⚑</p>
             {/if}
           </button>
-          <hr class="my-3" />
+          <hr
+            class="my-3 border-minecraft-ui-dark dark:border-minecraft-ui-light"
+          />
           <div class="w-full grid grid-cols-2 gap-3 mx-auto items-left">
             <!-- {#each user.links as link}
               <a href={link.url} class="no-default-link">
@@ -100,15 +104,19 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
       <div
         class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full pb-1 mb-2 px-3"
       >
-        {#if isDesktop}
-          <h2 class="text-2xl pb-1 pt-3"><b>Collections</b></h2>
-          {#each collections as collection}
-            <div class="bg-white dark:bg-black/50 pixel-corners mb-3">
-              <CollectionCard {...collection} />
-            </div>
-          {/each}
+        <h2 class="text-2xl pb-1 pt-3"><b>Collections</b></h2>
+        {#if collections.length}
+          <div class="flex flex-row md:flex-col">
+            {#each collections as collection}
+              <div class="bg-white dark:bg-black/50 pixel-corners mb-3">
+                <CollectionCard {...collection} />
+              </div>
+            {/each}
+          </div>
         {:else}
-          <h2 class="text-xl px-3 pt-3 pb-2"><b>Collections 🡕</b></h2>
+          <em class=" italic text-black/50 dark:text-white/50"
+            >user has no collections</em
+          >
         {/if}
       </div>
     </div>
