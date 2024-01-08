@@ -13,7 +13,9 @@
         <img src="/favicon.png" class="w-10" alt="logo" />
       </a>
 
-      <span class="text-xl font-bold hidden text-[#faffff] md:block">
+      <span
+        class="text-xl font-bold hidden text-slate-950 dark:text-[#faffff] md:block"
+      >
         Create Schematics
       </span>
     </div>
