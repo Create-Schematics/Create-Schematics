@@ -10,23 +10,6 @@
   export let data: PageData;
   const { user, schematics, collections, currentUser } = data;
   const isPersonalPage = user.user_id == currentUser?.user_id;
-
-  let isDesktop = false;
-
-  onMount(() => {
-    const mediaQuery = window.matchMedia("(min-width: 768px)");
-    isDesktop = mediaQuery.matches;
-
-    const handleResize = () => {
-      isDesktop = mediaQuery.matches;
-    };
-
-    mediaQuery.addEventListener("change", handleResize);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleResize);
-    };
-  });
 </script>
 
 <svelte:head>
