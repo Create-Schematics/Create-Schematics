@@ -7,7 +7,7 @@
 <header
   class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 w-full sticky"
 >
-  <section class="w-full flex grid-cols-3 md:grid gap-8">
+  <section class="w-full flex grid-cols-3 md:grid gap-3 md:gap-8">
     <div class="flex items-center gap-4">
       <a href="/">
         <img src="/favicon.png" class="w-10" alt="logo" />
@@ -48,7 +48,7 @@
       {:else}
         <a
           href="/auth"
-          class="h-10 bg-create-blue/50 overflow-hidden pixel-corners flex items-center p-3 no-default-link"
+          class="h-10 bg-create-blue/50 overflow-hidden pixel-corners flex items-center p-3 no-default-link whitespace-nowrap"
         >
           Sign in
         </a>
