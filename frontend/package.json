@@ -33,9 +33,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@xmcl/nbt": "^3.0.2",
 		"date-fns": "^2.30.0",
 		"mode-watcher": "^0.1.2",
-		"openapi-fetch": "^0.8.2",
-		"prismarine-nbt": "^2.2.1"
+		"openapi-fetch": "^0.8.2"
 	}
 }
