@@ -1,12 +1,14 @@
 <script lang="ts">
   import Slider from "$lib/components/Slider.svelte";
-  import { getSchematicData } from "$lib/schematics";
+  import { deserialize, serialize, serializeSync } from "@xmcl/nbt";
+  // import { getSchematicData } from "$lib/schematics";
   let files: FileList;
-  let schematicData: Awaited<ReturnType<typeof getSchematicData>>;
-  $: if (files)
-    files[0].arrayBuffer().then(async (arrayBuffer) => {
-      schematicData = await getSchematicData(Buffer.from(arrayBuffer));
-    });
+  // let schematicData: Awaited<ReturnType<typeof getSchematicData>>;
+  // $: if (files)
+  //   files[0].arrayBuffer().then(async (arrayBuffer) => {
+  //     schematicData = await getSchematicData(new Uint8Array(arrayBuffer));
+  //   });
+  console.log(deserialize, serializeSync, serialize);
 </script>
 
 <svelte:head>
@@ -59,10 +61,10 @@
         class="bg-create-blue px-2 py-1 text-lg pixel-corners block cursor-pointer"
       >
         Upload
-        <input class="hidden" type="file" accept=".nbt" bind:files />
+        <input class="hidden" type="file" accept=".nbt" multiple bind:files />
       </label>
       <div class="bg-black h-full w-full pixel-corners text-white">
-        {#if files}
+        <!-- {#if files}
           {#if schematicData}
             <ul>
               {#each schematicData.blockList.entries() as block}
@@ -77,7 +79,7 @@
               {/each}
             </ul>
           {/if}
-        {/if}
+        {/if} -->
       </div>
     </div>
     <div class="flex justify-between w-full">
