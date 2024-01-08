@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Slider from "$lib/Slider.svelte";
+  import Slider from "$lib/components/Slider.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
   const { schematic, tags, comments } = data;
@@ -29,8 +29,9 @@
         <div class="p-3 pb-0">
           <h1 class="text-2xl font-bold">{schematic.schematic_name}</h1>
           <h3 class="text-xs text-opacity-50">
-            by <a href={`/user/${schematic.author_name}`} class="underline"
-              >{schematic.author_name}</a
+            by <a
+              href={`/user/${schematic.author_displayname}`}
+              class="underline">{schematic.author_displayname}</a
             >
           </h3>
         </div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Slider from "$lib/Slider.svelte";
+  import Slider from "$lib/components/Slider.svelte";
   import { getSchematicData } from "$lib/schematics";
   let files: FileList;
   let schematicData: Awaited<ReturnType<typeof getSchematicData>>;

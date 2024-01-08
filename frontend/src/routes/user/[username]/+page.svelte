@@ -8,7 +8,6 @@
   import { page } from "$app/stores";
 
   export let data: PageData;
-  $: console.log($page.data);
   const { user, schematics, collections, currentUser } = data;
   const isPersonalPage = user.user_id == currentUser?.user_id;
 
@@ -31,7 +30,7 @@
 </script>
 
 <svelte:head>
-  <title>{user.username} - Create Schematics"</title>
+  <title>{user.username} - Create Schematics</title>
 </svelte:head>
 
 <main
