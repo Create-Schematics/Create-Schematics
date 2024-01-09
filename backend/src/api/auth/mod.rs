@@ -4,7 +4,6 @@ use poem::web::cookie::CookieJar;
 use poem::web::Data;
 use poem_openapi::OpenApi;
 use poem_openapi::param::{Path, Query};
-use poem_openapi_derive::ApiResponse;
 use rand::Rng;
 use reqwest::header;
 use uuid::Uuid;
@@ -12,6 +11,7 @@ use uuid::Uuid;
 use crate::authentication::oauth::{OauthUser, OauthProvider};
 use crate::authentication::session::UserSession;
 use crate::error::{ApiError, ResultExt};
+use crate::redirect::RedirectResponse;
 use crate::response::ApiResult;
 
 use super::ApiContext;
@@ -30,21 +30,6 @@ pub fn configure() -> impl OpenApi {
 }
 
 pub struct AuthApi;
-
-#[derive(ApiResponse)]
-pub enum RedirectResponse {
-    #[oai(status = 302)]
-    Found(#[oai(header = "location")] String)
-}
-
-impl RedirectResponse {
-    pub fn to<T>(location: T) -> Self 
-    where
-        T: Into<String>
-    {
-        Self::Found(location.into())
-    }
-}
 
 #[OpenApi]
 impl AuthApi {
@@ -106,6 +91,45 @@ impl AuthApi {
         transaction.commit().await?;
 
         Ok(RedirectResponse::to("/"))
+    }
+
+    #[oai(path = "/auth/refresh", method = "post")]
+    async fn refresh(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        cookies: &CookieJar
+    ) -> ApiResult<()> {
+        let session_id = cookies
+            .get(UserSession::NAMESPACE)
+            .ok_or(ApiError::Unauthorized)?
+            .to_string();
+        
+        let session = UserSession::from_id(session_id, &ctx.redis_pool).await?;
+        session.clear(&ctx.redis_pool, &cookies).await?;
+
+        let session = UserSession::new_for_user(session.user_id);
+
+        session.save(&ctx.redis_pool).await?;
+        cookies.add(session.into_cookie());
+
+        Ok(())
+    }
+
+    #[oai(path = "/auth/logout", method = "post")]
+    async fn logout(
+        &self,
+        Data(ctx): Data<&ApiContext>,
+        cookies: &CookieJar
+    ) -> ApiResult<()> {
+        let session_id = cookies
+            .get(UserSession::NAMESPACE)
+            .ok_or(ApiError::Unauthorized)?
+            .to_string();
+        
+        let session = UserSession::from_id(session_id, &ctx.redis_pool).await?;
+        session.clear(&ctx.redis_pool, &cookies).await?;
+        
+        Ok(())
     }
 }
 

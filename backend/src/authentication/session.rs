@@ -15,7 +15,7 @@ use crate::response::ApiResult;
 use crate::error::ApiError;
 
 const DEFAULT_SESSION_LENGTH: u64 = 7 * 24 * 60 * 60; // One Week
-const SESSION_ID_LENGTH: usize = 24;
+const TOKEN_LENGTH: usize = 24;
 
 #[derive(Clone, Debug)]
 pub (crate) struct UserSession {
@@ -96,10 +96,10 @@ impl Session {
 }
 
 impl UserSession {
-    const NAMESPACE: &'static str = "session";
+    pub const NAMESPACE: &'static str = "session";
 
     pub (crate) fn new_for_user(user_id: Uuid) -> UserSession {
-        let session_id = nanoid::nanoid!(SESSION_ID_LENGTH);
+        let session_id = nanoid::nanoid!(TOKEN_LENGTH);
 
         Self { session_id, user_id }
     }
@@ -128,7 +128,7 @@ impl UserSession {
             .build()
     }
     
-    pub (crate) fn _take_from_jar(jar: &CookieJar) {
+    pub (crate) fn take_from_jar(jar: &CookieJar) {
         jar.remove(Self::NAMESPACE);
     }
 
@@ -143,12 +143,14 @@ impl UserSession {
         Ok(())
     }
 
-    pub (crate) async fn _clear(
-        self,
-        redis_pool: &RedisPool
+    pub (crate) async fn clear(
+        &self,
+        redis_pool: &RedisPool,
+        jar: &CookieJar
     ) -> ApiResult<()> {
         redis_pool.delete(Self::NAMESPACE, &self.session_id).await?;
-        
+        Self::take_from_jar(&jar);
+
         Ok(())
     }
 }
