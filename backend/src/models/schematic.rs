@@ -10,6 +10,5 @@ pub struct Schematic {
     pub create_version_id: i32,
     pub author: Uuid,
     pub images: Vec<String>,
-    pub files: Vec<String>,
     pub downloads: i64,
 }

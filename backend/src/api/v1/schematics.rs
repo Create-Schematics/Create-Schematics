@@ -33,7 +33,6 @@ pub (in crate::api::v1) struct FullSchematic {
     pub downloads: i64,
     pub tags: Vec<i64>,
     pub images: Vec<String>,
-    pub files: Vec<String>,
     pub game_version_id: i64,
     pub game_version_name: String,
     pub create_version_id: i64,
@@ -139,7 +138,6 @@ impl SchematicsApi {
                 displayname as author_displayname,
                 username as author_username,
                 downloads,
-                files,
                 images,
                 create_version_id, 
                 create_version_name,
@@ -222,7 +220,6 @@ impl SchematicsApi {
                     body,
                     game_version_id,
                     create_version_id,
-                    files,
                     images,
                     author,
                     downloads
@@ -294,7 +291,7 @@ impl SchematicsApi {
 
         Ok(())
     }
-
+    
     /// Searches schematics returning a given number based on requested filters
     /// with some additional information such as the like and dislike count, tags
     /// present on a schematic and the authors username and avatar in order to
@@ -331,7 +328,6 @@ impl SchematicsApi {
                 displayname as author_displayname,
                 username as author_username,
                 downloads,
-                files,
                 images,
                 create_version_id, 
                 create_version_name,
@@ -396,18 +392,18 @@ impl SchematicsApi {
         let upload_dir = upload::build_upload_directory(&schematic_id)?;
         
         let images = upload::save_images(&upload_dir, form.images).await?;
-        let files = upload::save_schematics(&upload_dir, form.files).await?;
+        let _files = upload::save_schematics(&upload_dir, form.files).await?;
 
         let schematic = sqlx::query_as!(
             Schematic,
             r#"
             insert into schematics (
                 schematic_id, schematic_name, 
-                body, author, images, files, 
+                body, author, images,
                 game_version_id, create_version_id
             )
             values (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7
             )
             returning
                 schematic_id,
@@ -416,7 +412,6 @@ impl SchematicsApi {
                 game_version_id,
                 create_version_id,
                 images,
-                files,
                 author,
                 downloads
             "#,
@@ -425,7 +420,6 @@ impl SchematicsApi {
             form.schematic_body,
             user_id,
             &images[..],
-            &files[..],
             form.game_version,
             form.create_version
         )
@@ -458,7 +452,7 @@ impl SchematicsApi {
         )
         .execute(&mut *transaction)
         .await?;
-        
+    
         transaction.commit().await?;
         let _persist = upload_dir.into_path();
 

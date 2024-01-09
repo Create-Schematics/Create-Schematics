@@ -108,12 +108,14 @@ impl UsersApi {
         let schematics = sqlx::query_as!(
             Schematic,
             r#"
-            select schematic_id, schematic_name,
-                   body, files, images, author,
-                   create_version_id, downloads,
-                   game_version_id
-            from schematics
-            where author = (select user_id from users where username = $1)
+            select 
+                schematic_id, schematic_name, body, 
+                images, author, downloads,
+                create_version_id, game_version_id
+            from 
+                schematics
+            where 
+                author = (select user_id from users where username = $1)
             limit $2 offset $3
             "#,
             username,

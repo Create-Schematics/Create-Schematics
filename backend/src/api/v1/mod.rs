@@ -4,6 +4,7 @@ use self::likes::LikesApi;
 use self::files::FileApi;
 use self::images::ImageApi;
 use self::collections::CollectionsApi;
+use self::mods::ModApi;
 use self::tags::TagsApi;
 use self::users::UsersApi;
 use self::schematics::SchematicsApi;
@@ -17,6 +18,7 @@ pub mod tags;
 pub mod collections;
 pub mod images;
 pub mod files;
+pub mod mods;
 
 pub fn configure() -> impl OpenApi {
     (
@@ -26,6 +28,7 @@ pub fn configure() -> impl OpenApi {
         UsersApi, 
         TagsApi, 
         CollectionsApi, 
+        ModApi,
         ImageApi, 
         FileApi
     )
