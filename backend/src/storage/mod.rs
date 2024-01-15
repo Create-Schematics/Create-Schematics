@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use uuid::Uuid;
 
 pub mod upload;
+pub mod schematics;
 
 #[cfg(feature="compression")]
 pub mod compression;

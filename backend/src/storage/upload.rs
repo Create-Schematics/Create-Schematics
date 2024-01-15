@@ -1,7 +1,8 @@
 use std::path::PathBuf;
+use std::collections::HashSet;
 use image::DynamicImage;
 
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::{ParallelIterator, IntoParallelIterator, IntoParallelRefIterator};
 use webp::Encoder as WebpEncoder;
 
 use tempfile::{Builder, TempDir};
@@ -11,11 +12,18 @@ use crate::{error::ApiError, middleware::files::FileUpload};
 #[cfg(feature="compression")]
 use crate::storage::compression;
 
+use super::schematics::{decompress, extract_modlist};
+
 // https://gist.github.com/leommoore/f9e57ba2aa4bf197ebc5#archive-files
 const GZIP_SIGNATURE: [u8; 2] = [0x1f, 0x8b];
 
 const MAX_FILE_SIZE: usize = 256 * 1024; // 256kb
 const MAX_IMAGE_SIZE: usize = 5 * 1024 * 1024; // 5mb
+
+pub struct SchematicTransfer {
+    pub file_name: String,
+    pub requirements: HashSet<String>
+}
 
 pub fn build_upload_directory(
     schematic_id: &Uuid
@@ -34,11 +42,11 @@ pub async fn save_images(location: &TempDir, images: Vec<FileUpload>) -> Result<
     // be quite slow especially for larger images. In testing within the limits of enforced
     // higher up (10 images up to 5mb) this allows for all images to be processed within the
     // timespan of most costly image signifigantly improving response times 
-    images.par_iter()
+    images.into_par_iter()
         .map(|image| -> Result<String, ApiError> {
-            // Since this needs to be returned I don't think the clone is avoidable here,
-            // todo: look into alternate implementations so this isn't needed
-            let file_name = image.file_name.clone().ok_or(ApiError::BadRequest)?;
+            // We consume the files vector here so we dont need to clone the file 
+            // name
+            let file_name = image.file_name.ok_or(ApiError::BadRequest)?;
             save_image(&path, &file_name, &image.contents)?;
 
             Ok(file_name)
@@ -67,40 +75,51 @@ pub fn save_image(location: &PathBuf, file_name: &str, contents: &Vec<u8>) -> Re
     Ok(())
 }
 
-pub async fn save_schematics(location: &TempDir, files: Vec<FileUpload>) -> Result<Vec<String>, ApiError> {
+// todo: replace this, it has numerous issues. First the schematics are decoded twice,
+// once when extracting the file list, the again when being uploaded. Second, all files
+// will be decoded then checked for their size, format etc. 
+pub async fn save_schematics(location: &TempDir, files: Vec<FileUpload>) -> Result<(Vec<String>, HashSet<String>), ApiError> {
     let path = location.path().join(super::SCHEMATIC_PATH);
     tokio::fs::create_dir(&path).await.map_err(anyhow::Error::new)?;
-    
+
+    let mods: HashSet<String> = files.par_iter()
+        .filter_map(|file| extract_modlist(&file.contents).ok())
+        .flatten()
+        .collect();
+
     // Unlike image uploads processing nbt files is much cheaper, although if the feature is
     // enabled they will be compressed so we still upload them in parralel
-    files.par_iter()
+    let files = files.into_par_iter()
         .map(|file| -> Result<String, ApiError> {
-            // Since this needs to be returned I don't think the clone is avoidable here,
-            // todo: look into alternate implementations so this isn't needed
-            let file_name = file.file_name.clone().ok_or(ApiError::BadRequest)?;
+            // We consume the files vector here so we dont need to clone the file 
+            // name
+            let file_name = file.file_name.ok_or(ApiError::BadRequest)?;
             save_schematic(&path, &file_name, &file.contents)?;
 
             Ok(file_name)
         })
-        .collect::<Result<Vec<String>, ApiError>>()
+        .collect::<Result<Vec<String>, ApiError>>()?;
+
+    Ok((files, mods))
 }
 
 pub fn save_schematic(location: &PathBuf, file_name: &str, contents: &Vec<u8>) -> Result<(), ApiError> {
     if contents.len() > MAX_FILE_SIZE || !is_nbt(&file_name, &contents) {
         return Err(ApiError::BadRequest)
     }
-    
+
     let path = location.join(&file_name);
 
     if path.exists() {
         return Err(ApiError::BadRequest);
     }
 
+    let contents = decompress(&contents)?;
+
     #[cfg(feature="compression")]
-    let contents = compression::optimise_file_contents(contents)?;
+    let contents = compression::compress(&contents)?;
 
     std::fs::write(path, &contents).map_err(anyhow::Error::new)?;
-
     Ok(())
 }
 

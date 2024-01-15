@@ -38,25 +38,13 @@ create table schematics
     create_version_id serial      not null     references create_versions (create_version_id),
     author            uuid        not null     references users (user_id),
     images            text[]      not null,
+    files             text[]      not null,
     downloads         integer     not null     default 0,
     created_at        timestamptz not null     default now(),
     updated_at        timestamptz
 );
 
 select trigger_updated_at('schematics');
-
-create table files 
-(
-    file_id      uuid        primary key default uuid_generate_v1mc(),
-    file_name    text        not null, 
-    schematic_id uuid        not null    references schematics (schematic_id) on delete cascade,
-    requirements text[]      not null,     
-    created_at   timestamptz not null    default now(),
-    updated_at   timestamptz,
-    unique       (file_name, schematic_id)
-);
-
-select trigger_updated_at('files');
 
 create table mods
 (
@@ -86,9 +74,9 @@ create table mod_proposals
 
 create table mod_dependencies
 (
-    file_id uuid not null references files (file_id) on delete cascade,
-    mod_id  uuid not null references mods  (mod_id)  on delete cascade,
-    primary key (file_id, mod_id)
+    schematic_id uuid not null references schematics (schematic_id) on delete cascade,
+    mod_id       uuid not null references mods  (mod_id)  on delete cascade,
+    primary key (schematic_id, mod_id)
 );
 
 create table comments

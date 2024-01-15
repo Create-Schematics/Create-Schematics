@@ -392,18 +392,18 @@ impl SchematicsApi {
         let upload_dir = upload::build_upload_directory(&schematic_id)?;
         
         let images = upload::save_images(&upload_dir, form.images).await?;
-        let _files = upload::save_schematics(&upload_dir, form.files).await?;
+        let (files, mods) = upload::save_schematics(&upload_dir, form.files).await?;
 
         let schematic = sqlx::query_as!(
             Schematic,
             r#"
             insert into schematics (
                 schematic_id, schematic_name, 
-                body, author, images,
+                body, author, images, files,
                 game_version_id, create_version_id
             )
             values (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )
             returning
                 schematic_id,
@@ -420,6 +420,7 @@ impl SchematicsApi {
             form.schematic_body,
             user_id,
             &images[..],
+            &files[..],
             form.game_version,
             form.create_version
         )
@@ -428,6 +429,36 @@ impl SchematicsApi {
         .on_constraint("schematics_game_version_id_fkey", |_| {
             ApiError::unprocessable_entity([("game_version", "that version does not exist")])
         })?;
+
+        let mods: Vec<String> = mods.into_iter().collect();
+
+        sqlx::query!(
+            r#"
+            insert into mods (
+                mod_slug
+            )
+            select mod_slug 
+            from unnest($1::text[]) as mod_slug
+            "#,
+            &mods[..]
+        )
+        .execute(&mut *transaction)
+        .await?;
+
+        sqlx::query!(
+            r#"
+            insert into mod_dependencies (
+                schematic_id, mod_id
+            )
+            select $1, mod_id
+            from unnest($2::text[]) as mod_slug
+            inner join mods using (mod_slug)
+            "#,
+            schematic.schematic_id,
+            &mods[..]
+        )
+        .execute(&mut *transaction)
+        .await?;
 
         sqlx::query!(
             // Unfortunately sqlx does not inserting multiple records 

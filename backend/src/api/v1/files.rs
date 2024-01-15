@@ -5,7 +5,7 @@ use poem_openapi_derive::{Object, Multipart, OpenApi};
 use uuid::Uuid;
 
 use crate::authentication::session::Session;
-use crate::error::{ApiError, ResultExt};
+use crate::error::ApiError;
 use crate::middleware::files::FileUpload;
 use crate::storage;
 use crate::response::ApiResult;
@@ -14,16 +14,19 @@ use crate::api::ApiContext;
 pub (in crate::api::v1) struct FileApi;
 
 #[derive(Serialize, Debug, Object)]
-pub (in crate::api::v1) struct File {
-    pub file_id: Uuid,
-    pub file_name: String,
-    pub schematic_id: Uuid,
-    pub requirements: Vec<String>
+pub struct Files {
+    #[oai(validator(min_items=1))]
+    pub files: Vec<String>
 }
 
 #[derive(Multipart, Debug)]
 pub struct UploadFile {
     pub file: FileUpload
+}
+
+#[derive(Multipart, Debug)]
+pub struct DeleteFile {
+    pub file_name: String
 }
 
 #[OpenApi(prefix_path="/v1")]
@@ -41,24 +44,20 @@ impl FileApi {
         &self,
         Data(ctx): Data<&ApiContext>,    
         Path(schematic_id): Path<Uuid>,
-    ) -> ApiResult<Json<Vec<File>>> {
-        let files = sqlx::query_as!(
-            File,
+    ) -> ApiResult<Json<Files>> {
+        sqlx::query_as!(
+            Files,
             r#"
-            select
-                file_name, requirements,
-                file_id, schematic_id
-            from 
-                files
-            where
-                schematic_id = $1
+            select files
+            from schematics
+            where schematic_id = $1
             "#,
             schematic_id
         )
-        .fetch_all(&ctx.pool)
-        .await?;
-
-        Ok(Json(files))
+        .fetch_optional(&ctx.pool)
+        .await?
+        .ok_or(ApiError::NotFound)
+        .map(Json)
     }
 
     /// Uploads a new schematic file to a schematic, use this for schematics
@@ -93,25 +92,18 @@ impl FileApi {
             return Err(ApiError::Forbidden);
         }
 
-        let dependencies: Vec<String> = vec![]; // todo: extract dependencies from file
-
+        // Todo update dependencies list here
         sqlx::query!(
             r#"
-            insert into files (
-                file_name, schematic_id,
-                requirements
-            )
-            values (
-                $1, $2, $3
-            )
+            update schematics
+            set files = array_append(files, $1)
+            where schematic_id = $2
             "#,
             file_name,
             schematic_id,
-            &dependencies[..]
         )
         .execute(&mut *transaction)
-        .await
-        .on_constraint("files_file_name_schematic_id_key", |_| ApiError::BadRequest)?;
+        .await?;
 
         let location = storage::schematic_file_path(&schematic_id);
 
@@ -128,12 +120,13 @@ impl FileApi {
     /// This requires the current to user to either own the schematic or have
     /// permissions to moderate schematics
     /// 
-    #[oai(path = "/files/:file_id", method = "delete")]
+    #[oai(path = "/schematics/:schematic_id/files", method = "delete")]
     async fn remove_file_by_id(
         &self,
         Data(ctx): Data<&ApiContext>,   
-        Path(file_id): Path<Uuid>,
+        Path(schematic_id): Path<Uuid>,
         session: Session,
+        form: DeleteFile
     ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
         
@@ -141,9 +134,9 @@ impl FileApi {
             r#"
             select author 
             from schematics 
-            where schematic_id = (select schematic_id from files where file_id = $1)
+            where schematic_id = $1
             "#,
-            file_id
+            schematic_id
         )
         .fetch_optional(&mut *transaction)
         .await?
@@ -154,27 +147,44 @@ impl FileApi {
             return Err(ApiError::Unauthorized);
         }
 
-        let file_meta = sqlx::query!(
+        sqlx::query!(
             r#"
-            delete from files
-            where file_id = $1
-            returning schematic_id, file_name
+            update schematics
+                set 
+                    files = array_remove(files, $1)
+                where 
+                    schematic_id = $2
+                    and array_length(files, 1) > 2
+            returning files
             "#,
-            file_id
+            form.file_name,
+            schematic_id
         )
-        .fetch_one(&mut *transaction)
-        .await?;
+        .fetch_optional(&mut *transaction)
+        .await?
+        .ok_or(ApiError::BadRequest)?;
     
-        let path = storage::schematic_file_path(&file_meta.schematic_id);
+        let path = storage::schematic_file_path(&schematic_id);
         
         // Remove the file last since it's the hardest part to rollback if something
         // else goes wrong
-        tokio::fs::remove_file(path.join(file_meta.file_name))
+        tokio::fs::remove_file(path.join(form.file_name))
             .await
             .map_err(anyhow::Error::new)?;
     
         transaction.commit().await?;
     
+        Ok(())
+    }
+
+    #[oai(path = "/test", method = "post")]
+    async fn mock_upload(
+        &self,
+        Data(_ctx): Data<&ApiContext>,   
+        form: UploadFile
+    ) -> ApiResult<()> {
+        storage::schematics::extract_modlist(&form.file)?;
+
         Ok(())
     }   
 }

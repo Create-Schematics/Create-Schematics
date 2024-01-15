@@ -128,7 +128,7 @@ impl ImageApi {
         Path(schematic_id): Path<Uuid>,
         session: Session,
         form: DeleteImage
-    ) -> ApiResult<Json<Images>> {
+    ) -> ApiResult<()> {
         let mut transaction = ctx.pool.begin().await?;
         
         let schematic_meta = sqlx::query!(
@@ -144,7 +144,7 @@ impl ImageApi {
             return Err(ApiError::Unauthorized);
         }
 
-        let images = sqlx::query_as!(
+        sqlx::query_as!(
             Images,
             r#"
             update schematics
@@ -170,6 +170,6 @@ impl ImageApi {
     
         transaction.commit().await?;
     
-        Ok(Json(images))
+        Ok(())
     }
 }
