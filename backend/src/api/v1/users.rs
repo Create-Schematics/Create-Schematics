@@ -4,7 +4,7 @@ use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, OpenApi};
 use uuid::Uuid;
 
-use crate::authentication::session::Session;
+use crate::authentication::schemes::Session;
 use crate::error::{ApiError, ResultExt};
 use crate::models::schematic::Schematic;
 use crate::models::user::{User, Role};

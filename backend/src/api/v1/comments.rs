@@ -10,7 +10,7 @@ use crate::middleware::validators::Profanity;
 use crate::response::ApiResult;
 use crate::models::comment::Comment;
 use crate::error::ApiError;
-use crate::authentication::session::Session;
+use crate::authentication::schemes::Session;
 
 pub (in crate::api::v1) struct CommentsApi;
 

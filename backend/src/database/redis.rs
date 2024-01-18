@@ -51,26 +51,60 @@ impl RedisPool {
         Ok(res)
     }
 
+    pub async fn get_json<T, K>(
+        &self,
+        namespace: &str,
+        id: K
+    ) -> ApiResult<Option<T>> 
+    where
+        T: for <'a> serde::Deserialize<'a>,
+        K: Display
+    {
+        let value = self.get::<String, K>(namespace, id)
+            .await?
+            .and_then(|v| serde_json::from_str(&v).ok());
+
+        Ok(value)
+    }
+
     pub async fn set<T, K>(
         &self,
         namespace: &str,
         key: K,
         value: T,
-        expiry: u64
+        expiry: Option<u64>
     ) -> ApiResult<()>
     where
         K: Display,
         T: ToRedisArgs
     {
-        redis::cmd("SET")
-            .arg(Self::format_key(namespace, key))
-            .arg(value)
-            .arg("EX")
-            .arg(expiry)
-            .query_async::<_, ()>(&mut self.manager.clone())
-            .await?;
+        let mut cmd = redis::cmd("SET");
+
+        cmd.arg(Self::format_key(namespace, key)).arg(value);
+
+        if let Some(expiry) = expiry {
+            cmd.arg("EX").arg(expiry);
+        }
+
+        cmd.query_async::<_, ()>(&mut self.manager.clone()).await?;
 
         Ok(())
+    }
+
+    pub async fn set_json<T, K>(
+        &self,
+        namespace: &str,
+        key: K,
+        data: T,
+        expiry: Option<u64>
+    ) -> ApiResult<()>
+    where
+        T: serde::Serialize,
+        K: Display
+    {
+        let value = serde_json::to_string(&data).map_err(anyhow::Error::new)?;
+
+        self.set(namespace, key, value, expiry).await
     }
 
     pub async fn delete<K>(

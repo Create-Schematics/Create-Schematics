@@ -4,7 +4,7 @@ use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, Multipart, OpenApi};
 use uuid::Uuid;
 
-use crate::authentication::session::Session;
+use crate::authentication::schemes::Session;
 use crate::error::ApiError;
 use crate::middleware::files::FileUpload;
 use crate::storage;
@@ -176,15 +176,4 @@ impl FileApi {
     
         Ok(())
     }
-
-    #[oai(path = "/test", method = "post")]
-    async fn mock_upload(
-        &self,
-        Data(_ctx): Data<&ApiContext>,   
-        form: UploadFile
-    ) -> ApiResult<()> {
-        storage::schematics::extract_modlist(&form.file)?;
-
-        Ok(())
-    }   
 }

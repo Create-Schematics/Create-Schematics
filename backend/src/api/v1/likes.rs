@@ -4,7 +4,7 @@ use poem_openapi_derive::Enum;
 use poem::web::Data;
 use uuid::Uuid;
 
-use crate::authentication::session::Session;
+use crate::authentication::schemes::Session;
 use crate::error::ApiError;
 use crate::response::ApiResult;
 use crate::api::ApiContext;

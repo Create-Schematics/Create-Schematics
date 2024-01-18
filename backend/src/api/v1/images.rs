@@ -4,7 +4,7 @@ use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, Multipart, OpenApi};
 use uuid::Uuid;
 
-use crate::authentication::session::Session;
+use crate::authentication::schemes::Session;
 use crate::middleware::files::FileUpload;
 use crate::storage;
 use crate::api::ApiContext;
