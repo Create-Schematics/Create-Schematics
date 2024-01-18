@@ -93,10 +93,20 @@ create table mod_dependencies
     primary key (schematic_id, mod_id)
 );
 
+create table reports
+(
+    report_id    uuid        primary key default uuid_generate_v1mc(),
+    user_id      uuid        not null    references users (user_id)           on delete cascade,
+    schematic_id uuid        not null    references schematics (schematic_id) on delete cascade,
+    body         text,
+    created_at   timestamptz not null    default now(),
+    unique (user_id, schematic_id)
+);
+
 create table comments
 (
     comment_id     uuid        primary key  default uuid_generate_v1mc(),
-    comment_author uuid        not null     references users (user_id)           on delete cascade unique,
+    comment_author uuid        not null     references users (user_id)           on delete cascade,
     comment_body   text        not null,
     schematic_id   uuid        not null     references schematics (schematic_id) on delete cascade,
     created_at     timestamptz not null     default now(),
