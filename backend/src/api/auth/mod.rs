@@ -24,6 +24,8 @@ pub mod google;
 pub mod microsoft;
 #[cfg(feature="github-oauth")]
 pub mod github;
+#[cfg(feature="modrinth-oauth")]
+pub mod modrinth;
 
 pub fn configure() -> impl OpenApi {
     AuthApi
@@ -65,7 +67,7 @@ impl AuthApi {
             .request_async(async_http_client)
             .await
             .map_err(|e| anyhow::anyhow!(e))?;
-
+        
         let client = reqwest::Client::new();
 
         let response = client

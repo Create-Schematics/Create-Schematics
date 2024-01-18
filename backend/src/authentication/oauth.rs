@@ -16,6 +16,7 @@ use crate::api::auth::google::GoogleUser;
 
 #[cfg(feature="microsoft-oauth")]
 use crate::api::auth::microsoft::MicrosoftUser;
+use crate::api::auth::modrinth::ModrinthUser;
 
 #[derive(Deserialize, Serialize, Display, Debug, Enum)]
 #[oai(rename_all="lowercase")]
@@ -32,7 +33,10 @@ pub enum OauthProvider {
     Google,
     
     #[cfg(feature="discord-oauth")]
-    Discord
+    Discord,
+
+    #[cfg(feature="modrinth-oauth")]
+    Modrinth
 }
 
 pub struct OauthUser {
@@ -123,7 +127,7 @@ impl OauthProvider {
                 redirect_uri: "/api/auth/discord/callback",
                 client_id_env: "DISCORD_CLIENT_ID",
                 client_secret_env: "DISCORD_CLIENT_SECRET",
-                auth_url: "https://discord.com/api/oauth2/authorize?response_type=code",
+                auth_url: "https://discord.com/api/oauth2",
                 token_url: "https://discord.com/api/oauth2/token",
                 scopes: &[
                     "identify",
@@ -132,6 +136,21 @@ impl OauthProvider {
                 data_uri: "https://discordapp.com/api/users/@me",
                 extractor: |r| serde_json::from_slice::<DiscordUser>(&r).map(|u| u.into())
             },
+            
+            #[cfg(feature="modrinth-oauth")]
+            OauthProvider::Modrinth => ClientConfig {
+                redirect_uri: "/api/auth/modrinth/callback",
+                client_id_env: "MODRINTH_CLIENT_ID",
+                client_secret_env: "MODRINTH_CLIENT_SECRET",
+                auth_url: "https://modrinth.com/auth/authorize",
+                token_url: "https://api.modrinth.com/_internal/oauth/token", // Supposedly _internal will be later replaced with `v3`
+                scopes: &[
+                    "USER_READ",
+                    "USER_READ_EMAIL"
+                ],
+                data_uri: "https://api.modrinth.com/v2/user",
+                extractor: |r| serde_json::from_slice::<ModrinthUser>(&r).map(|u| u.into()),
+            }
         };
 
         config.try_into()
