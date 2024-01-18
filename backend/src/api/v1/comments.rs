@@ -17,6 +17,7 @@ pub (in crate::api::v1) struct CommentsApi;
 #[derive(Serialize, Debug, Object)]
 pub (in crate::api::v1) struct FullComment {
     pub comment_id: Uuid,
+    pub parent: Option<Uuid>,
     pub comment_author: Uuid,
     pub comment_body: String,
     pub schematic_id: String,
@@ -26,7 +27,8 @@ pub (in crate::api::v1) struct FullComment {
 #[derive(Multipart, Debug)]
 pub (in crate::api::v1) struct CommentBuilder {
     #[oai(validator(max_length=1024, custom="Profanity"))]
-    pub comment_body: String
+    pub comment_body: String,
+    pub parent: Option<Uuid>
 }
 
 #[derive(Multipart, Debug)]
@@ -61,12 +63,15 @@ impl CommentsApi {
             select 
                 comment_id, comment_author,
                 comment_body, schematic_id,
-                username as author_username
+                username as author_username,
+                parent
             from 
                 comments
                 inner join users on comment_author = user_id
             where 
                 schematic_id = $1
+            order by 
+                parent
             limit $2 
             offset $3
             "#,
@@ -101,24 +106,41 @@ impl CommentsApi {
     ) -> ApiResult<Json<Comment>> {
         let mut transaction = ctx.pool.begin().await?;
 
-        let schematic = sqlx::query_as!(
+        // Check that the parent comment both exists and is on this schematic
+        if let Some(parent_id) = form.parent {
+            let parent_meta = sqlx::query!(
+                r#"select schematic_id from comments where comment_id = $1"#,
+                parent_id
+            )
+            .fetch_optional(&mut *transaction)
+            .await?
+            .ok_or(ApiError::NotFound)?;
+
+            if parent_meta.schematic_id != schematic_id {
+                return Err(ApiError::BadRequest);
+            }
+        } 
+
+        let comment = sqlx::query_as!(
             Comment,
             r#"
             insert into comments (
                 comment_author, comment_body,
-                schematic_id
+                parent, schematic_id
             )
             values (
-                $1, $2, $3
+                $1, $2, $3, $4
             )
             returning
                 comment_id,
+                parent,
                 comment_author,
                 comment_body,
                 schematic_id
             "#,
             user_id,
             form.comment_body,
+            form.parent,
             schematic_id
         )
         .fetch_one(&mut *transaction)
@@ -126,7 +148,7 @@ impl CommentsApi {
 
         transaction.commit().await?;
 
-        Ok(Json(schematic))
+        Ok(Json(comment))
     }
 
     /// Fetches a specific comment by it's id aswell as some additional
@@ -151,7 +173,8 @@ impl CommentsApi {
             select 
                 comment_id, comment_author,
                 comment_body, schematic_id,
-                username as author_username
+                username as author_username,
+                parent
             from 
                 comments
                 inner join users on comment_author = user_id
@@ -208,6 +231,7 @@ impl CommentsApi {
                     comment_id = $2
                 returning
                     comment_id,
+                    parent,
                     comment_author,
                     comment_body,
                     schematic_id
