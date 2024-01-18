@@ -15,6 +15,20 @@ create table users
 
 select trigger_updated_at('users');
 
+create table punishments
+(
+    punishment_id uuid        primary key default uuid_generate_v1mc(),
+    user_id       uuid        not null    references users (user_id) on delete cascade,
+    issuer_id     uuid        not null    references users (user_id) on delete cascade,
+    -- If the duration is null we assume that it is a permanent ban, while we could remove
+    -- the user entirely, in the current model this would also clear all knowledge of their
+    -- oauth providers allowing them to re-open the account, this also prevents confusion
+    -- from duplicate usernames
+    reason        text,
+    until         timestamptz             default now(),
+    created_at    timestamptz not null    default now()
+);
+
 create table create_versions
 (
     create_version_id   serial      primary key,
