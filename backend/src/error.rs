@@ -2,6 +2,7 @@ use poem_openapi::ApiResponse;
 use poem_openapi::payload::Json;
 use poem_openapi_derive::Object;
 use sqlx::error::DatabaseError;
+use time::OffsetDateTime;
 use std::collections::HashMap;
 
 /// A common error type that can be used throughout the API.
@@ -38,6 +39,14 @@ pub enum ApiError {
     #[oai(status = 403)]
     Forbidden,
 
+    /// Return `403 Forbidden`, for when the user may have a valid
+    /// session and permissions but has an active timeout, returning
+    /// how long it is for and the reason why. If the duration is
+    /// not given then the timeout is permanent
+    #[oai(status = 403)]
+    Banned(Json<Punishment>),
+
+
     // Return '404' Not Found
     #[oai(status = 404)]
     NotFound,
@@ -66,7 +75,13 @@ pub struct EntityErrors {
     /// Ideally we would use a Cow<'static, str> here to avoid unnessasery
     /// cloning of the strings but does not implement ParseFromJSON
     /// 
-    errors: HashMap<String, Vec<String>>,
+    pub errors: HashMap<String, Vec<String>>,
+}
+
+#[derive(Debug, Object, Serialize, Deserialize, Default)]
+pub struct Punishment {
+    pub until: Option<OffsetDateTime>,
+    pub reason: Option<String>
 }
 
 impl ApiError {
@@ -147,7 +162,6 @@ impl From<redis::RedisError> for ApiError {
         ApiError::InternalServerError
     }
 }
-
 
 /// A little helper trait for more easily converting database constraint errors into API errors.
 ///
