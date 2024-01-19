@@ -16,6 +16,8 @@ use crate::api::auth::google::GoogleUser;
 
 #[cfg(feature="microsoft-oauth")]
 use crate::api::auth::microsoft::MicrosoftUser;
+
+#[cfg(feature="modrinth-oauth")]
 use crate::api::auth::modrinth::ModrinthUser;
 
 #[derive(Deserialize, Serialize, Display, Debug, Enum)]
@@ -127,7 +129,7 @@ impl OauthProvider {
                 redirect_uri: "/api/auth/discord/callback",
                 client_id_env: "DISCORD_CLIENT_ID",
                 client_secret_env: "DISCORD_CLIENT_SECRET",
-                auth_url: "https://discord.com/api/oauth2",
+                auth_url: "https://discord.com/api/oauth2/authorize?response_type=code",
                 token_url: "https://discord.com/api/oauth2/token",
                 scopes: &[
                     "identify",

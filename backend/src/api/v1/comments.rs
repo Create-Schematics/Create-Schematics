@@ -3,6 +3,7 @@ use poem_openapi::OpenApi;
 use poem_openapi::param::{Path, Query};
 use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, Multipart};
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::api::ApiContext;
@@ -21,7 +22,9 @@ pub (in crate::api::v1) struct FullComment {
     pub comment_author: Uuid,
     pub comment_body: String,
     pub schematic_id: String,
-    pub author_username: String
+    pub author_username: String,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>
 }
 
 #[derive(Multipart, Debug)]
@@ -64,7 +67,8 @@ impl CommentsApi {
                 comment_id, comment_author,
                 comment_body, schematic_id,
                 username as author_username,
-                parent
+                parent, comments.created_at, 
+                comments.updated_at
             from 
                 comments
                 inner join users on comment_author = user_id
@@ -136,7 +140,9 @@ impl CommentsApi {
                 parent,
                 comment_author,
                 comment_body,
-                schematic_id
+                schematic_id,
+                created_at,
+                updated_at
             "#,
             user_id,
             form.comment_body,
@@ -174,7 +180,8 @@ impl CommentsApi {
                 comment_id, comment_author,
                 comment_body, schematic_id,
                 username as author_username,
-                parent
+                parent, comments.created_at,
+                comments.updated_at
             from 
                 comments
                 inner join users on comment_author = user_id
@@ -234,7 +241,9 @@ impl CommentsApi {
                     parent,
                     comment_author,
                     comment_body,
-                    schematic_id
+                    schematic_id,
+                    created_at,
+                    updated_at
             "#,
             form.comment_body,
             comment_id

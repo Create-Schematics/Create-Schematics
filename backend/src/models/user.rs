@@ -1,4 +1,5 @@
 use poem_openapi_derive::{Enum, Object};
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 #[derive(Debug, Object)]
@@ -9,6 +10,8 @@ pub struct User {
     pub avatar: Option<String>,
     pub about: Option<String>,
     pub role: Role,
+    pub updated_at: Option<OffsetDateTime>,
+    pub created_at: OffsetDateTime
 }
 
 impl User {

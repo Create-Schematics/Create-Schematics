@@ -2,6 +2,7 @@ use poem::web::Data;
 use poem_openapi::param::{Path, Query};
 use poem_openapi::payload::Json;
 use poem_openapi_derive::{OpenApi, Object, Multipart};
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::authentication::schemes::{Session, OptionalSession};
@@ -18,6 +19,8 @@ pub (in crate::api::v1) struct Collection {
     pub collection_name: String,
     pub user_id: Uuid,
     pub is_private: bool,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>
 }
 
 #[derive(Serialize, Debug, Object)]
@@ -26,6 +29,8 @@ pub (in crate::api::v1) struct UserCollection {
     pub collection_name: String,
     pub is_private: bool,
     pub entries: Vec<Uuid>,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>
 }
 
 #[derive(Serialize, Debug, Object)]
@@ -37,6 +42,8 @@ pub (in crate::api::v1) struct FullCollection {
     pub username: String,
     pub avatar: Option<String>,
     pub entries: Vec<Uuid>,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>
 }
 
 #[derive(Multipart, Debug)]
@@ -55,6 +62,7 @@ pub (in crate::api::v1) struct CollectionBuilder {
 
 #[derive(Multipart, Object, Debug)]
 pub (in crate::api::v1) struct CollectionEntry {
+    pub created_at: OffsetDateTime,
     pub schematic_id: Uuid,
 }
 
@@ -83,6 +91,8 @@ impl CollectionsApi {
                 collection_id, is_private,
                 collection_name, user_id,
                 avatar, username,
+                collections.updated_at, 
+                collections.created_at,
                 coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
             from
                 collections
@@ -129,6 +139,8 @@ impl CollectionsApi {
                 collection_id, is_private,
                 collection_name, user_id,
                 avatar, username,
+                collections.updated_at, 
+                collections.created_at,
                 coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
             from
                 collections
@@ -173,6 +185,8 @@ impl CollectionsApi {
             select
                 collection_id, is_private,
                 collection_name,
+                collections.updated_at, 
+                collections.created_at,
                 coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
             from
                 collections
@@ -217,6 +231,8 @@ impl CollectionsApi {
             select
                 collection_id, is_private,
                 collection_name,
+                collections.updated_at, 
+                collections.created_at,
                 coalesce(array_agg(schematic_id) filter (where schematic_id is not null), array []::uuid[]) as "entries!"
             from
                 collections
@@ -265,7 +281,9 @@ impl CollectionsApi {
                 collection_id,
                 collection_name,
                 user_id,
-                is_private
+                is_private,
+                created_at,
+                updated_at
             "#,
             form.collection_name,
             form.is_private,
@@ -364,7 +382,7 @@ impl CollectionsApi {
         let entries = sqlx::query_as!(
             CollectionEntry,
             r#"
-            select schematic_id 
+            select schematic_id, created_at
             from collection_entries 
             where collection_id = $1
             "#,

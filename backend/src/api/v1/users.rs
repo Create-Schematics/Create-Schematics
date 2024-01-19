@@ -2,6 +2,7 @@ use poem::web::Data;
 use poem_openapi::param::{Path, Query};
 use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, OpenApi};
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::authentication::schemes::Session;
@@ -36,6 +37,8 @@ pub struct CurrentUser {
     pub about: Option<String>,
     pub role: Role,
     pub email: Option<String>,
+    pub updated_at: Option<OffsetDateTime>,
+    pub created_at: OffsetDateTime
 }
 
 #[OpenApi(prefix_path="/v1")]
@@ -52,9 +55,11 @@ impl UsersApi {
         sqlx::query_as!(
             CurrentUser,
             r#"
-            select user_id, username,
-                   displayname,email, 
-                   about, role, avatar
+            select 
+                user_id, displayname,
+                username, email, about, 
+                role, updated_at, avatar, 
+                created_at
             from users
             where user_id = $1
             "#,
@@ -77,9 +82,11 @@ impl UsersApi {
         sqlx::query_as!(
             User,
             r#"
-            select user_id, username,
-                   displayname, role,
-                   avatar, about
+            select 
+                user_id, username,
+                displayname, role,
+                avatar, about,
+                created_at, updated_at
             from users
             where username = $1
             "#,
@@ -111,7 +118,8 @@ impl UsersApi {
             select 
                 schematic_id, schematic_name, body, 
                 images, author, downloads,
-                create_version_id, game_version_id
+                create_version_id, game_version_id,
+                created_at, updated_at
             from 
                 schematics
             where 
@@ -161,7 +169,9 @@ impl UsersApi {
                     about,
                     email,
                     role,
-                    avatar
+                    avatar,
+                    created_at,
+                    updated_at
             "#,
             form.username,
             form.displayname,

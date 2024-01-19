@@ -55,6 +55,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -120,6 +130,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -139,16 +159,338 @@
         }
       }
     },
-    "/v1/schematics/{schematic_id}/comments": {
+    "/auth/refresh": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      }
+    },
+    "/v1/users": {
       "get": {
-        "summary": "Fetches a number of the comments on a schematic as well as some basic\nadditional information about their author such as their avatar url\nand usesrname to prevent the need for subsequent requests. By default\nif no limit for comments is set then up to 20 will be returned at a\ntime.",
-        "description": "Note that comment bodies can contain markdown which will need to be\nhandled accordingly\n",
+        "summary": "Fetches information about the current user including their email\n",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Updates information about the current user. All fields are optional but\nat least one is required.",
+        "description": "All usernames must be unique, if the requested new username is already\nused a `422 Unprocessable Entity` error will be returned\n",
+        "requestBody": {
+          "content": {
+            "application/json; charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUser"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Removes the current users account and invalidates any active sessions\naswell as removing the current session from their cookies.\n",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/users/{username}": {
+      "get": {
+        "summary": "Fetches a user by their username, for privacy their email will not be included\n",
         "parameters": [
           {
-            "name": "schematic_id",
+            "name": "username",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      }
+    },
+    "/v1/users/{username}/schematics": {
+      "get": {
+        "summary": "Fetches a number of schematics created by the specified user. User\ninformation will not be included with the schematic as it is assumed\nthat this information is already known.",
+        "description": "If a limit is not specified 20 will be fetched by default.\n",
+        "parameters": [
+          {
+            "name": "username",
+            "schema": {
+              "type": "string"
             },
             "in": "path",
             "required": true,
@@ -186,7 +528,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FullComment"
+                    "$ref": "#/components/schemas/Schematic"
                   }
                 }
               }
@@ -200,6 +542,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -218,266 +570,6 @@
             "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
           }
         }
-      },
-      "post": {
-        "summary": "Uploads a comment to a given schematic for the current user returning\ninformation about the new comment including its id.",
-        "description": "The comments body can contain markdown which will be sanitized\naccordingly, however it cannot contain profanity wich will result in\na `422 Conflict` being returned.\n\nIf you believe something is being falsely flagged as profanity please\ncontact us either on github or through other chanels provided in the\nopenapi spec.\n",
-        "parameters": [
-          {
-            "name": "schematic_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "comment_body"
-                ],
-                "properties": {
-                  "comment_body": {
-                    "type": "string",
-                    "maxLength": 1024
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/Comment"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
-      }
-    },
-    "/v1/comments/{comment_id}": {
-      "get": {
-        "summary": "Fetches a specific comment by it's id aswell as some additional\ninformation about it's author such as their username and avatar url\nto avoid subsequent requests.",
-        "description": "Note the comemnts body can contain markdown which will need to be\ndisplayed accordingly to the user\n\nIf you are looking to fetch comments from a schematic see\n`GET /schematics/:id/comments`\n",
-        "parameters": [
-          {
-            "name": "comment_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/FullComment"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Updates a given comment by its id, all fields are optional but at least\none is required to be present.",
-        "description": "The new body can contain markdown but not profanity, if it is detected\nto be innapropriate then the reqeust will be denied with `422 Unprocessable\nEntity`\n\nThe current user must also own the comment even if they have permission to\nmoderate comments\n",
-        "parameters": [
-          {
-            "name": "comment_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "comment_body": {
-                    "type": "string",
-                    "maxLength": 1024
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/Comment"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
-      },
-      "delete": {
-        "summary": "Removes a comment from a schematic by it's id, this requires for the\ncurrent user to either own the comment or have permission to moderate\ncomments\n",
-        "parameters": [
-          {
-            "name": "comment_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
       }
     },
     "/v1/schematics/{schematic_id}": {
@@ -516,6 +608,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -602,6 +704,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -653,6 +765,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -763,6 +885,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -865,6 +997,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -929,6 +1071,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -981,146 +1133,15 @@
           "403": {
             "description": ""
           },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
-      }
-    },
-    "/v1/users": {
-      "get": {
-        "summary": "Fetches information about the current user including their email\n",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurrentUser"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
           "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
             "content": {
               "application/json; charset=utf-8": {
                 "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
+                  "$ref": "#/components/schemas/Punishment"
                 }
               }
             }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
-      },
-      "patch": {
-        "summary": "Updates information about the current user. All fields are optional but\nat least one is required.",
-        "description": "All usernames must be unique, if the requested new username is already\nused a `422 Unprocessable Entity` error will be returned\n",
-        "requestBody": {
-          "content": {
-            "application/json; charset=utf-8": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUser"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurrentUser"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
-      },
-      "delete": {
-        "summary": "Removes the current users account and invalidates any active sessions\naswell as removing the current session from their cookies.\n",
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
           },
           "404": {
             "description": ""
@@ -1146,69 +1167,16 @@
         ]
       }
     },
-    "/v1/users/{username}": {
+    "/v1/schematics/{schematic_id}/comments": {
       "get": {
-        "summary": "Fetches a user by their username, for privacy their email will not be included\n",
+        "summary": "Fetches a number of the comments on a schematic as well as some basic\nadditional information about their author such as their avatar url\nand usesrname to prevent the need for subsequent requests. By default\nif no limit for comments is set then up to 20 will be returned at a\ntime.",
+        "description": "Note that comment bodies can contain markdown which will need to be\nhandled accordingly\n",
         "parameters": [
           {
-            "name": "username",
+            "name": "schematic_id",
             "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        }
-      }
-    },
-    "/v1/users/{username}/schematics": {
-      "get": {
-        "summary": "Fetches a number of schematics created by the specified user. User\ninformation will not be included with the schematic as it is assumed\nthat this information is already known.",
-        "description": "If a limit is not specified 20 will be fetched by default.\n",
-        "parameters": [
-          {
-            "name": "username",
-            "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             },
             "in": "path",
             "required": true,
@@ -1246,7 +1214,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Schematic"
+                    "$ref": "#/components/schemas/FullComment"
                   }
                 }
               }
@@ -1260,6 +1228,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -1278,6 +1256,764 @@
             "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
           }
         }
+      },
+      "post": {
+        "summary": "Uploads a comment to a given schematic for the current user returning\ninformation about the new comment including its id.",
+        "description": "The comments body can contain markdown which will be sanitized\naccordingly, however it cannot contain profanity wich will result in\na `422 Conflict` being returned.\n\nIf you believe something is being falsely flagged as profanity please\ncontact us either on github or through other chanels provided in the\nopenapi spec.\n",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "comment_body"
+                ],
+                "properties": {
+                  "comment_body": {
+                    "type": "string",
+                    "maxLength": 1024
+                  },
+                  "parent": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/comments/{comment_id}": {
+      "get": {
+        "summary": "Fetches a specific comment by it's id aswell as some additional\ninformation about it's author such as their username and avatar url\nto avoid subsequent requests.",
+        "description": "Note the comemnts body can contain markdown which will need to be\ndisplayed accordingly to the user\n\nIf you are looking to fetch comments from a schematic see\n`GET /schematics/:id/comments`\n",
+        "parameters": [
+          {
+            "name": "comment_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/FullComment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Updates a given comment by its id, all fields are optional but at least\none is required to be present.",
+        "description": "The new body can contain markdown but not profanity, if it is detected\nto be innapropriate then the reqeust will be denied with `422 Unprocessable\nEntity`\n\nThe current user must also own the comment even if they have permission to\nmoderate comments\n",
+        "parameters": [
+          {
+            "name": "comment_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment_body": {
+                    "type": "string",
+                    "maxLength": 1024
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Removes a comment from a schematic by it's id, this requires for the\ncurrent user to either own the comment or have permission to moderate\ncomments\n",
+        "parameters": [
+          {
+            "name": "comment_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/schematics/{schematic_id}/files": {
+      "get": {
+        "summary": "Fetches the name of all uploaded schematic files on a given schematic",
+        "description": "Note this does not return the schematic files themselves, they can be\nretrieved from the static file endpoint like so filling in the schematic\nid for the given schematic and file_name for one of the values returned\nhere `GET /upload/schematics/{schematic_id}/files/{file_name}.nbt`\n",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Files"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      },
+      "post": {
+        "summary": "Uploads a new schematic file to a schematic, use this for schematics\nwith multiple variations or parts not for many entirely different\nschematics.",
+        "description": "This requires for the current user to be the owner of the given schematic\nand for this file name (after sanitization) to not be used already. If\nthere are conflicting file names `422 Unprocessable Entity` will be returned\nwith a message explaining this\n",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Removes a schematic file from a schematic, at least one file must be\npresent at all times. Requests to remove the last file will result in\na `400 Bad Request` error",
+        "description": "This requires the current to user to either own the schematic or have\npermissions to moderate schematics\n",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file_name"
+                ],
+                "properties": {
+                  "file_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/schematics/{schematic_id}/images": {
+      "get": {
+        "summary": "Fetches the file names of all images associated with a given schematic",
+        "description": "Note this does not return the image files themselves they can be\nretrieved from the static file endpoint here\n`GET /upload/schematics/{schematic_id}/images/{image_name}.{extension}`\n",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Images"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      },
+      "post": {
+        "summary": "Uploads a new image to an existing schematic, for supported image formats\nsee the image crate as this is used to ensure that images are valid.",
+        "description": "https://github.com/image-rs/image?tab=readme-ov-file#supported-image-formats\n\nFile names cannot overlap, if an image with a given name is already added\nto the schematic then the request will be rejected with a `409 Conflict`\nresponse.\n\nAswell as this file names cannot contain profanity if the file name is deemed\nto be profane the request will be rejected\n",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "image"
+                ],
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Removes an image from a schematic",
+        "description": "Each schematic must have at least one image so requests to remove the\nfinal one will be rejected with a `400 Bad Request` response.\n\nThis endpoint requires the user to either own the schematic or have\npermissions to moderate schematics.\n",
+        "parameters": [
+          {
+            "name": "schematic_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file_name"
+                ],
+                "properties": {
+                  "file_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
       }
     },
     "/v1/schematics/{schematic_id}/tags": {
@@ -1319,6 +2055,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -1390,6 +2136,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -1448,6 +2204,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -1510,6 +2276,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -1597,6 +2373,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -1652,6 +2438,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -1725,6 +2521,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -1776,6 +2582,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -1862,6 +2678,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -1932,6 +2758,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -2001,6 +2837,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -2065,6 +2911,16 @@
           "403": {
             "description": ""
           },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
           "404": {
             "description": ""
           },
@@ -2109,9 +2965,14 @@
               "schema": {
                 "type": "object",
                 "required": [
+                  "created_at",
                   "schematic_id"
                 ],
                 "properties": {
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
                   "schematic_id": {
                     "type": "string",
                     "format": "uuid"
@@ -2134,6 +2995,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -2180,9 +3051,14 @@
               "schema": {
                 "type": "object",
                 "required": [
+                  "created_at",
                   "schematic_id"
                 ],
                 "properties": {
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
                   "schematic_id": {
                     "type": "string",
                     "format": "uuid"
@@ -2206,209 +3082,15 @@
           "403": {
             "description": ""
           },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
-      }
-    },
-    "/v1/schematics/{schematic_id}/images": {
-      "get": {
-        "summary": "Fetches the file names of all images associated with a given schematic",
-        "description": "Note this does not return the image files themselves they can be\nretrieved from the static file endpoint here\n`GET /upload/schematics/{schematic_id}/images/{image_name}.{extension}`\n",
-        "parameters": [
-          {
-            "name": "schematic_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/Images"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
           "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
             "content": {
               "application/json; charset=utf-8": {
                 "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
+                  "$ref": "#/components/schemas/Punishment"
                 }
               }
             }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        }
-      },
-      "post": {
-        "summary": "Uploads a new image to an existing schematic, for supported image formats\nsee the image crate as this is used to ensure that images are valid.",
-        "description": "https://github.com/image-rs/image?tab=readme-ov-file#supported-image-formats\n\nFile names cannot overlap, if an image with a given name is already added\nto the schematic then the request will be rejected with a `409 Conflict`\nresponse.\n\nAswell as this file names cannot contain profanity if the file name is deemed\nto be profane the request will be rejected\n",
-        "parameters": [
-          {
-            "name": "schematic_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "image"
-                ],
-                "properties": {
-                  "image": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          },
-          "404": {
-            "description": ""
-          },
-          "422": {
-            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/EntityErrors"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
-          }
-        },
-        "security": [
-          {
-            "Session": []
-          }
-        ]
-      },
-      "delete": {
-        "summary": "Removes an image from a schematic",
-        "description": "Each schematic must have at least one image so requests to remove the\nfinal one will be rejected with a `400 Bad Request` response.\n\nThis endpoint requires the user to either own the schematic or have\npermissions to moderate schematics.\n",
-        "parameters": [
-          {
-            "name": "schematic_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "file_name"
-                ],
-                "properties": {
-                  "file_name": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json; charset=utf-8": {
-                "schema": {
-                  "$ref": "#/components/schemas/Images"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
           },
           "404": {
             "description": ""
@@ -2434,13 +3116,11 @@
         ]
       }
     },
-    "/v1/schematics/{schematic_id}/files": {
+    "/v1/mods/{mod_id}": {
       "get": {
-        "summary": "Fetches the name of all uploaded schematic files on a given schematic",
-        "description": "Note this does not return the schematic files themselves, they can be\nretrieved from the static file endpoint like so filling in the schematic\nid for the given schematic and file_name for one of the values returned\nhere `GET /upload/schematics/{schematic_id}/files/{file_name}.nbt`\n",
         "parameters": [
           {
-            "name": "schematic_id",
+            "name": "mod_id",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -2457,7 +3137,7 @@
             "content": {
               "application/json; charset=utf-8": {
                 "schema": {
-                  "$ref": "#/components/schemas/Files"
+                  "$ref": "#/components/schemas/Mod"
                 }
               }
             }
@@ -2470,6 +3150,16 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -2489,12 +3179,10 @@
           }
         }
       },
-      "post": {
-        "summary": "Uploads a new schematic file to a schematic, use this for schematics\nwith multiple variations or parts not for many entirely different\nschematics.",
-        "description": "This requires for the current user to be the owner of the given schematic\nand for this file name (after sanitization) to not be used already. If\nthere are conflicting file names `422 Unprocessable Entity` will be returned\nwith a message explaining this\n",
+      "patch": {
         "parameters": [
           {
-            "name": "schematic_id",
+            "name": "mod_id",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -2510,13 +3198,19 @@
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "file"
-                ],
                 "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary"
+                  "mod_slug": {
+                    "type": "string"
+                  },
+                  "mod_name": {
+                    "type": "string"
+                  },
+                  "curseforge_slug": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "modrinth_slug": {
+                    "type": "string"
                   }
                 }
               }
@@ -2536,6 +3230,645 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/mods/proposals": {
+      "get": {
+        "parameters": [
+          {
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "maximum": 50.0
+            },
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "explode": true
+          },
+          {
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModProposal"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/mods/proposals/{proposal_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModProposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/mods/proposals/{proposal_id}/approve": {
+      "put": {
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/mods/proposals/{proposal_id}/reject": {
+      "put": {
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/users/{username}/timeout": {
+      "get": {
+        "parameters": [
+          {
+            "name": "username",
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Timeout"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "name": "username",
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "duration": {
+                    "type": "integer",
+                    "format": "uint64"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/timeout/{punishment_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "punishment_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Timeout"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "punishment_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/reports": {
+      "get": {
+        "parameters": [
+          {
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "maximum": 50.0
+            },
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "explode": true
+          },
+          {
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FullReport"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -2560,32 +3893,21 @@
           }
         ]
       },
-      "delete": {
-        "summary": "Removes a schematic file from a schematic, at least one file must be\npresent at all times. Requests to remove the last file will result in\na `400 Bad Request` error",
-        "description": "This requires the current to user to either own the schematic or have\npermissions to moderate schematics\n",
-        "parameters": [
-          {
-            "name": "schematic_id",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "in": "path",
-            "required": true,
-            "deprecated": false,
-            "explode": true
-          }
-        ],
+      "post": {
         "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "required": [
-                  "file_name"
+                  "schematic_id"
                 ],
                 "properties": {
-                  "file_name": {
+                  "schematic_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "body": {
                     "type": "string"
                   }
                 }
@@ -2600,7 +3922,7 @@
             "content": {
               "application/json; charset=utf-8": {
                 "schema": {
-                  "$ref": "#/components/schemas/Files"
+                  "$ref": "#/components/schemas/Report"
                 }
               }
             }
@@ -2613,6 +3935,293 @@
           },
           "403": {
             "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/reports/{report_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "report_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/FullReport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/reports/created": {
+      "get": {
+        "parameters": [
+          {
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "maximum": 50.0
+            },
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "explode": true
+          },
+          {
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "in": "query",
+            "required": false,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FullReport"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/reports/{report_id}/approve": {
+      "put": {
+        "parameters": [
+          {
+            "name": "report_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": "Return `422 Unprocessable Entity`\n\nThis also serializes the `errors` map provided to JSON\n",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Return `500 Internal Server Error`\n\nThis should generally be called implicity by another\nerror see implementation bellow\n"
+          }
+        },
+        "security": [
+          {
+            "Session": []
+          }
+        ]
+      }
+    },
+    "/v1/reports/{report_id}/reject": {
+      "put": {
+        "parameters": [
+          {
+            "name": "report_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true,
+            "deprecated": false,
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "403": {
+            "description": "Return `403 Forbidden`, for when the user may have a valid\nsession and permissions but has an active timeout, returning\nhow long it is for and the reason why. If the duration is\nnot given then the timeout is permanent",
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/Punishment"
+                }
+              }
+            }
           },
           "404": {
             "description": ""
@@ -2647,7 +4256,8 @@
           "collection_id",
           "collection_name",
           "user_id",
-          "is_private"
+          "is_private",
+          "created_at"
         ],
         "properties": {
           "collection_id": {
@@ -2663,15 +4273,28 @@
           },
           "is_private": {
             "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
       "CollectionEntry": {
         "type": "object",
         "required": [
+          "created_at",
           "schematic_id"
         ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "schematic_id": {
             "type": "string",
             "format": "uuid"
@@ -2684,10 +4307,15 @@
           "comment_id",
           "comment_author",
           "comment_body",
-          "schematic_id"
+          "schematic_id",
+          "created_at"
         ],
         "properties": {
           "comment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parent": {
             "type": "string",
             "format": "uuid"
           },
@@ -2700,6 +4328,14 @@
           },
           "schematic_id": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2709,7 +4345,8 @@
           "user_id",
           "username",
           "displayname",
-          "role"
+          "role",
+          "created_at"
         ],
         "properties": {
           "user_id": {
@@ -2738,6 +4375,14 @@
           },
           "email": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2782,7 +4427,8 @@
           "is_private",
           "user_id",
           "username",
-          "entries"
+          "entries",
+          "created_at"
         ],
         "properties": {
           "collection_id": {
@@ -2811,6 +4457,14 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2821,10 +4475,15 @@
           "comment_author",
           "comment_body",
           "schematic_id",
-          "author_username"
+          "author_username",
+          "created_at"
         ],
         "properties": {
           "comment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parent": {
             "type": "string",
             "format": "uuid"
           },
@@ -2840,6 +4499,55 @@
           },
           "author_username": {
             "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FullReport": {
+        "type": "object",
+        "required": [
+          "report_id",
+          "user_id",
+          "username",
+          "schematic_id",
+          "schematic_name",
+          "created_at"
+        ],
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayname": {
+            "type": "string"
+          },
+          "schematic_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schematic_name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2857,11 +4565,11 @@
           "downloads",
           "tags",
           "images",
-          "files",
           "game_version_id",
           "game_version_name",
           "create_version_id",
-          "create_version_name"
+          "create_version_name",
+          "created_at"
         ],
         "properties": {
           "schematic_id": {
@@ -2911,12 +4619,6 @@
               "type": "string"
             }
           },
-          "files": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "game_version_id": {
             "type": "integer",
             "format": "int64"
@@ -2930,6 +4632,14 @@
           },
           "create_version_name": {
             "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2970,14 +4680,118 @@
           "Dislike"
         ]
       },
+      "Mod": {
+        "type": "object",
+        "required": [
+          "mod_id",
+          "mod_slug"
+        ],
+        "properties": {
+          "mod_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mod_slug": {
+            "type": "string"
+          },
+          "mod_name": {
+            "type": "string"
+          },
+          "curseforge_slug": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "modrinth_slug": {
+            "type": "string"
+          }
+        }
+      },
+      "ModProposal": {
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "user_id",
+          "mod_id"
+        ],
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mod_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mod_name": {
+            "type": "string"
+          },
+          "mod_slug": {
+            "type": "string"
+          },
+          "curseforge_slug": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "modrinth_slug": {
+            "type": "string"
+          }
+        }
+      },
       "OauthProvider": {
         "type": "string",
         "enum": [
           "github",
           "microsoft",
           "google",
-          "discord"
+          "discord",
+          "modrinth"
         ]
+      },
+      "Punishment": {
+        "type": "object",
+        "properties": {
+          "until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "required": [
+          "report_id",
+          "user_id",
+          "schematic_id",
+          "created_at"
+        ],
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schematic_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "body": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       },
       "Role": {
         "type": "string",
@@ -2997,8 +4811,8 @@
           "create_version_id",
           "author",
           "images",
-          "files",
-          "downloads"
+          "downloads",
+          "created_at"
         ],
         "properties": {
           "schematic_id": {
@@ -3029,15 +4843,17 @@
               "type": "string"
             }
           },
-          "files": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "downloads": {
             "type": "integer",
             "format": "int64"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -3074,6 +4890,54 @@
           }
         }
       },
+      "Timeout": {
+        "type": "object",
+        "required": [
+          "punishment_id",
+          "user_id",
+          "username",
+          "issuer_id",
+          "issuer_username",
+          "created_at"
+        ],
+        "properties": {
+          "punishment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayname": {
+            "type": "string"
+          },
+          "issuer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "issuer_username": {
+            "type": "string"
+          },
+          "issuer_displayname": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "UpdateUser": {
         "type": "object",
         "properties": {
@@ -3102,7 +4966,8 @@
           "user_id",
           "username",
           "displayname",
-          "role"
+          "role",
+          "created_at"
         ],
         "properties": {
           "user_id": {
@@ -3123,6 +4988,14 @@
           },
           "role": {
             "$ref": "#/components/schemas/Role"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -3132,7 +5005,8 @@
           "collection_id",
           "collection_name",
           "is_private",
-          "entries"
+          "entries",
+          "created_at"
         ],
         "properties": {
           "collection_id": {
@@ -3151,6 +5025,14 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }
