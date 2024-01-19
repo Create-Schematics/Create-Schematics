@@ -6,6 +6,7 @@ use poem_openapi::OpenApi;
 use poem_openapi::param::{Path, Query};
 use poem_openapi::payload::Json;
 use poem_openapi_derive::{Object, Multipart, Enum};
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::authentication::schemes::Session;
@@ -37,6 +38,8 @@ pub (in crate::api::v1) struct FullSchematic {
     pub game_version_name: String,
     pub create_version_id: i64,
     pub create_version_name: String,
+    pub created_at: OffsetDateTime,
+    pub updated_at: Option<OffsetDateTime>
 }
 
 #[derive(Multipart, Debug)]
@@ -143,6 +146,8 @@ impl SchematicsApi {
                 create_version_name,
                 game_version_id, 
                 game_version_name, 
+                schematics.created_at,
+                schematics.updated_at,
                 coalesce(array_agg(tag_id) filter (where tag_id is not null), array []::bigint[]) as "tags!",
                 coalesce(count(likes.schematic_id) filter (where positive = true), 0) as "like_count!",
                 coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!"
@@ -222,7 +227,9 @@ impl SchematicsApi {
                     create_version_id,
                     images,
                     author,
-                    downloads
+                    downloads,
+                    created_at,
+                    updated_at
             "#,
             form.schematic_name,
             form.schematic_body,
@@ -333,6 +340,8 @@ impl SchematicsApi {
                 create_version_name,
                 game_version_id,
                 game_version_name,
+                schematics.created_at,
+                schematics.updated_at,
                 coalesce(array_agg(tag_id) filter (where tag_id is not null), array []::bigint[]) as "tags!",
                 coalesce(count(likes.schematic_id) filter (where positive = true), 0) as "like_count!",
                 coalesce(count(likes.schematic_id) filter (where positive = false), 0) as "dislike_count!"
@@ -413,7 +422,9 @@ impl SchematicsApi {
                 create_version_id,
                 images,
                 author,
-                downloads
+                downloads,
+                created_at,
+                updated_at
             "#,
             schematic_id,
             form.schematic_name,

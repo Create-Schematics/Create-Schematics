@@ -59,11 +59,15 @@ impl Session {
         sqlx::query_as!(
             User,
             r#"
-            select user_id, username,
-                   displayname, about,
-                   role, avatar
-            from users
-            where user_id = $1
+            select 
+                user_id, username, 
+                displayname, about, 
+                role, avatar,
+                created_at, updated_at
+            from 
+                users
+            where 
+                user_id = $1
             "#,
             self.0,
         )
