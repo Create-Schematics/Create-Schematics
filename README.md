@@ -7,7 +7,7 @@ A site to find and share schematics for the [Create](https://github.com/Creators
 
 ## Developing
 
-If you want to contribute to Create Schematics, first of all thank you for you're help, but you're going to need to get some things set up first.
+If you want to contribute to Create Schematics, first of all thank you for your help, but you're going to need to get some things set up first.
 
 First obtain the source 
 
@@ -19,7 +19,7 @@ cd Create-Schematics
 
 ### Frontend
 
-Our frontend is built with svelte kit, you'll need to install [pnpm](https://pnpm.io/installation) and then to start developing run
+Our frontend is built with SvelteKit, you'll need to install [pnpm](https://pnpm.io/installation) and then to start developing run
 
 ```bash
 cd frontend
@@ -53,7 +53,7 @@ cd backend
 cargo sqlx database setup
 ```
 
-Now you've got everything set up you're ready to start developing create schematics, to run the server itself run
+Now that you've got everything set up, you're ready to start developing create schematics, to run the server itself run
 
 ```
 cargo run server
@@ -63,7 +63,7 @@ This will deploy the api itself on `localhost:3000`
 
 ## Talk To Us
 
-Have any questions, want to request a feature or founda bug? You can either submit it here on GitHub, or on our Discord Server
+Have any questions, want to request a feature or found a bug? You can either submit it here on GitHub, or on our Discord Server
 
 
 [![Discord][1]][2]
