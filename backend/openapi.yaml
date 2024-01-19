@@ -37,6 +37,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -86,6 +96,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -103,22 +123,289 @@ paths:
 
             This should generally be called implicity by another
             error see implementation bellow
-  /v1/schematics/{schematic_id}/comments:
+  /auth/refresh:
+    post:
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /auth/logout:
+    post:
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/users:
     get:
+      summary: |
+        Fetches information about the current user including their email
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    patch:
       summary: |-
-        Fetches a number of the comments on a schematic as well as some basic
-        additional information about their author such as their avatar url
-        and usesrname to prevent the need for subsequent requests. By default
-        if no limit for comments is set then up to 20 will be returned at a
-        time.
+        Updates information about the current user. All fields are optional but
+        at least one is required.
       description: |
-        Note that comment bodies can contain markdown which will need to be
-        handled accordingly
+        All usernames must be unique, if the requested new username is already
+        used a `422 Unprocessable Entity` error will be returned
+      requestBody:
+        content:
+          application/json; charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |
+        Removes the current users account and invalidates any active sessions
+        aswell as removing the current session from their cookies.
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/users/{username}:
+    get:
+      summary: |
+        Fetches a user by their username, for privacy their email will not be included
       parameters:
-      - name: schematic_id
+      - name: username
         schema:
           type: string
-          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+  /v1/users/{username}/schematics:
+    get:
+      summary: |-
+        Fetches a number of schematics created by the specified user. User
+        information will not be included with the schematic as it is assumed
+        that this information is already known.
+      description: |
+        If a limit is not specified 20 will be fetched by default.
+      parameters:
+      - name: username
+        schema:
+          type: string
         in: path
         required: true
         deprecated: false
@@ -147,13 +434,23 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FullComment'
+                  $ref: '#/components/schemas/Schematic'
         '400':
           description: ''
         '401':
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -171,226 +468,6 @@ paths:
 
             This should generally be called implicity by another
             error see implementation bellow
-    post:
-      summary: |-
-        Uploads a comment to a given schematic for the current user returning
-        information about the new comment including its id.
-      description: |
-        The comments body can contain markdown which will be sanitized
-        accordingly, however it cannot contain profanity wich will result in
-        a `422 Conflict` being returned.
-
-        If you believe something is being falsely flagged as profanity please
-        contact us either on github or through other chanels provided in the
-        openapi spec.
-      parameters:
-      - name: schematic_id
-        schema:
-          type: string
-          format: uuid
-        in: path
-        required: true
-        deprecated: false
-        explode: true
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-              - comment_body
-              properties:
-                comment_body:
-                  type: string
-                  maxLength: 1024
-        required: true
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/Comment'
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-      security:
-      - Session: []
-  /v1/comments/{comment_id}:
-    get:
-      summary: |-
-        Fetches a specific comment by it's id aswell as some additional
-        information about it's author such as their username and avatar url
-        to avoid subsequent requests.
-      description: |
-        Note the comemnts body can contain markdown which will need to be
-        displayed accordingly to the user
-
-        If you are looking to fetch comments from a schematic see
-        `GET /schematics/:id/comments`
-      parameters:
-      - name: comment_id
-        schema:
-          type: string
-          format: uuid
-        in: path
-        required: true
-        deprecated: false
-        explode: true
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/FullComment'
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-    patch:
-      summary: |-
-        Updates a given comment by its id, all fields are optional but at least
-        one is required to be present.
-      description: |
-        The new body can contain markdown but not profanity, if it is detected
-        to be innapropriate then the reqeust will be denied with `422 Unprocessable
-        Entity`
-
-        The current user must also own the comment even if they have permission to
-        moderate comments
-      parameters:
-      - name: comment_id
-        schema:
-          type: string
-          format: uuid
-        in: path
-        required: true
-        deprecated: false
-        explode: true
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                comment_body:
-                  type: string
-                  maxLength: 1024
-        required: true
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/Comment'
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-      security:
-      - Session: []
-    delete:
-      summary: |
-        Removes a comment from a schematic by it's id, this requires for the
-        current user to either own the comment or have permission to moderate
-        comments
-      parameters:
-      - name: comment_id
-        schema:
-          type: string
-          format: uuid
-        in: path
-        required: true
-        deprecated: false
-        explode: true
-      responses:
-        '200':
-          description: ''
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-      security:
-      - Session: []
   /v1/schematics/{schematic_id}:
     get:
       summary: |-
@@ -423,6 +500,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -495,6 +582,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -540,6 +637,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -628,6 +735,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -712,6 +829,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -764,6 +891,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -806,6 +943,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -825,173 +972,22 @@ paths:
             error see implementation bellow
       security:
       - Session: []
-  /v1/users:
-    get:
-      summary: |
-        Fetches information about the current user including their email
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/CurrentUser'
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-      security:
-      - Session: []
-    patch:
-      summary: |-
-        Updates information about the current user. All fields are optional but
-        at least one is required.
-      description: |
-        All usernames must be unique, if the requested new username is already
-        used a `422 Unprocessable Entity` error will be returned
-      requestBody:
-        content:
-          application/json; charset=utf-8:
-            schema:
-              $ref: '#/components/schemas/UpdateUser'
-        required: true
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/CurrentUser'
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-      security:
-      - Session: []
-    delete:
-      summary: |
-        Removes the current users account and invalidates any active sessions
-        aswell as removing the current session from their cookies.
-      responses:
-        '200':
-          description: ''
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-      security:
-      - Session: []
-  /v1/users/{username}:
-    get:
-      summary: |
-        Fetches a user by their username, for privacy their email will not be included
-      parameters:
-      - name: username
-        schema:
-          type: string
-        in: path
-        required: true
-        deprecated: false
-        explode: true
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-  /v1/users/{username}/schematics:
+  /v1/schematics/{schematic_id}/comments:
     get:
       summary: |-
-        Fetches a number of schematics created by the specified user. User
-        information will not be included with the schematic as it is assumed
-        that this information is already known.
+        Fetches a number of the comments on a schematic as well as some basic
+        additional information about their author such as their avatar url
+        and usesrname to prevent the need for subsequent requests. By default
+        if no limit for comments is set then up to 20 will be returned at a
+        time.
       description: |
-        If a limit is not specified 20 will be fetched by default.
+        Note that comment bodies can contain markdown which will need to be
+        handled accordingly
       parameters:
-      - name: username
+      - name: schematic_id
         schema:
           type: string
+          format: uuid
         in: path
         required: true
         deprecated: false
@@ -1020,13 +1016,23 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Schematic'
+                  $ref: '#/components/schemas/FullComment'
         '400':
           description: ''
         '401':
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1044,6 +1050,655 @@ paths:
 
             This should generally be called implicity by another
             error see implementation bellow
+    post:
+      summary: |-
+        Uploads a comment to a given schematic for the current user returning
+        information about the new comment including its id.
+      description: |
+        The comments body can contain markdown which will be sanitized
+        accordingly, however it cannot contain profanity wich will result in
+        a `422 Conflict` being returned.
+
+        If you believe something is being falsely flagged as profanity please
+        contact us either on github or through other chanels provided in the
+        openapi spec.
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - comment_body
+              properties:
+                comment_body:
+                  type: string
+                  maxLength: 1024
+                parent:
+                  type: string
+                  format: uuid
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/comments/{comment_id}:
+    get:
+      summary: |-
+        Fetches a specific comment by it's id aswell as some additional
+        information about it's author such as their username and avatar url
+        to avoid subsequent requests.
+      description: |
+        Note the comemnts body can contain markdown which will need to be
+        displayed accordingly to the user
+
+        If you are looking to fetch comments from a schematic see
+        `GET /schematics/:id/comments`
+      parameters:
+      - name: comment_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/FullComment'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    patch:
+      summary: |-
+        Updates a given comment by its id, all fields are optional but at least
+        one is required to be present.
+      description: |
+        The new body can contain markdown but not profanity, if it is detected
+        to be innapropriate then the reqeust will be denied with `422 Unprocessable
+        Entity`
+
+        The current user must also own the comment even if they have permission to
+        moderate comments
+      parameters:
+      - name: comment_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                comment_body:
+                  type: string
+                  maxLength: 1024
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |
+        Removes a comment from a schematic by it's id, this requires for the
+        current user to either own the comment or have permission to moderate
+        comments
+      parameters:
+      - name: comment_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics/{schematic_id}/files:
+    get:
+      summary: Fetches the name of all uploaded schematic files on a given schematic
+      description: |
+        Note this does not return the schematic files themselves, they can be
+        retrieved from the static file endpoint like so filling in the schematic
+        id for the given schematic and file_name for one of the values returned
+        here `GET /upload/schematics/{schematic_id}/files/{file_name}.nbt`
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Files'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    post:
+      summary: |-
+        Uploads a new schematic file to a schematic, use this for schematics
+        with multiple variations or parts not for many entirely different
+        schematics.
+      description: |
+        This requires for the current user to be the owner of the given schematic
+        and for this file name (after sanitization) to not be used already. If
+        there are conflicting file names `422 Unprocessable Entity` will be returned
+        with a message explaining this
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: |-
+        Removes a schematic file from a schematic, at least one file must be
+        present at all times. Requests to remove the last file will result in
+        a `400 Bad Request` error
+      description: |
+        This requires the current to user to either own the schematic or have
+        permissions to moderate schematics
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file_name
+              properties:
+                file_name:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/schematics/{schematic_id}/images:
+    get:
+      summary: Fetches the file names of all images associated with a given schematic
+      description: |
+        Note this does not return the image files themselves they can be
+        retrieved from the static file endpoint here
+        `GET /upload/schematics/{schematic_id}/images/{image_name}.{extension}`
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Images'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    post:
+      summary: |-
+        Uploads a new image to an existing schematic, for supported image formats
+        see the image crate as this is used to ensure that images are valid.
+      description: |
+        https://github.com/image-rs/image?tab=readme-ov-file#supported-image-formats
+
+        File names cannot overlap, if an image with a given name is already added
+        to the schematic then the request will be rejected with a `409 Conflict`
+        response.
+
+        Aswell as this file names cannot contain profanity if the file name is deemed
+        to be profane the request will be rejected
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    delete:
+      summary: Removes an image from a schematic
+      description: |
+        Each schematic must have at least one image so requests to remove the
+        final one will be rejected with a `400 Bad Request` response.
+
+        This endpoint requires the user to either own the schematic or have
+        permissions to moderate schematics.
+      parameters:
+      - name: schematic_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file_name
+              properties:
+                file_name:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
   /v1/schematics/{schematic_id}/tags:
     get:
       summary: Fetch all the tags applied to a given schematic
@@ -1073,6 +1728,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1130,6 +1795,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1178,6 +1853,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1225,6 +1910,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1293,6 +1988,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1342,6 +2047,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1400,6 +2115,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1445,6 +2170,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1513,6 +2248,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1573,6 +2318,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1627,6 +2382,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1680,6 +2445,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1720,8 +2495,12 @@ paths:
             schema:
               type: object
               required:
+              - created_at
               - schematic_id
               properties:
+                created_at:
+                  type: string
+                  format: date-time
                 schematic_id:
                   type: string
                   format: uuid
@@ -1735,6 +2514,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1776,8 +2565,12 @@ paths:
             schema:
               type: object
               required:
+              - created_at
               - schematic_id
               properties:
+                created_at:
+                  type: string
+                  format: date-time
                 schematic_id:
                   type: string
                   format: uuid
@@ -1791,6 +2584,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1810,15 +2613,10 @@ paths:
             error see implementation bellow
       security:
       - Session: []
-  /v1/schematics/{schematic_id}/images:
+  /v1/mods/{mod_id}:
     get:
-      summary: Fetches the file names of all images associated with a given schematic
-      description: |
-        Note this does not return the image files themselves they can be
-        retrieved from the static file endpoint here
-        `GET /upload/schematics/{schematic_id}/images/{image_name}.{extension}`
       parameters:
-      - name: schematic_id
+      - name: mod_id
         schema:
           type: string
           format: uuid
@@ -1832,13 +2630,23 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Images'
+                $ref: '#/components/schemas/Mod'
         '400':
           description: ''
         '401':
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1856,21 +2664,9 @@ paths:
 
             This should generally be called implicity by another
             error see implementation bellow
-    post:
-      summary: |-
-        Uploads a new image to an existing schematic, for supported image formats
-        see the image crate as this is used to ensure that images are valid.
-      description: |
-        https://github.com/image-rs/image?tab=readme-ov-file#supported-image-formats
-
-        File names cannot overlap, if an image with a given name is already added
-        to the schematic then the request will be rejected with a `409 Conflict`
-        response.
-
-        Aswell as this file names cannot contain profanity if the file name is deemed
-        to be profane the request will be rejected
+    patch:
       parameters:
-      - name: schematic_id
+      - name: mod_id
         schema:
           type: string
           format: uuid
@@ -1883,12 +2679,16 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required:
-              - image
               properties:
-                image:
+                mod_slug:
                   type: string
-                  format: binary
+                mod_name:
+                  type: string
+                curseforge_slug:
+                  type: integer
+                  format: int32
+                modrinth_slug:
+                  type: string
         required: true
       responses:
         '200':
@@ -1899,6 +2699,16 @@ paths:
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -1918,81 +2728,24 @@ paths:
             error see implementation bellow
       security:
       - Session: []
-    delete:
-      summary: Removes an image from a schematic
-      description: |
-        Each schematic must have at least one image so requests to remove the
-        final one will be rejected with a `400 Bad Request` response.
-
-        This endpoint requires the user to either own the schematic or have
-        permissions to moderate schematics.
-      parameters:
-      - name: schematic_id
-        schema:
-          type: string
-          format: uuid
-        in: path
-        required: true
-        deprecated: false
-        explode: true
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-              - file_name
-              properties:
-                file_name:
-                  type: string
-        required: true
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/Images'
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-      security:
-      - Session: []
-  /v1/schematics/{schematic_id}/files:
+  /v1/mods/proposals:
     get:
-      summary: Fetches the name of all uploaded schematic files on a given schematic
-      description: |
-        Note this does not return the schematic files themselves, they can be
-        retrieved from the static file endpoint like so filling in the schematic
-        id for the given schematic and file_name for one of the values returned
-        here `GET /upload/schematics/{schematic_id}/files/{file_name}.nbt`
       parameters:
-      - name: schematic_id
+      - name: limit
         schema:
-          type: string
-          format: uuid
-        in: path
-        required: true
+          type: integer
+          format: int64
+          maximum: 50.0
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
         deprecated: false
         explode: true
       responses:
@@ -2001,70 +2754,25 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Files'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModProposal'
         '400':
           description: ''
         '401':
           description: ''
         '403':
           description: ''
-        '404':
-          description: ''
-        '422':
-          description: |
-            Return `422 Unprocessable Entity`
-
-            This also serializes the `errors` map provided to JSON
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/EntityErrors'
-        '500':
-          description: |
-            Return `500 Internal Server Error`
-
-            This should generally be called implicity by another
-            error see implementation bellow
-    post:
-      summary: |-
-        Uploads a new schematic file to a schematic, use this for schematics
-        with multiple variations or parts not for many entirely different
-        schematics.
-      description: |
-        This requires for the current user to be the owner of the given schematic
-        and for this file name (after sanitization) to not be used already. If
-        there are conflicting file names `422 Unprocessable Entity` will be returned
-        with a message explaining this
-      parameters:
-      - name: schematic_id
-        schema:
-          type: string
-          format: uuid
-        in: path
-        required: true
-        deprecated: false
-        explode: true
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-              - file
-              properties:
-                file:
-                  type: string
-                  format: binary
-        required: true
-      responses:
-        '200':
-          description: ''
-        '400':
-          description: ''
-        '401':
-          description: ''
-        '403':
-          description: ''
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -2084,19 +2792,214 @@ paths:
             error see implementation bellow
       security:
       - Session: []
-    delete:
-      summary: |-
-        Removes a schematic file from a schematic, at least one file must be
-        present at all times. Requests to remove the last file will result in
-        a `400 Bad Request` error
-      description: |
-        This requires the current to user to either own the schematic or have
-        permissions to moderate schematics
+  /v1/mods/proposals/{proposal_id}:
+    get:
       parameters:
-      - name: schematic_id
+      - name: proposal_id
         schema:
           type: string
           format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ModProposal'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/mods/proposals/{proposal_id}/approve:
+    put:
+      parameters:
+      - name: proposal_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/mods/proposals/{proposal_id}/reject:
+    put:
+      parameters:
+      - name: proposal_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/users/{username}/timeout:
+    get:
+      parameters:
+      - name: username
+        schema:
+          type: string
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Timeout'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    put:
+      parameters:
+      - name: username
+        schema:
+          type: string
         in: path
         required: true
         deprecated: false
@@ -2106,10 +3009,227 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required:
-              - file_name
               properties:
-                file_name:
+                duration:
+                  type: integer
+                  format: uint64
+                reason:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/timeout/{punishment_id}:
+    get:
+      parameters:
+      - name: punishment_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Timeout'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+    delete:
+      parameters:
+      - name: punishment_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/reports:
+    get:
+      parameters:
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+          maximum: 50.0
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullReport'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - schematic_id
+              properties:
+                schematic_id:
+                  type: string
+                  format: uuid
+                body:
                   type: string
         required: true
       responses:
@@ -2118,13 +3238,238 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Files'
+                $ref: '#/components/schemas/Report'
         '400':
           description: ''
         '401':
           description: ''
         '403':
           description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/reports/{report_id}:
+    get:
+      parameters:
+      - name: report_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/FullReport'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/reports/created:
+    get:
+      parameters:
+      - name: limit
+        schema:
+          type: integer
+          format: int64
+          maximum: 50.0
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      - name: offset
+        schema:
+          type: integer
+          format: int64
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullReport'
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/reports/{report_id}/approve:
+    put:
+      parameters:
+      - name: report_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
+        '404':
+          description: ''
+        '422':
+          description: |
+            Return `422 Unprocessable Entity`
+
+            This also serializes the `errors` map provided to JSON
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/EntityErrors'
+        '500':
+          description: |
+            Return `500 Internal Server Error`
+
+            This should generally be called implicity by another
+            error see implementation bellow
+      security:
+      - Session: []
+  /v1/reports/{report_id}/reject:
+    put:
+      parameters:
+      - name: report_id
+        schema:
+          type: string
+          format: uuid
+        in: path
+        required: true
+        deprecated: false
+        explode: true
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+        '401':
+          description: ''
+        '403':
+          description: ''
+        '403':
+          description: |-
+            Return `403 Forbidden`, for when the user may have a valid
+            session and permissions but has an active timeout, returning
+            how long it is for and the reason why. If the duration is
+            not given then the timeout is permanent
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Punishment'
         '404':
           description: ''
         '422':
@@ -2153,6 +3498,7 @@ components:
       - collection_name
       - user_id
       - is_private
+      - created_at
       properties:
         collection_id:
           type: string
@@ -2164,11 +3510,21 @@ components:
           format: uuid
         is_private:
           type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     CollectionEntry:
       type: object
       required:
+      - created_at
       - schematic_id
       properties:
+        created_at:
+          type: string
+          format: date-time
         schematic_id:
           type: string
           format: uuid
@@ -2179,8 +3535,12 @@ components:
       - comment_author
       - comment_body
       - schematic_id
+      - created_at
       properties:
         comment_id:
+          type: string
+          format: uuid
+        parent:
           type: string
           format: uuid
         comment_author:
@@ -2190,6 +3550,12 @@ components:
           type: string
         schematic_id:
           type: string
+        updated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
     CurrentUser:
       type: object
       required:
@@ -2197,6 +3563,7 @@ components:
       - username
       - displayname
       - role
+      - created_at
       properties:
         user_id:
           type: string
@@ -2218,6 +3585,12 @@ components:
           $ref: '#/components/schemas/Role'
         email:
           type: string
+        updated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
     EntityErrors:
       type: object
       required:
@@ -2254,6 +3627,7 @@ components:
       - user_id
       - username
       - entries
+      - created_at
       properties:
         collection_id:
           type: string
@@ -2274,6 +3648,12 @@ components:
           items:
             type: string
             format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     FullComment:
       type: object
       required:
@@ -2282,8 +3662,12 @@ components:
       - comment_body
       - schematic_id
       - author_username
+      - created_at
       properties:
         comment_id:
+          type: string
+          format: uuid
+        parent:
           type: string
           format: uuid
         comment_author:
@@ -2295,6 +3679,42 @@ components:
           type: string
         author_username:
           type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    FullReport:
+      type: object
+      required:
+      - report_id
+      - user_id
+      - username
+      - schematic_id
+      - schematic_name
+      - created_at
+      properties:
+        report_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        displayname:
+          type: string
+        schematic_id:
+          type: string
+          format: uuid
+        schematic_name:
+          type: string
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
     FullSchematic:
       type: object
       required:
@@ -2309,11 +3729,11 @@ components:
       - downloads
       - tags
       - images
-      - files
       - game_version_id
       - game_version_name
       - create_version_id
       - create_version_name
+      - created_at
       properties:
         schematic_id:
           type: string
@@ -2348,10 +3768,6 @@ components:
           type: array
           items:
             type: string
-        files:
-          type: array
-          items:
-            type: string
         game_version_id:
           type: integer
           format: int64
@@ -2362,6 +3778,12 @@ components:
           format: int64
         create_version_name:
           type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     FullTag:
       type: object
       required:
@@ -2387,6 +3809,49 @@ components:
       enum:
       - Like
       - Dislike
+    Mod:
+      type: object
+      required:
+      - mod_id
+      - mod_slug
+      properties:
+        mod_id:
+          type: string
+          format: uuid
+        mod_slug:
+          type: string
+        mod_name:
+          type: string
+        curseforge_slug:
+          type: integer
+          format: int32
+        modrinth_slug:
+          type: string
+    ModProposal:
+      type: object
+      required:
+      - proposal_id
+      - user_id
+      - mod_id
+      properties:
+        proposal_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        mod_id:
+          type: string
+          format: uuid
+        mod_name:
+          type: string
+        mod_slug:
+          type: string
+        curseforge_slug:
+          type: integer
+          format: int32
+        modrinth_slug:
+          type: string
     OauthProvider:
       type: string
       enum:
@@ -2394,6 +3859,37 @@ components:
       - microsoft
       - google
       - discord
+      - modrinth
+    Punishment:
+      type: object
+      properties:
+        until:
+          type: string
+          format: date-time
+        reason:
+          type: string
+    Report:
+      type: object
+      required:
+      - report_id
+      - user_id
+      - schematic_id
+      - created_at
+      properties:
+        report_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        schematic_id:
+          type: string
+          format: uuid
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
     Role:
       type: string
       enum:
@@ -2410,8 +3906,8 @@ components:
       - create_version_id
       - author
       - images
-      - files
       - downloads
+      - created_at
       properties:
         schematic_id:
           type: string
@@ -2433,13 +3929,15 @@ components:
           type: array
           items:
             type: string
-        files:
-          type: array
-          items:
-            type: string
         downloads:
           type: integer
           format: int64
+        updated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
     SortBy:
       type: string
       enum:
@@ -2462,6 +3960,41 @@ components:
           type: array
           items:
             type: string
+    Timeout:
+      type: object
+      required:
+      - punishment_id
+      - user_id
+      - username
+      - issuer_id
+      - issuer_username
+      - created_at
+      properties:
+        punishment_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        displayname:
+          type: string
+        issuer_id:
+          type: string
+          format: uuid
+        issuer_username:
+          type: string
+        issuer_displayname:
+          type: string
+        reason:
+          type: string
+        until:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
     UpdateUser:
       type: object
       properties:
@@ -2485,6 +4018,7 @@ components:
       - username
       - displayname
       - role
+      - created_at
       properties:
         user_id:
           type: string
@@ -2499,6 +4033,12 @@ components:
           type: string
         role:
           $ref: '#/components/schemas/Role'
+        updated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
     UserCollection:
       type: object
       required:
@@ -2506,6 +4046,7 @@ components:
       - collection_name
       - is_private
       - entries
+      - created_at
       properties:
         collection_id:
           type: string
@@ -2519,6 +4060,12 @@ components:
           items:
             type: string
             format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
   securitySchemes:
     OptionalSession:
       type: apiKey
