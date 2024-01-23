@@ -1,5 +1,10 @@
 <script>
+  import Arm from "$lib/components/assets/Arm.svelte";
+  import Banner from "$lib/components/assets/Banner.svelte";
+  import Table from "$lib/components/assets/Table.svelte";
   import InView from "$lib/components/layout/InView.svelte";
+
+  import { toggleMode } from "mode-watcher";
 
   import { fly } from "svelte/transition";
 </script>
@@ -9,40 +14,38 @@
 </svelte:head>
 
 <main class="flex flex-col">
-  <div class="bg-create-blue relative h-[40vh]">
-    <div class="absolute w-full h-full left-0 top-0">
-      <div
-        class="absolute w-16 h-full bg-slate-100 opacity-30 top-0 left-[20%]"
-      />
-      <div
-        class="absolute h-16 w-full bg-slate-100 opacity-30 left-0 top-[4rem]"
-      />
+  <button on:click={toggleMode}>Toggle Mode</button>
+  <div class="bg-blue relative h-[35em]">
+    <div
+      class="absolute w-16 h-full bg-slate-100 opacity-30 top-0 left-[20%]"
+    />
+    <div
+      class="absolute h-16 w-full bg-slate-100 opacity-30 left-0 top-[4rem]"
+    />
+    <div
+      class="absolute hidden md:block max-h-[35em] max-w-7xl w-full bottom-0 left-1/2 transform -translate-x-1/2"
+    >
+      <Banner />
     </div>
-    <div class="absolute w-full h-full left-0 top-0 text-center p-12">
-      <h1 class="text-6xl font-bold">Create Schematics</h1>
-      <p class="mt-4 text-xl">
+
+    <div class="absolute w-full h-full left-0 md:top-1/4 text-center p-12">
+      <h1 class="text-6xl font-bold text-white title-shadow">
+        Create Schematics
+      </h1>
+      <p class="mt-4 text-2xl text-white subtitle-shadow">
         The best way to search, share and download schematics.
       </p>
-
-      <div class="my-20">
-        <a href="../browse" class="no-default-link"
-          ><button
-            class="bg-checker px-4 py-2 text-xl font-bold bg-create-blue hover:bg-create-blue/70 text-white rounded-md pixel-corners"
-            >Browse Schematics</button
-          ></a
-        >
-      </div>
     </div>
   </div>
 
-  <div id="schematics" class="p-12">
+  <div id="schematics" class="p-24 text-center">
     <InView>
       <div
         class="flex flex-col md:flex-row justify-around gap-12 max-w-6xl m-auto"
         in:fly={{ duration: 700, delay: 100, y: 60 }}
       >
-        <div class="text-right flex justify-end m-auto">
-          <img alt="table" src="assets/table.png" class="max-h-[440px]" />
+        <div class="h-[20em] md:m-auto flex">
+          <Table />
         </div>
         <div class="flex flex-col justify-center items-center m-auto">
           <h2 class="text-4xl font-bold">Thousands&nbsp;of Schematics</h2>
@@ -54,7 +57,7 @@
     </InView>
   </div>
 
-  <div class="p-12 bg-minecraft-ui-light dark:bg-minecraft-ui-dark text-center">
+  <div class="p-24 bg-background-dimmed text-center">
     <InView>
       <div
         class="flex flex-col-reverse md:flex-row justify-around gap-12 max-w-6xl m-auto"
@@ -66,8 +69,8 @@
           </h2>
           <p class="mt-2 text-2xl">Open source and libre.</p>
         </div>
-        <div class="flex justify-end p-2 m-auto">
-          <img alt="arm" src="assets/arm.png" class="max-h-[440px]" />
+        <div class="flex h-[25em] justify-end p-2 md:m-auto">
+          <Arm />
         </div>
       </div>
     </InView>
@@ -81,19 +84,19 @@
     <div class="text-center mt-4">
       <a href="../browse" class="no-default-link">
         <button
-          class="px-3 md:px-5 my-2 py-2 mx-1 text-xl font-bold bg-create-blue hover:bg-create-blue/70 text-white rounded-md pixel-corners"
+          class="px-3 md:px-5 my-2 py-2 mx-1 text-xl font-bold bg-blue hover:bg-blue/70 text-white rounded-md pixel-corners"
           >Browse</button
         >
       </a>
       <a href="../search" class="no-default-link">
         <button
-          class="px-3 md:px-5 my-2 py-2 mx-1 text-xl font-bold bg-create-blue hover:bg-create-blue/70 text-white rounded-md pixel-corners"
+          class="px-3 md:px-5 my-2 py-2 mx-1 text-xl font-bold bg-blue hover:bg-blue/70 text-white rounded-md pixel-corners"
           >Search</button
         >
       </a>
       <a href="../upload" class="no-default-link">
         <button
-          class="px-3 md:px-5 my-2 py-2 mx-1 text-xl font-bold bg-create-blue hover:bg-create-blue/70 text-white rounded-md pixel-corners"
+          class="px-3 md:px-5 my-2 py-2 mx-1 text-xl font-bold bg-blue hover:bg-blue/70 text-white rounded-md pixel-corners"
           >Upload</button
         >
       </a>
@@ -102,16 +105,11 @@
 </main>
 
 <style>
-  @keyframes -global-scale-in {
-    0% {
-      -webkit-transform: translateY(60px);
-      transform: translateY(60px);
-      opacity: 0;
-    }
-    100% {
-      -webkit-transform: translateY(0);
-      transform: translateY(0);
-      opacity: 1;
-    }
+  .title-shadow {
+    text-shadow: 4px 4px var(--gray);
+  }
+
+  .subtitle-shadow {
+    text-shadow: 2px 2px var(--gray);
   }
 </style>

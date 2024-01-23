@@ -14,7 +14,7 @@
 <ModeWatcher />
 
 <body
-  class=" bg-create-blue/40 dark:bg-gray-800 dark:text-white absolute w-full flex flex-col font-pixel min-h-screen content-between"
+  class="bg-background absolute w-full flex flex-col font-pixel min-h-screen content-between"
 >
   <Header {user} />
 
