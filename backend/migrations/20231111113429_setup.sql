@@ -1,4 +1,5 @@
 create extension if not exists "uuid-ossp";
+create extension if not exists "pg_trgm";
 
 -- Some tables have a `created_at` and `updated_at` column which aswell as being useful 
 -- information on the frontend such as identifying when a schematic was uplaoded can be 
