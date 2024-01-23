@@ -4,20 +4,14 @@
   export let user: components["schemas"]["User"] | undefined;
 </script>
 
-<header
-  class="bg-background-dimmed p-4 w-full sticky"
->
+<header class="bg-background-dimmed p-4 w-full sticky top-0 z-10">
   <section class="w-full flex grid-cols-3 md:grid gap-3 md:gap-8">
     <div class="flex items-center gap-4">
       <a href="/">
         <img src="/favicon.png" class="w-10" alt="logo" />
       </a>
 
-      <span
-        class="text-xl font-bold hidden md:block"
-      >
-        Create Schematics
-      </span>
+      <span class="text-xl font-bold hidden md:block"> Create Schematics </span>
     </div>
 
     <search title="schematics" class="flex-grow max-w-6xl">
