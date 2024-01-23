@@ -1,11 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@font-face{
+
+@font-face {
     font-family: 'Minecraft';
     src: url('/fonts/MinecraftRegular-Bmg3.otf') format('opentype');
     font-weight: 400;
     font-style: normal;
+}
+
+@font-face {
+    font-family: 'Minecraft';
+    src: url('/fonts/MinecraftBold-nMK1.otf') format('opentype');
+    font-weight: 600;
+    font-style: bold;
+}
+
+@layer base {
+    :root {
+        --white: #e4f8fd;
+        --offwhite: #c5dae1;
+        --blue: #7592f1;
+        --lightblue: #7592f1;
+        --gray: #1f2836;
+        --dark-gray: #141823;
+    }
+
+    :root {
+        --color-text: var(--dark-gray);
+
+        --background: var(--white);
+        --background-dimmed: var(--offwhite);
+    }
+
+    .dark {
+        --color-text: var(--white);
+
+        --background: var(--gray);
+        --background-dimmed: var(--dark-gray);
+    }
+}
+
+:root {
+    color: var(--color-text);
 }
 
 .border-outset{
@@ -38,6 +75,7 @@
       0px 4px
     );
 }
+
 .pixel-top {
     clip-path: polygon(
       0px 100%,
@@ -69,6 +107,7 @@ a:not(.no-default-link):hover {
     width: 5px;
     height: 5px;
 }
+
 ::-webkit-scrollbar-thumb{
     background: #fff;
 }
