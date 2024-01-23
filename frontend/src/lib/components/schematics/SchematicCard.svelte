@@ -33,7 +33,7 @@
     {#if "tags" in schematic}
       {#each schematic.tags as tag}
         <li
-          class="text-xs bg-create-blue/50 hover:bg-create-blue/80 px-1 text-opacity-50"
+          class="text-xs bg-blue hover:bg-blue/80 px-1 text-opacity-50"
         >
           {tag}
         </li>

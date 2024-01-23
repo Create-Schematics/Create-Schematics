@@ -5,7 +5,7 @@
 </script>
 
 <div
-  class="flex relative pixel-corners aspect-video overflow-hidden bg-create-blue/30 bg-checker"
+  class="flex relative pixel-corners aspect-video overflow-hidden bg-blue/30 bg-checker"
 >
   <div
     class="overflow-x-scroll scroll-smooth snap-x snap-mandatory flex w-full"

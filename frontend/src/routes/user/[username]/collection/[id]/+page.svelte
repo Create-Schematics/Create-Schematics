@@ -45,7 +45,7 @@
 w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
 >
   <div
-    class=" my-4 px-4 py-3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners"
+    class=" my-4 px-4 py-3 bg-background-dimmed pixel-corners"
   >
     <h1 class="text-3xl inline">{collection.title}</h1>
     <p class="hidden md:inline text-right float-right">

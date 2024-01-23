@@ -15,34 +15,34 @@
     class="items-center justify-center bg-checker pixel-corners py-16 w-[calc(100vw-2rem)] max-w-6xl"
   >
     <div
-      class="mx-auto w-fit p-4 pixel-corners bg-minecraft-ui-light dark:bg-minecraft-ui-dark flex flex-col items-center"
+      class="mx-auto w-fit p-4 pixel-corners bg-background-dimmed flex flex-col items-center"
     >
       <h2 class="text-xl font-bold text-center">Authenticate with</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-3 py-4">
         <a
           href={`${apiBaseUrl}/auth/google`}
-          class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
+          class="flex flex-col items-center no-default-link dark:bg-blue bg-white/50 hover:bg-white/30 dark:hover:bg-blue/80 p-3 pixel-corners"
         >
           <GoogleIcon />
           Google
         </a>
         <a
           href={`${apiBaseUrl}/auth/microsoft`}
-          class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
+          class="flex flex-col items-center no-default-link dark:bg-blue bg-white/50 hover:bg-white/30 dark:hover:bg-blue/80 p-3 pixel-corners"
         >
           <MicrosoftIcon />
           Microsoft
         </a>
         <a
           href={`${apiBaseUrl}/auth/github`}
-          class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
+          class="flex flex-col items-center no-default-link dark:bg-blue bg-white/50 hover:bg-white/30 dark:hover:bg-blue/80 p-3 pixel-corners"
         >
           <GithubIcon />
           GitHub
         </a>
         <a
           href={`${apiBaseUrl}/auth/discord`}
-          class="flex flex-col items-center no-default-link dark:bg-create-blue/50 bg-white/50 hover:bg-white/30 dark:hover:bg-create-blue/80 p-3 pixel-corners"
+          class="flex flex-col items-center no-default-link dark:bg-blue bg-white/50 hover:bg-white/30 dark:hover:bg-blue/80 p-3 pixel-corners"
         >
           <DiscordIcon />
           Discord

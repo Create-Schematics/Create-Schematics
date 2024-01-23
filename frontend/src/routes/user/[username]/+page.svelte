@@ -23,7 +23,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
   <div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 items-left">
     <div class="col-span-1">
       <div
-        class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark px-3 pt-3 mb-4 pixel-corners"
+        class="bg-background-dimmed px-3 pt-3 mb-4 pixel-corners"
       >
         <div class="h-18 z-10 relative whitespace-nowrap overflow-visible">
           <img
@@ -60,7 +60,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
             <b>{abbreviateNumber(user.totalDownloads)}</b> Downloads
           </p> -->
           <button
-            class="text-minecraft-ui-light hover:text-create-blue/50 dark:text-minecraft-ui-dark dark:hover:create-blue/80 cursor-pointer py-1 px-2 m-1 text-2xl pixel-corners absolute top-0 right-0"
+            class="text-minecraft-ui-light hover:text-blue/50 dark:text-minecraft-ui-dark dark:hover:blue/80 cursor-pointer py-1 px-2 m-1 text-2xl pixel-corners absolute top-0 right-0"
           >
             {#if isPersonalPage}
               <p style="transform: scaleX(-1);">✎</p>
@@ -75,7 +75,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
             <!-- {#each user.links as link}
               <a href={link.url} class="no-default-link">
                 <button
-                  class="bg-create-blue/50 hover:bg-create-blue/80 cursor-pointer py-1 pixel-corners w-full pixel-corners"
+                  class="bg-blue hover:bg-blue/80 cursor-pointer py-1 pixel-corners w-full pixel-corners"
                 >
                   {link.name} 🡕
                 </button>
@@ -85,7 +85,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
         </div>
       </div>
       <div
-        class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners w-full pb-1 mb-2 px-3"
+        class="bg-background-dimmed pixel-corners w-full pb-1 mb-2 px-3"
       >
         <h2 class="text-2xl pb-1 pt-3"><b>Collections</b></h2>
         {#if collections.length}
@@ -107,7 +107,7 @@ w-[calc(100vw-2rem)] justify-between items-left pixel-corners"
     <!-- Right side -->
     <div class="w-full col-span-2 mx-auto items-left">
       <div
-        class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners"
+        class="bg-background-dimmed pixel-corners"
       >
         <h2 class="pt-5 text-2xl text-center mb-1">
           <b>Submitted Schematics</b>

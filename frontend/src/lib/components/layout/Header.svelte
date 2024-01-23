@@ -5,7 +5,7 @@
 </script>
 
 <header
-  class="bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-4 w-full sticky"
+  class="bg-background-dimmed p-4 w-full sticky"
 >
   <section class="w-full flex grid-cols-3 md:grid gap-3 md:gap-8">
     <div class="flex items-center gap-4">
@@ -14,7 +14,7 @@
       </a>
 
       <span
-        class="text-xl font-bold hidden text-slate-950 dark:text-[#faffff] md:block"
+        class="text-xl font-bold hidden md:block"
       >
         Create Schematics
       </span>
@@ -26,7 +26,7 @@
           type="search"
           name="term"
           placeholder="Search Schematics..."
-          class="accent-create-blue h-10 outline-none w-full px-3 dark:bg-black/30 pixel-corners"
+          class="h-10 outline-none w-full px-3 bg-background pixel-corners"
         />
       </form>
     </search>
@@ -35,7 +35,7 @@
       {#if user}
         <a
           href="/upload"
-          class="bg-create-blue/80 no-default-link flex h-10 w-10 text-center hover:bg-create-blue/80 cursor-pointer text-white items-center justify-center text-4xl font-mono font-black pixel-corners"
+          class="bg-blue no-default-link flex h-10 w-10 text-center hover:bg-blue/80 cursor-pointer text-white items-center justify-center text-4xl font-mono font-black pixel-corners"
         >
           +
         </a>
@@ -48,7 +48,7 @@
       {:else}
         <a
           href="/auth"
-          class="h-10 bg-create-blue/50 overflow-hidden pixel-corners flex items-center p-3 no-default-link whitespace-nowrap"
+          class="h-10 bg-blue overflow-hidden pixel-corners flex items-center p-3 no-default-link whitespace-nowrap text-white"
         >
           Sign in
         </a>

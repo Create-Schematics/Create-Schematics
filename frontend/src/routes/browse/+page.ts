@@ -3,17 +3,19 @@ import { error } from '@sveltejs/kit'
 
 
 export const load = async ({url}) => {
-    const q = url.searchParams.get('q')
+    const term = url.searchParams.get('term')
     const page = url.searchParams.get('page')
     const schematics = await GET("/v1/schematics", {
         params: {
             query: {
-                term: q??undefined,
+                term: term??undefined,
                 limit: 50,
                 offset: page ? parseInt(page) * 50 : 0
             }
         }
     })
+
+    console.log(schematics);
 
     if(!schematics.data) throw error(500)
     return {schematics: schematics.data}

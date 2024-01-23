@@ -49,6 +49,6 @@
             class="border-none pixel-corners p-2 flex-grow min-w-[90px] mb-2" >
         </div>
 
-          <button type="button" class="bg-create-blue text-white py-2 px-4 pixel-corners" on:click={saveChanges}>Save</button>
+          <button type="button" class="bg-blue text-white py-2 px-4 pixel-corners" on:click={saveChanges}>Save</button>
       </div>    
 </main>

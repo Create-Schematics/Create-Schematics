@@ -18,12 +18,12 @@
 <main class="max-w-6xl w-[calc(100vw-2rem)] flex flex-col mx-auto gap-3">
   <section class="flex gap-3 w-full justify-stretch flex-wrap md:flex-nowrap">
     <div
-      class="flex md:w-2/3 bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners"
+      class="flex md:w-2/3 bg-background-dimmed p-3 pixel-corners"
     >
       <Slider images={schematic.images} />
     </div>
     <div
-      class="flex flex-col gap-2 w-full md:w-1/3 justify-between bg-minecraft-ui-light dark:bg-minecraft-ui-dark pixel-corners"
+      class="flex flex-col gap-2 w-full md:w-1/3 justify-between pixel-corners"
     >
       <div class="flex flex-col gap-2">
         <div class="p-3 pb-0">
@@ -36,7 +36,7 @@
           </h3>
         </div>
         <div
-          class="px-2 text-sm pixel-corners p-2 flex bg-white dark:bg-black m-2 divide-x divide-create-blue/20"
+          class="px-2 text-sm pixel-corners p-2 flex bg-white dark:bg-black m-2 divide-x divide-blue/20"
         >
           <div class="flex flex-col items-center w-full">
             <h1 class="text-xl">{schematic.downloads}</h1>
@@ -56,13 +56,13 @@
         <ul class="flex flex-wrap gap-2 px-2">
           {#each tags as tag}
             <li
-              class="text-xs bg-create-blue/80 dark:bg-create-blue/20 px-1 text-opacity-50"
+              class="text-xs bg-blue/80 dark:bg-blue/20 px-1 text-opacity-50"
             >
               {tag}
             </li>
           {/each}
         </ul>
-        <div class="w-full p-3 bg-create-blue/10 dark:bg-black/20">
+        <div class="w-full p-3 bg-blue/10 dark:bg-black/20">
           <h2>Required mods:</h2>
           <ul
             class="flex flex-col gap-2 overflow-y-scroll max-h-64 p-2 bg-fixed no-scrollbar"
@@ -93,35 +93,35 @@
         <a
           href={schematic.files[0]}
           style="--checker-color: #fff1"
-          class="w-full no-default-link bg-create-blue text-xl hover:text-slate-100 font-bold p-2 text-center pixel-corners bg-checker text-white"
+          class="w-full no-default-link bg-blue text-xl hover:text-slate-100 font-bold p-2 text-center pixel-corners bg-checker text-white"
           >Download</a
         >
       </div>
     </div>
   </section>
   <section
-    class=" bg-minecraft-ui-light dark:bg-minecraft-ui-dark p-3 pixel-corners"
+    class=" bg-background p-3 pixel-corners"
   >
     <nav class="mt-3 flex gap-2">
       <button
         class="text-xl pixel-top px-5 py-2 relative top-1 cursor-pointer {selectedOption ===
         'description'
           ? 'bg-white dark:bg-black/30'
-          : 'dark:bg-create-blue-dark'}"
+          : 'dark:bg-dark-blue'}"
         on:click={() => handleOptionClick("description")}>Description</button
       >
       <button
         class="text-xl pixel-top px-5 py-2 relative top-1 cursor-pointer {selectedOption ===
         'details'
           ? 'bg-white dark:bg-black/30'
-          : 'dark:bg-create-blue-dark'}"
+          : 'dark:bg-dark-blue'}"
         on:click={() => handleOptionClick("details")}>Details</button
       >
       <button
         class="text-xl pixel-top px-5 py-2 relative top-1 cursor-pointer {selectedOption ===
         'comments'
           ? 'bg-white dark:bg-black/30'
-          : 'dark:bg-create-blue-dark'}"
+          : 'dark:bg-dark-blue'}"
         on:click={() => handleOptionClick("comments")}>Comments</button
       >
     </nav>
@@ -145,7 +145,7 @@
               ? "Write the first comment!"
               : "Contribute to the discussion!"}
           ></textarea>
-          <button class="bg-create-blue text-white px-4 py-1 pixel-corners"
+          <button class="bg-blue text-white px-4 py-1 pixel-corners"
             >Post</button
           >
         </div>
