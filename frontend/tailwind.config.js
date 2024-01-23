@@ -7,15 +7,14 @@ export default {
         'pixel': ['Minecraft', 'monospace']
       },
       colors: {
-        'create-blue': '#7695EC',
-        'create-blue-dark': '#2f3b5e',
-        'minecraft-ui': {
-          'light': '#d9d9db',
-          'dark': '#151822'
-        }
+        'white': 'var(--white)',
+        'offwhite': 'var(--offwhite)',
+        'blue': 'var(--blue)',
+        'dark-blue': '#2f3b5e',
+        'background': 'var(--background)',
+        'background-dimmed': 'var(--background-dimmed)'
       }
     },
   },
-  plugins: [],
   darkMode: 'class'
 }
