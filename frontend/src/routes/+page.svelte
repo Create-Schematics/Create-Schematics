@@ -109,7 +109,15 @@
 
 <style>
   .title-shadow {
-    text-shadow: 4px 4px var(--gray);
+    text-shadow:
+      4px 4px var(--gray),
+      4px -4px var(--gray),
+      -4px 4px var(--gray),
+      -4px -4px var(--gray),
+      0px 4px var(--gray),
+      0px -4px var(--gray),
+      4px 0px var(--gray),
+      -4px 0px var(--gray);
   }
 
   .subtitle-shadow {
