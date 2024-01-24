@@ -15,30 +15,33 @@
 
 <main class="flex flex-col">
   <button on:click={toggleMode}>Toggle Mode</button>
-  <div class="bg-blue relative h-[35em]">
-    <div
-      class="absolute w-16 h-full bg-slate-100 opacity-30 top-0 left-[20%]"
-    />
-    <div
-      class="absolute h-16 w-full bg-slate-100 opacity-30 left-0 top-[4rem]"
-    />
-    <div
-      class="absolute hidden md:block max-h-[35em] max-w-7xl w-full bottom-0 left-1/2 transform -translate-x-1/2"
-    >
-      <Banner />
-    </div>
-
-    <div class="absolute w-full h-full left-0 md:top-1/4 text-center p-12">
-      <h1 class="text-6xl font-bold text-white title-shadow">
-        Create Schematics
-      </h1>
-      <p class="mt-4 text-2xl text-white subtitle-shadow">
-        The best way to search, share and download schematics.
-      </p>
+  <div class="bg-blue md:h-[35em]">
+    <div class="relative z-0 h-full w-full">
+      <div
+        class="absolute w-16 h-full bg-slate-100 opacity-30 top-0 left-[20%] -z-10"
+      />
+      <div
+        class="absolute h-16 w-full bg-slate-100 opacity-30 left-0 top-[4rem] -z-10"
+      />
+      <div
+        class="absolute hidden md:block max-h-[35em] max-w-7xl w-full bottom-0 left-1/2 transform -translate-x-1/2 -z-10"
+      >
+        <Banner />
+      </div>
+      <div
+        class="w-full h-full left-0 md:top-1/4 text-center p-12 flex flex-col justify-center"
+      >
+        <h1 class="text-5xl md:text-6xl font-bold text-white title-shadow">
+          Create Schematics
+        </h1>
+        <p class="mt-4 text-2xl text-white subtitle-shadow">
+          The best way to search, share and download schematics.
+        </p>
+      </div>
     </div>
   </div>
 
-  <div id="schematics" class="p-24 text-center">
+  <div id="schematics" class="p-12 md:p-24 text-center">
     <InView>
       <div
         class="flex flex-col md:flex-row justify-around gap-12 max-w-6xl m-auto"
@@ -57,7 +60,7 @@
     </InView>
   </div>
 
-  <div class="p-24 bg-background-dimmed text-center">
+  <div class="p-12 md:p-24 bg-background-dimmed text-center">
     <InView>
       <div
         class="flex flex-col-reverse md:flex-row justify-around gap-12 max-w-6xl m-auto"
