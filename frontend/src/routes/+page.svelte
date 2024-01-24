@@ -41,10 +41,10 @@
     </div>
   </div>
 
-  <div id="schematics" class="p-12 md:p-24 text-center">
+  <div id="schematics" class="p-6 md:p-24 text-center">
     <InView>
       <div
-        class="flex flex-col md:flex-row justify-around gap-12 max-w-6xl m-auto"
+        class="flex flex-col md:flex-row justify-around md:gap-12 max-w-6xl m-auto"
         in:fly={{ duration: 700, delay: 100, y: 60 }}
       >
         <div class="h-[20em] md:m-auto flex aspect-square">
@@ -60,10 +60,10 @@
     </InView>
   </div>
 
-  <div class="p-12 md:p-24 bg-background-dimmed text-center">
+  <div class="p-6 md:p-24 bg-background-dimmed text-center">
     <InView>
       <div
-        class="flex flex-col-reverse md:flex-row justify-around gap-12 max-w-6xl m-auto"
+        class="flex flex-col-reverse md:flex-row justify-around md:gap-12 max-w-6xl m-auto"
         in:fly={{ duration: 700, delay: 300, y: 60 }}
       >
         <div class="flex flex-col justify-center items-center m-auto">
