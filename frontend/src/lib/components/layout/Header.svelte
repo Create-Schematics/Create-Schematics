@@ -15,7 +15,7 @@
     </div>
 
     <search title="schematics" class="flex-grow max-w-6xl">
-      <form action="schematics" autocomplete="off">
+      <form action="/schematics" autocomplete="off">
         <input
           type="search"
           name="term"
