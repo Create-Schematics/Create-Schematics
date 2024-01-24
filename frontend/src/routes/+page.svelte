@@ -44,7 +44,7 @@
         class="flex flex-col md:flex-row justify-around gap-12 max-w-6xl m-auto"
         in:fly={{ duration: 700, delay: 100, y: 60 }}
       >
-        <div class="h-[20em] md:m-auto flex">
+        <div class="h-[20em] md:m-auto flex aspect-square">
           <Table />
         </div>
         <div class="flex flex-col justify-center items-center m-auto">
@@ -69,7 +69,7 @@
           </h2>
           <p class="mt-2 text-2xl">Open source and libre.</p>
         </div>
-        <div class="flex h-[25em] justify-end p-2 md:m-auto">
+        <div class="flex h-[25em] justify-end p-2 md:m-auto aspect-square">
           <Arm />
         </div>
       </div>
