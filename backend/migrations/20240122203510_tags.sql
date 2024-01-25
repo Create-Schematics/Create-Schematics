@@ -23,6 +23,6 @@ values
     ('Deisel Train'),
     ('Electric Train'),
     ('Crop Farm'),
-    ('Build'),
+    ('Mob Farm'),
     ('Windmill'),
     ('Steam Engine');

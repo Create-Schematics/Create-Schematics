@@ -23,6 +23,8 @@ pub (in crate::api::v1) struct FullComment {
     pub comment_body: String,
     pub schematic_id: String,
     pub author_username: String,
+    pub author_displayname: Option<String>,
+    pub author_avatar: Option<String>,
     pub created_at: OffsetDateTime,
     pub updated_at: Option<OffsetDateTime>
 }
@@ -67,6 +69,8 @@ impl CommentsApi {
                 comment_id, comment_author,
                 comment_body, schematic_id,
                 username as author_username,
+                displayname as author_displayname,
+                avatar as author_avatar,
                 parent, comments.created_at, 
                 comments.updated_at
             from 
@@ -180,6 +184,8 @@ impl CommentsApi {
                 comment_id, comment_author,
                 comment_body, schematic_id,
                 username as author_username,
+                displayname as author_displayname,
+                avatar as author_avatar,
                 parent, comments.created_at,
                 comments.updated_at
             from 

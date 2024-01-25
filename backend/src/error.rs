@@ -1,9 +1,9 @@
-use poem_openapi::ApiResponse;
 use poem_openapi::payload::Json;
+use poem_openapi::ApiResponse;
 use poem_openapi_derive::Object;
 use sqlx::error::DatabaseError;
-use time::OffsetDateTime;
 use std::collections::HashMap;
+use time::OffsetDateTime;
 
 /// A common error type that can be used throughout the API.
 ///
@@ -12,15 +12,14 @@ use std::collections::HashMap;
 /// For convenience, this represents both API errors as well as internal recoverable errors,
 /// and maps them to appropriate status codes along with at least a minimally useful error
 /// message in a plain text body, or a JSON body in the case of `UnprocessableEntity`.
-/// 
-/// This error handling solution should probably be replaced at some point, this is a 
-/// re-implemenation of the existing errors to work with poem 
-/// 
+///
+/// This error handling solution should probably be replaced at some point, this is a
+/// re-implemenation of the existing errors to work with poem
+///
 /// https://github.com/Create-Schematics/Create-Schematics/blob/50adde233e45a66ede0bf1d3013bf8e2c0a81623/backend/src/error.rs
 ///
 #[derive(Debug, ApiResponse)]
 pub enum ApiError {
-
     // Return '400 Bad Request'
     #[oai(status = 400)]
     BadRequest,
@@ -46,7 +45,6 @@ pub enum ApiError {
     #[oai(status = 403)]
     Banned(Json<Punishment>),
 
-
     // Return '404' Not Found
     #[oai(status = 404)]
     NotFound,
@@ -59,10 +57,10 @@ pub enum ApiError {
     UnprocessableEntity(Json<EntityErrors>),
 
     /// Return `500 Internal Server Error`
-    /// 
+    ///
     /// This should generally be called implicity by another
     /// error see implementation bellow
-    /// 
+    ///
     #[oai(status = 500)]
     InternalServerError,
 }
@@ -71,17 +69,17 @@ pub enum ApiError {
 pub struct EntityErrors {
     /// Structure to return unprocessable data in with the erroneous field
     /// as the key and the reason it cannot be handled in the value.
-    /// 
+    ///
     /// Ideally we would use a Cow<'static, str> here to avoid unnessasery
     /// cloning of the strings but does not implement ParseFromJSON
-    /// 
+    ///
     pub errors: HashMap<String, Vec<String>>,
 }
 
 #[derive(Debug, Object, Serialize, Deserialize, Default)]
 pub struct Punishment {
     pub until: Option<OffsetDateTime>,
-    pub reason: Option<String>
+    pub reason: Option<String>,
 }
 
 impl ApiError {
@@ -119,7 +117,7 @@ impl ApiError {
 ///
 /// Like with `Error::Sqlx`, the actual error message is not returned to the client
 /// for security reasons.
-/// 
+///
 impl From<anyhow::Error> for ApiError {
     fn from(error: anyhow::Error) -> Self {
         tracing::error!("Generic error: {:?}", error);
@@ -154,7 +152,7 @@ impl From<sqlx::error::Error> for ApiError {
 ///
 /// The actual error message isn't returned to the client for security reasons.
 /// It should be logged instead.
-/// 
+///
 impl From<redis::RedisError> for ApiError {
     fn from(error: redis::RedisError) -> Self {
         tracing::error!("Redis error: {:?}", error);
@@ -203,9 +201,7 @@ impl<T> ResultExt<T> for Result<T, sqlx::Error> {
         map_err: impl FnOnce(Box<dyn DatabaseError>) -> ApiError,
     ) -> Result<T, ApiError> {
         self.map_err(|e| match e {
-            sqlx::Error::Database(dbe) if dbe.constraint() == Some(name) => {
-                map_err(dbe)
-            }
+            sqlx::Error::Database(dbe) if dbe.constraint() == Some(name) => map_err(dbe),
             e => e.into(),
         })
     }
