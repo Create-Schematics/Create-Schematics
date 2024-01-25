@@ -58,9 +58,9 @@ impl CommentsApi {
     async fn get_comments_by_schematic(
         &self,
         Data(ctx): Data<&ApiContext>,        
+        #[oai(validator(maximum(value="50")))] Query(limit): Query<Option<i64>>,
+        #[oai(validator(minimum(value="0")))] Query(offset): Query<Option<i64>>,
         Path(schematic_id): Path<Uuid>,
-        Query(limit): Query<Option<i64>>,
-        Query(offset): Query<Option<i64>>,
     ) -> ApiResult<Json<Vec<FullComment>>> {
         let schematics = sqlx::query_as!(
             FullComment,
@@ -91,7 +91,53 @@ impl CommentsApi {
         .await?;
     
         Ok(Json(schematics))
-    }   
+    }
+    
+    /// Fetches up to a given number of comments that are in reply to a given
+    /// pareent comment as well as additional information about the comments
+    /// author such as there name and avatar. If no offset is given it will 
+    /// default to 0, similarly if no limit is given it will default to 20. THe
+    /// maximum limit is 50. 
+    /// 
+    /// Note that comment bodies can contain markdown which will need to be 
+    /// handled accordingly
+    /// 
+    #[oai(path = "/comments/:comment_id/replies", method = "get")]
+    async fn get_replies_to_comment(
+        &self,
+        Data(ctx): Data<&ApiContext>,  
+        #[oai(validator(maximum(value="50")))] Query(limit): Query<Option<i64>>,
+        #[oai(validator(minimum(value="0")))] Query(offset): Query<Option<i64>>,
+        Path(comment_id): Path<Uuid>,
+    ) -> ApiResult<Json<Vec<FullComment>>> {
+        let replies = sqlx::query_as!(
+            FullComment,
+            r#"
+            select 
+                comment_id, comment_author,
+                comment_body, schematic_id,
+                username as author_username,
+                displayname as author_displayname,
+                avatar as author_avatar,
+                parent, comments.created_at, 
+                comments.updated_at
+            from 
+                comments
+                inner join users on comment_author = user_id
+            where 
+                parent = $1
+            limit $2 
+            offset $3
+            "#,
+            comment_id,
+            limit.unwrap_or(20),
+            offset.unwrap_or(0)
+        )
+        .fetch_all(&ctx.pool)
+        .await?;
+
+        Ok(Json(replies))
+    }
     
     /// Uploads a comment to a given schematic for the current user returning
     /// information about the new comment including its id. 
