@@ -7,7 +7,7 @@
 </script>
 
 <a
-  href={`/schematic/${schematic.schematic_id}`}
+  href={`/schematics/${schematic.schematic_id}`}
   class="bg-white dark:bg-black/50 mx-auto px-4 py-3 pixel-corners w-full no-default-link"
 >
   <h1 class="text-xl font-bold">{schematic.schematic_name}</h1>
@@ -32,9 +32,7 @@
   <ul class="flex flex-wrap gap-2">
     {#if "tags" in schematic}
       {#each schematic.tags as tag}
-        <li
-          class="text-xs bg-blue hover:bg-blue/80 px-1 text-opacity-50"
-        >
+        <li class="text-xs bg-blue hover:bg-blue/80 px-1 text-opacity-50">
           {tag}
         </li>
       {/each}
