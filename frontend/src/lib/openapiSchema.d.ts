@@ -497,6 +497,214 @@ export interface paths {
       };
     };
   };
+  "/notifications": {
+    get: {
+      parameters: {
+        query?: {
+          limit?: number;
+          offset?: number;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["Notification"][];
+          };
+        };
+        400: {
+          content: never;
+        };
+        401: {
+          content: never;
+        };
+        /**
+         * @description Return `403 Forbidden`, for when the user may have a valid
+         * session and permissions but has an active timeout, returning
+         * how long it is for and the reason why. If the duration is
+         * not given then the timeout is permanent
+         */
+        403: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["Punishment"];
+          };
+        };
+        404: {
+          content: never;
+        };
+        /**
+         * @description Return `422 Unprocessable Entity`
+         *
+         * This also serializes the `errors` map provided to JSON
+         */
+        422: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["EntityErrors"];
+          };
+        };
+        /**
+         * @description Return `500 Internal Server Error`
+         *
+         * This should generally be called implicity by another
+         * error see implementation bellow
+         */
+        500: {
+          content: never;
+        };
+      };
+    };
+    delete: {
+      responses: {
+        200: {
+          content: never;
+        };
+        400: {
+          content: never;
+        };
+        401: {
+          content: never;
+        };
+        /**
+         * @description Return `403 Forbidden`, for when the user may have a valid
+         * session and permissions but has an active timeout, returning
+         * how long it is for and the reason why. If the duration is
+         * not given then the timeout is permanent
+         */
+        403: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["Punishment"];
+          };
+        };
+        404: {
+          content: never;
+        };
+        /**
+         * @description Return `422 Unprocessable Entity`
+         *
+         * This also serializes the `errors` map provided to JSON
+         */
+        422: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["EntityErrors"];
+          };
+        };
+        /**
+         * @description Return `500 Internal Server Error`
+         *
+         * This should generally be called implicity by another
+         * error see implementation bellow
+         */
+        500: {
+          content: never;
+        };
+      };
+    };
+  };
+  "/notifications/{notification_id}": {
+    get: {
+      parameters: {
+        path: {
+          notification_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["Notification"];
+          };
+        };
+        400: {
+          content: never;
+        };
+        401: {
+          content: never;
+        };
+        /**
+         * @description Return `403 Forbidden`, for when the user may have a valid
+         * session and permissions but has an active timeout, returning
+         * how long it is for and the reason why. If the duration is
+         * not given then the timeout is permanent
+         */
+        403: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["Punishment"];
+          };
+        };
+        404: {
+          content: never;
+        };
+        /**
+         * @description Return `422 Unprocessable Entity`
+         *
+         * This also serializes the `errors` map provided to JSON
+         */
+        422: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["EntityErrors"];
+          };
+        };
+        /**
+         * @description Return `500 Internal Server Error`
+         *
+         * This should generally be called implicity by another
+         * error see implementation bellow
+         */
+        500: {
+          content: never;
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          notification_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: never;
+        };
+        400: {
+          content: never;
+        };
+        401: {
+          content: never;
+        };
+        /**
+         * @description Return `403 Forbidden`, for when the user may have a valid
+         * session and permissions but has an active timeout, returning
+         * how long it is for and the reason why. If the duration is
+         * not given then the timeout is permanent
+         */
+        403: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["Punishment"];
+          };
+        };
+        404: {
+          content: never;
+        };
+        /**
+         * @description Return `422 Unprocessable Entity`
+         *
+         * This also serializes the `errors` map provided to JSON
+         */
+        422: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["EntityErrors"];
+          };
+        };
+        /**
+         * @description Return `500 Internal Server Error`
+         *
+         * This should generally be called implicity by another
+         * error see implementation bellow
+         */
+        500: {
+          content: never;
+        };
+      };
+    };
+  };
   "/v1/schematics/{schematic_id}": {
     /**
      * Fetches a given schematic by it's id including some additional information
@@ -1050,6 +1258,74 @@ export interface paths {
         200: {
           content: {
             "application/json; charset=utf-8": components["schemas"]["Comment"];
+          };
+        };
+        400: {
+          content: never;
+        };
+        401: {
+          content: never;
+        };
+        /**
+         * @description Return `403 Forbidden`, for when the user may have a valid
+         * session and permissions but has an active timeout, returning
+         * how long it is for and the reason why. If the duration is
+         * not given then the timeout is permanent
+         */
+        403: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["Punishment"];
+          };
+        };
+        404: {
+          content: never;
+        };
+        /**
+         * @description Return `422 Unprocessable Entity`
+         *
+         * This also serializes the `errors` map provided to JSON
+         */
+        422: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["EntityErrors"];
+          };
+        };
+        /**
+         * @description Return `500 Internal Server Error`
+         *
+         * This should generally be called implicity by another
+         * error see implementation bellow
+         */
+        500: {
+          content: never;
+        };
+      };
+    };
+  };
+  "/v1/comments/{comment_id}/replies": {
+    /**
+     * Fetches up to a given number of comments that are in reply to a given
+     * pareent comment as well as additional information about the comments
+     * author such as there name and avatar. If no offset is given it will
+     * default to 0, similarly if no limit is given it will default to 20. THe
+     * maximum limit is 50.
+     * @description Note that comment bodies can contain markdown which will need to be
+     * handled accordingly
+     */
+    get: {
+      parameters: {
+        query?: {
+          limit?: number;
+          offset?: number;
+        };
+        path: {
+          comment_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json; charset=utf-8": components["schemas"]["FullComment"][];
           };
         };
         400: {
@@ -2446,6 +2722,8 @@ export interface paths {
       requestBody: {
         content: {
           "multipart/form-data": {
+            /** Format: date-time */
+            created_at: string;
             /** Format: uuid */
             schematic_id: string;
           };
@@ -2511,6 +2789,8 @@ export interface paths {
       requestBody: {
         content: {
           "multipart/form-data": {
+            /** Format: date-time */
+            created_at: string;
             /** Format: uuid */
             schematic_id: string;
           };
@@ -3460,8 +3740,14 @@ export interface components {
       /** Format: uuid */
       user_id: string;
       is_private: boolean;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at?: string;
     };
     CollectionEntry: {
+      /** Format: date-time */
+      created_at: string;
       /** Format: uuid */
       schematic_id: string;
     };
@@ -3474,6 +3760,10 @@ export interface components {
       comment_author: string;
       comment_body: string;
       schematic_id: string;
+      /** Format: date-time */
+      updated_at?: string;
+      /** Format: date-time */
+      created_at: string;
     };
     CurrentUser: {
       /** Format: uuid */
@@ -3484,6 +3774,10 @@ export interface components {
       about?: string;
       role: components["schemas"]["Role"];
       email?: string;
+      /** Format: date-time */
+      updated_at?: string;
+      /** Format: date-time */
+      created_at: string;
     };
     EntityErrors: {
       /**
@@ -3510,6 +3804,10 @@ export interface components {
       username: string;
       avatar?: string;
       entries: string[];
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at?: string;
     };
     FullComment: {
       /** Format: uuid */
@@ -3521,6 +3819,12 @@ export interface components {
       comment_body: string;
       schematic_id: string;
       author_username: string;
+      author_displayname?: string;
+      author_avatar?: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at?: string;
     };
     FullReport: {
       /** Format: uuid */
@@ -3559,6 +3863,10 @@ export interface components {
       /** Format: int64 */
       create_version_id: number;
       create_version_name: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at?: string;
     };
     FullTag: {
       /** Format: int64 */
@@ -3591,6 +3899,15 @@ export interface components {
       /** Format: int32 */
       curseforge_slug?: number;
       modrinth_slug?: string;
+    };
+    Notification: {
+      /** Format: uuid */
+      notification_id: string;
+      title: string;
+      body: string;
+      link?: string;
+      /** Format: date-time */
+      created_at: string;
     };
     /** @enum {string} */
     OauthProvider: "github" | "microsoft" | "google" | "discord" | "modrinth";
@@ -3626,6 +3943,10 @@ export interface components {
       images: string[];
       /** Format: int64 */
       downloads: number;
+      /** Format: date-time */
+      updated_at?: string;
+      /** Format: date-time */
+      created_at: string;
     };
     /** @enum {string} */
     SortBy: "Downloads" | "Likes" | "CreatedAt";
@@ -3666,6 +3987,10 @@ export interface components {
       avatar?: string;
       about?: string;
       role: components["schemas"]["Role"];
+      /** Format: date-time */
+      updated_at?: string;
+      /** Format: date-time */
+      created_at: string;
     };
     UserCollection: {
       /** Format: uuid */
@@ -3673,6 +3998,10 @@ export interface components {
       collection_name: string;
       is_private: boolean;
       entries: string[];
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at?: string;
     };
   };
   responses: never;
